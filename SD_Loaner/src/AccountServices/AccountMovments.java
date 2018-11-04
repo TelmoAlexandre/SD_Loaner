@@ -5,11 +5,48 @@
  */
 package AccountServices;
 
+import SecureUtils.SecurityUtils;
+import java.security.PrivateKey;
+import java.util.Base64;
+
 /**
  *
  * @author Telmo
  */
 public class AccountMovments extends Service
 {
+    double value;
+    String type;
+    byte[] signature;
+
+    public AccountMovments(double value, String type, byte[] signature)
+    {
+        this.value = value;
+        this.type = type;
+    }
+
+    /**
+     * Assina um movimento de conta.
+     * 
+     * @param pvKey - Chave privada do cliente.
+     * @throws Exception 
+     */
+    public void sign(PrivateKey pvKey) throws Exception
+    {
+        // 
+        byte[] data = (type + value).getBytes();
+
+        signature = SecurityUtils.signRSA(data, pvKey);
+    }
     
+    /**
+     * Valida a integridade do movimento de conta. 
+     * 
+     */
+    @Override
+    public void validate()
+    {
+        
+    }
+
 }

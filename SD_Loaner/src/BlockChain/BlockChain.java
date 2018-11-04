@@ -5,11 +5,21 @@
  */
 package BlockChain;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Telmo
  */
 public class BlockChain
 {
+    public ArrayList<Block> chain;
+
+    public BlockChain()
+    {
+        chain = new ArrayList<>();
+    }
+    
+    
     
 }

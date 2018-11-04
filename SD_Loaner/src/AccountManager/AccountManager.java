@@ -13,7 +13,7 @@ public abstract class AccountManager
 {
 
     /**
-     *
+     * Contem a chave publica do cliente.
      */
     protected String publickKey;
 }

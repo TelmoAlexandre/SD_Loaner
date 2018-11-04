@@ -7,6 +7,8 @@ package AccountManager;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Base64;
 
 /**
  *
@@ -17,7 +19,7 @@ import java.security.NoSuchAlgorithmException;
 public class AccountInformation extends AccountManager
 {
     private final String name;
-    private byte[] passwordHash;
+    private String passwordHash;
 
     public AccountInformation(String name, String publickKey)
     {
@@ -40,13 +42,34 @@ public class AccountInformation extends AccountManager
                 .getInstance("SHA-512");
 
         hash.update(password.getBytes());
-        passwordHash = hash.digest();
+        passwordHash = Base64.getEncoder().encodeToString(hash.digest());
     }
 
     /**
-     * Retorna a chave pública do cliente.
-     *      * 
-     * @return 
+     * Compara o hash da password de login com o hash guardado quando a password foi definida.
+     * <p>O booleano resultanto deste método informa se a autenticação do cliente é bem sucedida.
+     * 
+     * @param password
+     * @return booleano que informa se a autenticação do cliente é bem sucedida.
+     * @throws NoSuchAlgorithmException 
+     */
+    public boolean authenticateLogin(String password) throws NoSuchAlgorithmException
+    {
+        // Criar um hash (SHA-512) da password introduzida no login
+        MessageDigest hash = MessageDigest
+                .getInstance("SHA-512");
+        hash.update(password.getBytes());
+
+        // Transforma a passoword login recebida por paramêtro num hash.
+        // Transforma o hash num Base64 e compara com o atributo passwordHash que guarda o hash da password quando esta foi definida.
+        // Devolve o resultado do booleano da condição.
+        return (Base64.getEncoder().encodeToString(hash.digest()).equals(passwordHash));
+    }
+
+    /**
+     * Retorna a chave pública do cliente. 
+     * 
+     * @return publickKey
      */
     public String getPublickKey()
     {
@@ -55,8 +78,8 @@ public class AccountInformation extends AccountManager
 
     /**
      * Retorna o nome do cliente.
-     * 
-     * @return 
+     *
+     * @return name
      */
     public String getName()
     {

@@ -15,7 +15,8 @@ public class tests
 {
     public static void main(String[] args)
     {
-        /*AccountInformation test = new AccountInformation("Telmo", "publickey");
-        System.out.println("Nome: " + test.getName() + "\nPublicKey: " + test.getPublickKey());*/
+        AccountInformation test = new AccountInformation("Telmo", "publickey");
+        
+        
     }
 }

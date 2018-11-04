@@ -5,12 +5,16 @@
  */
 package AccountServices;
 
-import AccountManager.AccountInformation;
-
 /**
  *
  * @author Telmo
  */
 public class Loan extends Service
 {
+    @Override
+    public void validate()
+    {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

@@ -5,11 +5,19 @@
  */
 package BlockChain;
 
+import AccountManager.AccountManager;
+
 /**
  *
  * @author Telmo
  */
 public class Block
 {
+    AccountManager message;
+
+    public Block(AccountManager message)
+    {
+        this.message = message;
+    }
     
 }
