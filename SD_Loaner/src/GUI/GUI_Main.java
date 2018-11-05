@@ -13,7 +13,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -29,7 +28,7 @@ public class GUI_Main extends javax.swing.JFrame
     /**
      * Creates new form GUI
      */
-    public GUI_Main()
+    public GUI_Main()  
     {
         initComponents();
 
@@ -42,7 +41,7 @@ public class GUI_Main extends javax.swing.JFrame
             jtaLedger.setText(accounts.toString());
 
         }
-        catch ( NoSuchAlgorithmException ex )
+        catch ( Exception ex )
         {
             jlFeedback.setText(ex.getMessage());
         }
@@ -437,7 +436,10 @@ public class GUI_Main extends javax.swing.JFrame
                 {
                     if ( bc.chain.get(0).comparePublicKey(publickKey) )
                     {
-                        AccountMovments deposit = new AccountMovments(publickKey, amount, "Deposit");
+                        AccountMovments deposit = new AccountMovments(
+                                SecurityUtils.loadB64Key(publickKey, "RSA"), 
+                                amount, 
+                                "Deposit");
                         deposit.sign(privateKey);
                         bc.add(deposit);
                         found = !found;
@@ -482,6 +484,7 @@ public class GUI_Main extends javax.swing.JFrame
                 PrivateKey privateKey = (PrivateKey) SecurityUtils.getPrivateKey(privateKeyBytes);
 
                 String publickKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDtcERsbYsU4ThzKETVaGLcHmXoKesdMhzZoe9bOVJ8wSioWaV92NjGDQUezMvbZM2ZAferjSWF47vqm/r63iDB2nxH0dpZL0qB+pI8BvGhdIin5+8RXtkEHi68mCtzGwS+22eUjwg5veVQDW+vGpg5b8KJW9HsUiDcnjwCVhehwIDAQAB";
+                
                 Double amount = 4.0;
 
                 boolean found = false;
@@ -490,7 +493,11 @@ public class GUI_Main extends javax.swing.JFrame
                 {
                     if ( bc.chain.get(0).comparePublicKey(publickKey) )
                     {
-                        AccountMovments deposit = new AccountMovments(publickKey, amount, "Withdrawal");
+                        AccountMovments deposit = new AccountMovments(
+                                SecurityUtils.loadB64Key(publickKey, "RSA"), 
+                                amount, 
+                                "Withdrawal");
+                        
                         deposit.sign(privateKey);
                         bc.add(deposit);
                         found = !found;

@@ -5,19 +5,22 @@
  */
 package AccountServices;
 
+import BlockChain.BlockChain;
+import java.security.Key;
+
 /**
  *
  * @author Telmo
  */
 public class Loan extends Service
 {
-    public Loan(String publicKey)
+    public Loan(Key publicKey)
     {
         super(publicKey);
     }
     
     @Override
-    public void validate()
+    public boolean validate(BlockChain bc) throws Exception
     {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

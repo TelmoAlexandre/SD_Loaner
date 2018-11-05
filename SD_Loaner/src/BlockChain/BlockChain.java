@@ -6,6 +6,8 @@
 package BlockChain;
 
 import AccountManager.AccountManager;
+import AccountServices.AccountMovments;
+import AccountServices.Service;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
@@ -29,12 +31,19 @@ public class BlockChain
         chain.add(block);
     }
     
-    public void add(AccountManager message) throws NoSuchAlgorithmException, InterruptedException
+    public void add(AccountManager message) throws Exception
     {
         // Cria o primeiro bloco assim que um objeto BlockChain for criado.
-        Block block = new Block(null, message);
-        block.mine();
-        chain.add(block);
+        Block b = new Block(null, message);
+        Service msg = (Service)b.message;
+        if (msg.validate(this))
+        {
+            b.mine();
+            chain.add(b);
+        } else
+        {
+            throw new RuntimeException("Not enough coins to complete the transaction.");
+        }
     }
     
     /**

@@ -8,6 +8,7 @@ package AccountServices;
 import AccountManager.AccountManager;
 import BlockChain.Block;
 import BlockChain.BlockChain;
+import java.security.Key;
 
 /**
  *
@@ -16,12 +17,12 @@ import BlockChain.BlockChain;
 public abstract class Service extends AccountManager
 {
     
-    public Service (String publicKey)
+    public Service (Key publicKey)
     {
         super(publicKey);
     }
     
-    public abstract void validate();
+    public abstract boolean validate(BlockChain bc) throws Exception;
     
     /**
      * Corre a Block Chain toda e retorna o dinheiro resultante.

@@ -17,7 +17,7 @@ public class Accounts
 {
     public ArrayList<BlockChain> accounts;
 
-    public Accounts() throws NoSuchAlgorithmException
+    public Accounts() throws NoSuchAlgorithmException, InterruptedException, Exception
     {
         accounts = new ArrayList<>();
         
@@ -28,14 +28,15 @@ public class Accounts
     /**
      * Cria a conta do primeiro cliente.
      * 
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
+     * @throws InterruptedException
      */
-    private void createFirstClientAccount() throws NoSuchAlgorithmException
+    private void createFirstClientAccount() throws NoSuchAlgorithmException, InterruptedException, Exception
     {
         // Cria a informação do primeiro cliente
         AccountInformation clientInfo = new AccountInformation(
                 "Telmo Alexandre", // Nome do cliente
-                "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDtcERsbYsU4ThzKETVaGLcHmXoKesdMhzZoe9bOVJ8wSioWaV92NjGDQUezMvbZM2ZAferjSWF47vqm/r63iDB2nxH0dpZL0qB+pI8BvGhdIin5+8RXtkEHi68mCtzGwS+22eUjwg5veVQDW+vGpg5b8KJW9HsUiDcnjwCVhehwIDAQAB", // Chave pública do cliente
+                SecureUtils.SecurityUtils.loadB64Key("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDtcERsbYsU4ThzKETVaGLcHmXoKesdMhzZoe9bOVJ8wSioWaV92NjGDQUezMvbZM2ZAferjSWF47vqm/r63iDB2nxH0dpZL0qB+pI8BvGhdIin5+8RXtkEHi68mCtzGwS+22eUjwg5veVQDW+vGpg5b8KJW9HsUiDcnjwCVhehwIDAQAB", "RSA"),
                 "123qwe" // Password do cliente
         );
         

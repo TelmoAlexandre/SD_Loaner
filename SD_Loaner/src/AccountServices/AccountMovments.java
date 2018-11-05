@@ -5,8 +5,12 @@
  */
 package AccountServices;
 
+import BlockChain.BlockChain;
 import SecureUtils.SecurityUtils;
+import java.security.Key;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.Base64;
 
 /**
  *
@@ -18,7 +22,7 @@ public class AccountMovments extends Service
     String type;
     byte[] signature;
 
-    public AccountMovments(String publicKey, double value, String type)
+    public AccountMovments(Key publicKey, double value, String type)
     {
         super(publicKey);
         this.amount = value;
@@ -33,7 +37,10 @@ public class AccountMovments extends Service
      */
     public void sign(PrivateKey pvKey) throws Exception
     {
-        byte[] data = (publickKey + amount).getBytes();
+        byte[] data = 
+                (Base64.getEncoder().encodeToString(publicKey.getEncoded()) + 
+                amount
+                ).getBytes();
 
         signature = SecurityUtils.signRSA(data, pvKey);
     }
@@ -41,13 +48,34 @@ public class AccountMovments extends Service
     /**
      * Valida a integridade do movimento de conta. 
      * 
+     * @param bc
+     * @return 
+     * @throws java.lang.Exception
      */
     @Override
-    public void validate()
+    public boolean validate(BlockChain bc) throws Exception
     {
-        
+        if(type.equals("Deposite")){
+            return verifySignature();
+        }
+        else
+        {
+            return verifySignature();
+        }
     }
 
+    public boolean verifySignature() throws Exception{
+        byte[] data = 
+                (Base64.getEncoder().encodeToString(publicKey.getEncoded()) + 
+                amount
+                ).getBytes();
+        
+        return SecurityUtils.verifyRSA(
+                data, 
+                signature,
+                (PublicKey)SecurityUtils.getPublicKey(Base64.getEncoder().encodeToString(publicKey.getEncoded()))
+                );
+    }
     
     @Override
     public String toString()

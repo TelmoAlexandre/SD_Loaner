@@ -5,6 +5,8 @@
  */
 package AccountManager;
 
+import java.security.Key;
+
 /**
  *
  * @author Telmo
@@ -15,14 +17,14 @@ public abstract class AccountManager
     /**
      * Contem a chave publica do cliente.
      */
-    protected String publickKey;
+    protected Key publicKey;
     
-    protected AccountManager (String publicKey){
-        this.publickKey = publicKey;
+    protected AccountManager (Key publicKey){
+        this.publicKey = publicKey;
     }
     
-    protected String getPublicKey(){
-        return publickKey;
+    protected Key getPublicKey(){
+        return publicKey;
     }
     
     /**
@@ -33,6 +35,6 @@ public abstract class AccountManager
      */
     public boolean comparePublicKeys(String pbK)
     {
-        return (pbK.equals(publickKey));
+        return (pbK.equals(publicKey));
     }
 }

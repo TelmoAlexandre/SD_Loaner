@@ -5,6 +5,7 @@
  */
 package AccountManager;
 
+import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -20,7 +21,7 @@ public class AccountInformation extends AccountManager
     private final String name;
     private String passwordHash;
 
-    public AccountInformation(String name, String publickKey, String password) throws NoSuchAlgorithmException
+    public AccountInformation(String name, Key publickKey, String password) throws NoSuchAlgorithmException
     {
         // publicKey
         super(publickKey);
@@ -67,17 +68,7 @@ public class AccountInformation extends AccountManager
         return (Base64.getEncoder().encodeToString(hash.digest()).equals(passwordHash));
     }
 
-    /**
-     * Retorna a chave pública do cliente. 
-     * 
-     * @return publickKey
-     */
-    public String getPublickKey()
-    {
-        return publickKey;
-    }
-
-    /**
+     /**
      * Retorna o nome do cliente.
      *
      * @return name
