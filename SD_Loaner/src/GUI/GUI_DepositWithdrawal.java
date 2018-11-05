@@ -20,7 +20,7 @@ import javax.swing.JFileChooser;
  */
 public class GUI_DepositWithdrawal extends javax.swing.JFrame
 {
-    private Key pbK;
+    private Key publicKey;
     /**
      * Creates new form GUI_DepositWithdrawal
      */
@@ -70,7 +70,7 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
 
         jLabel3.setText("Password:");
 
-        jbConfirm.setText("Confirm");
+        jbConfirm.setText("Confirm and Sign");
         jbConfirm.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -96,25 +96,24 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jlFeedback)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jlFeedback)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jSeparator1)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addComponent(jbConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jbCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jpfPassword)
+                        .addComponent(jLabel1)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel2)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jbLoadPublicKey, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jLabel3)
+                        .addComponent(jtfAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jpfPassword)
-                    .addComponent(jLabel1)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbLoadPublicKey, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jLabel3)
-                    .addComponent(jtfAmount)
-                    .addComponent(jSeparator1)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jbConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -157,7 +156,7 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
         // Recolhe a quantidade a transferir
         GUI_Main.amount = Double.valueOf(jtfAmount.getText());
         // Recolhe a chave pública do cliente
-        GUI_Main.pbK = this.pbK;
+        GUI_Main.publicKey = this.publicKey;
         
         // Transforma a password num hash
         try
@@ -165,7 +164,9 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
             MessageDigest hash;
             hash = MessageDigest
                     .getInstance("SHA-512");
-            hash.update(jpfPassword.getText().getBytes());
+            hash.update(
+                    new String(jpfPassword.getPassword()).getBytes()
+            );
             
             // Guarda o hash da password no atributo estático do GUI_Main
             GUI_Main.passwordHash = Base64.getEncoder().encodeToString(hash.digest());
@@ -188,7 +189,7 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
         {
             try
             {
-                pbK = SecurityUtils.loadKey(file.getSelectedFile().getAbsolutePath(), "RSA");
+                publicKey = SecurityUtils.loadKey(file.getSelectedFile().getAbsolutePath(), "RSA");
             } catch ( IOException ex )
             {
                 jlFeedback.setText(ex.getMessage());

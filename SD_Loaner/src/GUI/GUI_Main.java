@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -29,10 +30,12 @@ import javax.swing.JOptionPane;
 public class GUI_Main extends javax.swing.JFrame
 {
     Accounts accounts;
-    Key publickKey;
     public static double amount;
-    public static Key pbK;
+    public static Key publicKey;
     public static String passwordHash;
+    
+    // Manager das GUIs
+    GUI_Manager manager;
 
     /**
      * Creates new form GUI
@@ -41,6 +44,8 @@ public class GUI_Main extends javax.swing.JFrame
     {
         initComponents();
 
+        manager = new GUI_Manager(this);
+        
         // Centra a janela
         this.setLocationRelativeTo(null);
 
@@ -48,10 +53,6 @@ public class GUI_Main extends javax.swing.JFrame
         {
             accounts = new Accounts();
             jtaLedger.setText(accounts.toString());
-
-            publickKey = SecurityUtils.loadB64Key(
-                    "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDtcERsbYsU4ThzKETVaGLcHmXoKesdMhzZoe9bOVJ8wSioWaV92NjGDQUezMvbZM2ZAferjSWF47vqm/r63iDB2nxH0dpZL0qB+pI8BvGhdIin5+8RXtkEHi68mCtzGwS+22eUjwg5veVQDW+vGpg5b8KJW9HsUiDcnjwCVhehwIDAQAB",
-                    "RSA");
         }
         catch ( Exception ex )
         {
@@ -104,6 +105,13 @@ public class GUI_Main extends javax.swing.JFrame
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Consult"));
 
         jbCheckClientAccounts.setText("Client Accounts");
+        jbCheckClientAccounts.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbCheckClientAccountsActionPerformed(evt);
+            }
+        });
 
         jbCheckLoans.setText("Loans");
 
@@ -381,7 +389,10 @@ public class GUI_Main extends javax.swing.JFrame
             keys = SecurityUtils.generateKeyPair(1024);
 
             // Mostra uma janela ao utilizador a informar sobre os seguintes procedimentos.
-            JOptionPane.showMessageDialog(null, "Two keys were generated for you.\n\nFirst save the public key.\nThen save the private key.");
+            JOptionPane.showMessageDialog(
+                    null, 
+                    "Two keys were generated for you.\n\nFirst save the public key.\nThen save the private key."
+            );
 
             // Configurações JFileChooser
             JFileChooser file = new JFileChooser();
@@ -412,14 +423,19 @@ public class GUI_Main extends javax.swing.JFrame
                 if ( i == JFileChooser.APPROVE_OPTION )
                 {
                     // Caso seja clicado no butao save da janela, guardar a chave privada na localização escolhida
-                    SecurityUtils.saveKey(keys.getPrivate(), file.getSelectedFile().getAbsolutePath());
+                    SecurityUtils.saveKey(
+                            keys.getPrivate(), 
+                            file.getSelectedFile().getAbsolutePath()
+                    );
                 }
             }
 
         }
         catch ( Exception e )
         {
-            giveAlertFeedback(e.getMessage());
+            giveAlertFeedback(
+                    e.getMessage()
+            );
         }
 
     }//GEN-LAST:event_jbGenerateRSAKeysActionPerformed
@@ -443,12 +459,24 @@ public class GUI_Main extends javax.swing.JFrame
             @Override
             public void windowClosed(WindowEvent e)
             {
-                performAccountMovment("Deposit");
+                // Chama o método que irá criar o movimento de conta
+                try
+                {
+                    performAccountMovment(
+                            "Deposit",
+                            askForPrivateKey()
+                    );
+                }
+                catch ( NoSuchAlgorithmException ex )
+                {
+                    giveAlertFeedback(
+                            ex.getMessage()
+                    );
+                }
             }
 
         });
 
-        //performAccountMovment("Deposit");
     }//GEN-LAST:event_jbDepositActionPerformed
 
     private void jbWithdrawalActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbWithdrawalActionPerformed
@@ -463,7 +491,21 @@ public class GUI_Main extends javax.swing.JFrame
             @Override
             public void windowClosed(WindowEvent e)
             {
-                performAccountMovment("Withdrawal");
+
+                // Chama o método que irá criar o movimento de conta
+                try
+                {
+                    performAccountMovment(
+                            "Withdrawal",
+                            askForPrivateKey()
+                    );
+                }
+                catch ( NoSuchAlgorithmException ex )
+                {
+                    giveAlertFeedback(
+                            ex.getMessage()
+                    );
+                }
             }
 
         });
@@ -472,22 +514,107 @@ public class GUI_Main extends javax.swing.JFrame
     private void jbCheckMoneyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckMoneyActionPerformed
     {//GEN-HEADEREND:event_jbCheckMoneyActionPerformed
 
-        // Booleano para verificar se foi encontrada a conta do cliente.
+        GUI_CheckMyMoney cmm = new GUI_CheckMyMoney();
+        cmm.setVisible(true);
+        cmm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        cmm.addWindowListener(new java.awt.event.WindowAdapter()
+        {
+            @Override
+            public void windowClosed(WindowEvent e)
+            {
+
+                // Booleano para verificar se foi encontrada a conta do cliente.
+                boolean found = false;
+
+                for ( BlockChain bc : accounts.accounts )
+                {
+                    // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
+                    AccountInformation info = (AccountInformation) bc.chain.get(0).message;
+
+                    if ( info.comparePublicKeys(publicKey) )
+                    {
+                        // Verifica o dineiro do cliente.
+                        // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
+                        // as informações do cliente, com o dinheiro total da conta do cliente.
+                        AccountMovment.getMyMoney(bc);
+                        jtaLedger.setText(accounts.toString());
+                        found = !found;
+                        break;
+                    }
+                }
+
+                if ( !found )
+                {
+                    giveAlertFeedback("Account not found.");
+                }
+
+            }
+        });
+
+
+    }//GEN-LAST:event_jbCheckMoneyActionPerformed
+
+    private void jbCheckClientAccountsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckClientAccountsActionPerformed
+    {//GEN-HEADEREND:event_jbCheckClientAccountsActionPerformed
+        jtaLedger.setText("");
+    }//GEN-LAST:event_jbCheckClientAccountsActionPerformed
+
+    public void performAccountMovment(String type, PrivateKey pvK) throws NoSuchAlgorithmException
+    {
+
         boolean found = false;
 
         for ( BlockChain bc : accounts.accounts )
         {
+
             // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
             AccountInformation info = (AccountInformation) bc.chain.get(0).message;
 
-            if ( info.comparePublicKeys(publickKey) )
+            // Verifica se se trata da block chain do cliente em questão
+            if ( info.comparePublicKeys(publicKey) )
             {
-                // Verifica o dineiro do cliente.
-                // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
-                // as informações do cliente, com o dinheiro total da conta do cliente.
-                AccountMovment.getMyMoney(bc);
-                jtaLedger.setText(accounts.toString());
+                // Assinala que encontrou a conta do cliente
                 found = !found;
+
+                // Verifica a password do cliente
+                if ( info.authenticateLogin(passwordHash) )
+                {
+                    // Chegando aqui, existe certeza que se trata do cliente em questão
+
+                    // É criado o movimento de conta
+                    AccountMovment mov = new AccountMovment(
+                            publicKey,
+                            amount,
+                            type);
+
+                    try
+                    {
+                        // Assina o movimento
+                        mov.sign(pvK);
+
+                        // Adiciona o movimento de conta à block chain do cliente
+                        bc.add(mov);
+                    }
+                    catch ( Exception ex )
+                    {
+                        giveAlertFeedback(ex.getMessage());
+                    }
+
+                    // Verifica o dineiro do cliente.
+                    // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
+                    // as informações do cliente, com o dinheiro total da conta do cliente.
+                    AccountMovment.getMyMoney(bc);
+
+                    // Dá feedback ao cliente
+                    giveNormalFeedback(type + " completed with success.");
+
+                }
+                else
+                {
+                    giveAlertFeedback("Wrong passoword.");
+                }
+
                 break;
             }
         }
@@ -497,9 +624,10 @@ public class GUI_Main extends javax.swing.JFrame
             giveAlertFeedback("Account not found.");
         }
 
-    }//GEN-LAST:event_jbCheckMoneyActionPerformed
+        jtaLedger.setText(accounts.toString());
+    }
 
-    public void performAccountMovment(String type)
+    public PrivateKey askForPrivateKey()
     {
         try
         {
@@ -510,79 +638,23 @@ public class GUI_Main extends javax.swing.JFrame
             {
                 byte[] privateKeyBytes = Files.readAllBytes(Paths.get(file.getSelectedFile().getAbsolutePath()));
                 PrivateKey privateKey = (PrivateKey) SecurityUtils.getPrivateKey(privateKeyBytes);
-
-                boolean found = false;
-
-                for ( BlockChain bc : accounts.accounts )
-                {
-
-                    // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
-                    AccountInformation info = (AccountInformation) bc.chain.get(0).message;
-
-                    // Verifica se se trata da block chain do cliente em questão
-                    if ( info.comparePublicKeys(publickKey) )
-                    {
-                        // Assinala que encontrou a conta do cliente
-                        found = !found;
-                        
-                        // Verifica a password do cliente
-                        if ( info.authenticateLogin(passwordHash) )
-                        {
-                            // Chegando aqui, existe certeza que se trata do cliente em questão
-
-                            // É criado o movimento de conta
-                            AccountMovment mov = new AccountMovment(
-                                    publickKey,
-                                    amount,
-                                    type);
-
-                            // Assina o movimento
-                            mov.sign(privateKey);
-                            
-                            // Adiciona o movimento de conta à block chain do cliente
-                            bc.add(mov);
-
-                            // Verifica o dineiro do cliente.
-                            // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
-                            // as informações do cliente, com o dinheiro total da conta do cliente.
-                            AccountMovment.getMyMoney(bc);
-
-                            // Dá feedback ao cliente
-                            giveNormalFeedback(type + " completed with success.");
-                            
-                            
-                        }
-                        else
-                        {
-                            giveAlertFeedback("Wrong passoword.");
-                        }
-
-                        break;
-                    }
-                }
-
-                if ( !found )
-                {
-                    giveAlertFeedback("Account not found.");
-                }
-
-                jtaLedger.setText(accounts.toString());
+                return privateKey;
             }
-
         }
-        catch ( Exception e )
+        catch ( Exception ex )
         {
-            jlFeedback.setText(e.getMessage());
-            jlFeedback.setForeground(Color.red);
+            giveAlertFeedback(ex.getMessage());
         }
+
+        return null;
     }
-    
+
     public void giveNormalFeedback(String feedback)
     {
         jlFeedback.setText(feedback);
         jlFeedback.setForeground(Color.black);
     }
-    
+
     public void giveAlertFeedback(String feedback)
     {
         jlFeedback.setText(feedback);
@@ -607,24 +679,32 @@ public class GUI_Main extends javax.swing.JFrame
                 {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         }
         catch ( ClassNotFoundException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_Main.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         }
         catch ( InstantiationException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_Main.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         }
         catch ( IllegalAccessException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_Main.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         }
         catch ( javax.swing.UnsupportedLookAndFeelException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_Main.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
         //</editor-fold>

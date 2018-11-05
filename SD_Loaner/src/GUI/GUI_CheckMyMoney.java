@@ -5,12 +5,22 @@
  */
 package GUI;
 
+import SecureUtils.SecurityUtils;
+import java.io.File;
+import java.io.IOException;
+import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import javax.swing.JFileChooser;
+
 /**
  *
  * @author Telmo
  */
 public class GUI_CheckMyMoney extends javax.swing.JFrame
 {
+    private Key publicKey;
 
     /**
      * Creates new form GUI_CheckMyMoney
@@ -18,7 +28,7 @@ public class GUI_CheckMyMoney extends javax.swing.JFrame
     public GUI_CheckMyMoney()
     {
         initComponents();
-        
+
         // Centra a janela
         this.setLocationRelativeTo(null);
     }
@@ -49,6 +59,13 @@ public class GUI_CheckMyMoney extends javax.swing.JFrame
         jLabel1.setText("Public Key:");
 
         jbLoadPublicKey.setText("Load");
+        jbLoadPublicKey.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbLoadPublicKeyActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("Password:");
 
@@ -119,17 +136,60 @@ public class GUI_CheckMyMoney extends javax.swing.JFrame
 
     private void jbConfirmActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbConfirmActionPerformed
     {//GEN-HEADEREND:event_jbConfirmActionPerformed
-        
-        
+
+        // Recolhe a chave pública do cliente
+        GUI_Main.publicKey = this.publicKey;
+
+        // Transforma a password num hash
+        try
+        {
+            MessageDigest hash;
+            hash = MessageDigest
+                    .getInstance("SHA-512");
+            hash.update(
+                    new String(jpfPassword.getPassword()).getBytes()
+            );
+
+            // Guarda o hash da password no atributo estático do GUI_Main
+            GUI_Main.passwordHash = Base64.getEncoder().encodeToString(hash.digest());
+        }
+        catch ( NoSuchAlgorithmException ex )
+        {
+            jlFeedback.setText(ex.getMessage());
+        }
+
         this.setVisible(false);
         dispose();
+
     }//GEN-LAST:event_jbConfirmActionPerformed
 
     private void jbCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCancelActionPerformed
     {//GEN-HEADEREND:event_jbCancelActionPerformed
+
         this.setVisible(false);
         dispose();
+
     }//GEN-LAST:event_jbCancelActionPerformed
+
+    private void jbLoadPublicKeyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbLoadPublicKeyActionPerformed
+    {//GEN-HEADEREND:event_jbLoadPublicKeyActionPerformed
+
+        JFileChooser file = new JFileChooser();
+        file.setCurrentDirectory(new File("."));
+        int i = file.showOpenDialog(null);
+        if ( i == JFileChooser.APPROVE_OPTION )
+        {
+            try
+            {
+                publicKey = SecurityUtils.loadKey(file.getSelectedFile().getAbsolutePath(), "RSA");
+            }
+            catch ( IOException ex )
+            {
+                jlFeedback.setText(ex.getMessage());
+            }
+        }
+
+    }//GEN-LAST:event_jbLoadPublicKeyActionPerformed
 
     /**
      * @param args the command line arguments
