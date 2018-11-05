@@ -55,21 +55,13 @@ public class AccountInformation extends AccountManager
      * O booleano resultanto deste método informa se a autenticação do cliente é
      * bem sucedida.
      *
-     * @param password
+     * @param passwordHash
      * @return booleano que informa se a autenticação do cliente é bem sucedida.
      * @throws NoSuchAlgorithmException
      */
-    public boolean authenticateLogin(String password) throws NoSuchAlgorithmException
+    public boolean authenticateLogin(String passwordHash) throws NoSuchAlgorithmException
     {
-        // Criar um hash (SHA-512) da password introduzida no login
-        MessageDigest hash = MessageDigest
-                .getInstance("SHA-512");
-        hash.update(password.getBytes());
-
-        // Transforma a passoword login recebida por paramêtro num hash.
-        // Transforma o hash num Base64 e compara com o atributo passwordHash que guarda o hash da password quando esta foi definida.
-        // Devolve o resultado do booleano da condição.
-        return (Base64.getEncoder().encodeToString(hash.digest()).equals(passwordHash));
+        return (this.passwordHash.equals(passwordHash));
     }
 
     /**

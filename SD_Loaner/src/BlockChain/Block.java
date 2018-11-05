@@ -71,17 +71,6 @@ public class Block
     }
     
     /**
-     * Compara a public key recibida por parametro com a public key do message do bloco.
-     * 
-     * @param pbK
-     * @return 
-     */
-    public boolean comparePublicKey(Key pbK)
-    {
-        return message.comparePublicKeys(pbK);
-    }
-    
-    /**
      * Mina a transação.
      *
      * @throws java.lang.InterruptedException

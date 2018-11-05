@@ -5,11 +5,13 @@
  */
 package GUI;
 
+import AccountManager.AccountInformation;
 import AccountServices.AccountMovment;
 import BlockChain.Accounts;
 import BlockChain.BlockChain;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -17,6 +19,7 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
@@ -27,7 +30,9 @@ public class GUI_Main extends javax.swing.JFrame
 {
     Accounts accounts;
     Key publickKey;
-    Double amount = 4.0;
+    public static double amount;
+    public static Key pbK;
+    public static String passwordHash;
 
     /**
      * Creates new form GUI
@@ -406,7 +411,6 @@ public class GUI_Main extends javax.swing.JFrame
 
                 if ( i == JFileChooser.APPROVE_OPTION )
                 {
-
                     // Caso seja clicado no butao save da janela, guardar a chave privada na localização escolhida
                     SecurityUtils.saveKey(keys.getPrivate(), file.getSelectedFile().getAbsolutePath());
                 }
@@ -415,7 +419,7 @@ public class GUI_Main extends javax.swing.JFrame
         }
         catch ( Exception e )
         {
-            jlFeedback.setText(e.getMessage());
+            giveAlertFeedback(e.getMessage());
         }
 
     }//GEN-LAST:event_jbGenerateRSAKeysActionPerformed
@@ -428,18 +432,41 @@ public class GUI_Main extends javax.swing.JFrame
 
     private void jbDepositActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbDepositActionPerformed
     {//GEN-HEADEREND:event_jbDepositActionPerformed
-//        GUI_DepositWithdrawal deposit = new GUI_DepositWithdrawal();
-//        deposit.setVisible(true);
 
-        performAccountMovment("Deposit");
+        GUI_DepositWithdrawal deposit = new GUI_DepositWithdrawal();
+        deposit.setVisible(true);
+        deposit.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Aguarda que o jframe seja fechado
+        deposit.addWindowListener(new java.awt.event.WindowAdapter()
+        {
+            @Override
+            public void windowClosed(WindowEvent e)
+            {
+                performAccountMovment("Deposit");
+            }
+
+        });
+
+        //performAccountMovment("Deposit");
     }//GEN-LAST:event_jbDepositActionPerformed
 
     private void jbWithdrawalActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbWithdrawalActionPerformed
     {//GEN-HEADEREND:event_jbWithdrawalActionPerformed
-//        GUI_DepositWithdrawal withdrawal = new GUI_DepositWithdrawal();
-//        withdrawal.setVisible(true);
+        GUI_DepositWithdrawal withdrawal = new GUI_DepositWithdrawal();
+        withdrawal.setVisible(true);
+        withdrawal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        performAccountMovment("Withdrawal");
+        // Aguarda que o jframe seja fechado
+        withdrawal.addWindowListener(new java.awt.event.WindowAdapter()
+        {
+            @Override
+            public void windowClosed(WindowEvent e)
+            {
+                performAccountMovment("Withdrawal");
+            }
+
+        });
     }//GEN-LAST:event_jbWithdrawalActionPerformed
 
     private void jbCheckMoneyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckMoneyActionPerformed
@@ -450,7 +477,10 @@ public class GUI_Main extends javax.swing.JFrame
 
         for ( BlockChain bc : accounts.accounts )
         {
-            if ( bc.chain.get(0).comparePublicKey(publickKey) )
+            // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
+            AccountInformation info = (AccountInformation) bc.chain.get(0).message;
+
+            if ( info.comparePublicKeys(publickKey) )
             {
                 // Verifica o dineiro do cliente.
                 // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
@@ -464,7 +494,7 @@ public class GUI_Main extends javax.swing.JFrame
 
         if ( !found )
         {
-            jlFeedback.setText("Account not found.");
+            giveAlertFeedback("Account not found.");
         }
 
     }//GEN-LAST:event_jbCheckMoneyActionPerformed
@@ -485,29 +515,55 @@ public class GUI_Main extends javax.swing.JFrame
 
                 for ( BlockChain bc : accounts.accounts )
                 {
-                    if ( bc.chain.get(0).comparePublicKey(publickKey) )
-                    {
-                        AccountMovment deposit = new AccountMovment(
-                                publickKey,
-                                amount,
-                                type);
 
-                        deposit.sign(privateKey);
-                        bc.add(deposit);
-                        // Verifica o dineiro do cliente.
-                        // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
-                        // as informações do cliente, com o dinheiro total da conta do cliente.
-                        AccountMovment.getMyMoney(bc);
-                        
-                        jlFeedback.setText(type + " completed with success.");
+                    // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
+                    AccountInformation info = (AccountInformation) bc.chain.get(0).message;
+
+                    // Verifica se se trata da block chain do cliente em questão
+                    if ( info.comparePublicKeys(publickKey) )
+                    {
+                        // Assinala que encontrou a conta do cliente
                         found = !found;
+                        
+                        // Verifica a password do cliente
+                        if ( info.authenticateLogin(passwordHash) )
+                        {
+                            // Chegando aqui, existe certeza que se trata do cliente em questão
+
+                            // É criado o movimento de conta
+                            AccountMovment mov = new AccountMovment(
+                                    publickKey,
+                                    amount,
+                                    type);
+
+                            // Assina o movimento
+                            mov.sign(privateKey);
+                            
+                            // Adiciona o movimento de conta à block chain do cliente
+                            bc.add(mov);
+
+                            // Verifica o dineiro do cliente.
+                            // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
+                            // as informações do cliente, com o dinheiro total da conta do cliente.
+                            AccountMovment.getMyMoney(bc);
+
+                            // Dá feedback ao cliente
+                            giveNormalFeedback(type + " completed with success.");
+                            
+                            
+                        }
+                        else
+                        {
+                            giveAlertFeedback("Wrong passoword.");
+                        }
+
                         break;
                     }
                 }
 
                 if ( !found )
                 {
-                    jlFeedback.setText("Account not found.");
+                    giveAlertFeedback("Account not found.");
                 }
 
                 jtaLedger.setText(accounts.toString());
@@ -521,6 +577,18 @@ public class GUI_Main extends javax.swing.JFrame
         }
     }
     
+    public void giveNormalFeedback(String feedback)
+    {
+        jlFeedback.setText(feedback);
+        jlFeedback.setForeground(Color.black);
+    }
+    
+    public void giveAlertFeedback(String feedback)
+    {
+        jlFeedback.setText(feedback);
+        jlFeedback.setForeground(Color.red);
+    }
+
     /**
      * @param args the command line arguments
      */
