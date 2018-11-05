@@ -19,19 +19,21 @@ public class BlockChain
 {
     public ArrayList<Block> chain;
 
-    public BlockChain(AccountManager message) throws NoSuchAlgorithmException
+    public BlockChain(AccountManager message) throws NoSuchAlgorithmException, InterruptedException
     {
         chain = new ArrayList<>();
         
         // Cria o primeiro bloco assim que um objeto BlockChain for criado.
         Block block = new Block(null, message);
+        block.mine();
         chain.add(block);
     }
     
-    public void add(AccountManager message) throws NoSuchAlgorithmException
+    public void add(AccountManager message) throws NoSuchAlgorithmException, InterruptedException
     {
         // Cria o primeiro bloco assim que um objeto BlockChain for criado.
         Block block = new Block(null, message);
+        block.mine();
         chain.add(block);
     }
     

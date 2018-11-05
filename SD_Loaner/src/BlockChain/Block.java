@@ -6,6 +6,7 @@
 package BlockChain;
 
 import AccountManager.AccountManager;
+import Miner.Miner;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -77,5 +78,18 @@ public class Block
     public boolean comparePublicKey(String pbK)
     {
         return message.comparePublicKeys(pbK);
+    }
+    
+    /**
+     * Mina a transação.
+     *
+     * @throws java.lang.InterruptedException
+     */
+    public void mine() throws InterruptedException 
+    {
+        String msg = message.toString() + previousHash;
+        Miner miner = new Miner(msg);
+        hashCode = miner.mine();
+        nounce = miner.getNounce();
     }
 }
