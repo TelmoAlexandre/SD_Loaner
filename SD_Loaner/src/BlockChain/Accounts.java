@@ -81,7 +81,7 @@ public class Accounts
             {
                 // Se entrar aqui, então encontrou a conta do cliente
                 found = true;
-                
+
                 // Caso o utilizador tenha introduzido a sua password correta
                 if ( info.authenticateLogin(passwordHash) )
                 {
@@ -98,7 +98,20 @@ public class Accounts
         {
             throw new RuntimeException("Account not found.");
         }
-        
+
         return "Account not found.";
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder txt = new StringBuilder();
+                
+        for ( BlockChain bc : accounts )
+        {
+            txt.append(bc.chain.get(0).toString()).append("\n\n");
+        }
+
+        return txt.toString();
     }
 }

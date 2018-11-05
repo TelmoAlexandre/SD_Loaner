@@ -110,6 +110,13 @@ public class GUI_Main extends javax.swing.JFrame
         });
 
         jbCheckLoans.setText("Loans");
+        jbCheckLoans.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbCheckLoansActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -341,13 +348,13 @@ public class GUI_Main extends javax.swing.JFrame
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jlFeedback, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jlFeedback, javax.swing.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(jbExit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 579, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -523,8 +530,13 @@ public class GUI_Main extends javax.swing.JFrame
 
     private void jbCheckClientAccountsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckClientAccountsActionPerformed
     {//GEN-HEADEREND:event_jbCheckClientAccountsActionPerformed
-        jtaLedger.setText("");
+        jtaLedger.setText(accounts.toString());
     }//GEN-LAST:event_jbCheckClientAccountsActionPerformed
+
+    private void jbCheckLoansActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckLoansActionPerformed
+    {//GEN-HEADEREND:event_jbCheckLoansActionPerformed
+        jtaLedger.setText("");
+    }//GEN-LAST:event_jbCheckLoansActionPerformed
 
     /**
      * Abre uma nova janela onde o cliente consegue preencher as informações da
