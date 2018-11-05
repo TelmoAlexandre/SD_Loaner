@@ -21,6 +21,7 @@ import javax.swing.JFileChooser;
 public class GUI_CheckMyMoney extends javax.swing.JFrame
 {
     private Key publicKey;
+    private GUI_Main main;
 
     /**
      * Creates new form GUI_CheckMyMoney
@@ -138,20 +139,24 @@ public class GUI_CheckMyMoney extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jbConfirmActionPerformed
 
         // Recolhe a chave pública do cliente
-        GUI_Main.publicKey = this.publicKey;
+        main.setPublicKey(publicKey);
 
         // Transforma a password num hash
         try
         {
             MessageDigest hash;
+
             hash = MessageDigest
                     .getInstance("SHA-512");
+
             hash.update(
                     new String(jpfPassword.getPassword()).getBytes()
             );
 
             // Guarda o hash da password no atributo estático do GUI_Main
-            GUI_Main.passwordHash = Base64.getEncoder().encodeToString(hash.digest());
+            main.setPasswordHash(
+                    Base64.getEncoder().encodeToString(hash.digest())
+            );
         }
         catch ( NoSuchAlgorithmException ex )
         {
@@ -190,6 +195,16 @@ public class GUI_CheckMyMoney extends javax.swing.JFrame
         }
 
     }//GEN-LAST:event_jbLoadPublicKeyActionPerformed
+
+    /**
+     * Permite carregar o objecto GUI_Main.
+     *
+     * @param main
+     */
+    public void passThroughGUI_Main(GUI_Main main)
+    {
+        this.main = main;
+    }
 
     /**
      * @param args the command line arguments

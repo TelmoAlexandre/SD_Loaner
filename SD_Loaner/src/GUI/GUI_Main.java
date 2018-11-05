@@ -30,12 +30,9 @@ import javax.swing.JOptionPane;
 public class GUI_Main extends javax.swing.JFrame
 {
     Accounts accounts;
-    public static double amount;
-    public static Key publicKey;
-    public static String passwordHash;
-    
-    // Manager das GUIs
-    GUI_Manager manager;
+    public double amount;
+    public Key publicKey;
+    public String passwordHash;
 
     /**
      * Creates new form GUI
@@ -44,8 +41,6 @@ public class GUI_Main extends javax.swing.JFrame
     {
         initComponents();
 
-        manager = new GUI_Manager(this);
-        
         // Centra a janela
         this.setLocationRelativeTo(null);
 
@@ -390,7 +385,7 @@ public class GUI_Main extends javax.swing.JFrame
 
             // Mostra uma janela ao utilizador a informar sobre os seguintes procedimentos.
             JOptionPane.showMessageDialog(
-                    null, 
+                    null,
                     "Two keys were generated for you.\n\nFirst save the public key.\nThen save the private key."
             );
 
@@ -424,7 +419,7 @@ public class GUI_Main extends javax.swing.JFrame
                 {
                     // Caso seja clicado no butao save da janela, guardar a chave privada na localização escolhida
                     SecurityUtils.saveKey(
-                            keys.getPrivate(), 
+                            keys.getPrivate(),
                             file.getSelectedFile().getAbsolutePath()
                     );
                 }
@@ -449,75 +444,29 @@ public class GUI_Main extends javax.swing.JFrame
     private void jbDepositActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbDepositActionPerformed
     {//GEN-HEADEREND:event_jbDepositActionPerformed
 
-        GUI_DepositWithdrawal deposit = new GUI_DepositWithdrawal();
-        deposit.setVisible(true);
-        deposit.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        // Aguarda que o jframe seja fechado
-        deposit.addWindowListener(new java.awt.event.WindowAdapter()
-        {
-            @Override
-            public void windowClosed(WindowEvent e)
-            {
-                // Chama o método que irá criar o movimento de conta
-                try
-                {
-                    performAccountMovment(
-                            "Deposit",
-                            askForPrivateKey()
-                    );
-                }
-                catch ( NoSuchAlgorithmException ex )
-                {
-                    giveAlertFeedback(
-                            ex.getMessage()
-                    );
-                }
-            }
-
-        });
+        callMovmentWindow("Deposit");
 
     }//GEN-LAST:event_jbDepositActionPerformed
 
     private void jbWithdrawalActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbWithdrawalActionPerformed
     {//GEN-HEADEREND:event_jbWithdrawalActionPerformed
-        GUI_DepositWithdrawal withdrawal = new GUI_DepositWithdrawal();
-        withdrawal.setVisible(true);
-        withdrawal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Aguarda que o jframe seja fechado
-        withdrawal.addWindowListener(new java.awt.event.WindowAdapter()
-        {
-            @Override
-            public void windowClosed(WindowEvent e)
-            {
+        callMovmentWindow("Withdrawal");
 
-                // Chama o método que irá criar o movimento de conta
-                try
-                {
-                    performAccountMovment(
-                            "Withdrawal",
-                            askForPrivateKey()
-                    );
-                }
-                catch ( NoSuchAlgorithmException ex )
-                {
-                    giveAlertFeedback(
-                            ex.getMessage()
-                    );
-                }
-            }
-
-        });
     }//GEN-LAST:event_jbWithdrawalActionPerformed
 
     private void jbCheckMoneyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckMoneyActionPerformed
     {//GEN-HEADEREND:event_jbCheckMoneyActionPerformed
 
         GUI_CheckMyMoney cmm = new GUI_CheckMyMoney();
+
+        // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
+        cmm.passThroughGUI_Main(this);
+
         cmm.setVisible(true);
         cmm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        // Aguarda que o jframe seja fechado
         cmm.addWindowListener(new java.awt.event.WindowAdapter()
         {
             @Override
@@ -534,12 +483,27 @@ public class GUI_Main extends javax.swing.JFrame
 
                     if ( info.comparePublicKeys(publicKey) )
                     {
-                        // Verifica o dineiro do cliente.
-                        // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
-                        // as informações do cliente, com o dinheiro total da conta do cliente.
-                        AccountMovment.getMyMoney(bc);
-                        jtaLedger.setText(accounts.toString());
-                        found = !found;
+                        // Se entrar aqui, então encontrou a conta do cliente
+                        found = true;
+
+                        try
+                        {
+                            if ( info.authenticateLogin(passwordHash) )
+                            {
+                                // Verifica o dineiro do cliente.
+                                // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
+                                // as informações do cliente, com o dinheiro total da conta do cliente.
+                                AccountMovment.getMyMoney(bc);
+                                jtaLedger.setText(accounts.toString());
+                            }else{
+                                giveAlertFeedback("Wrong password provided.");
+                            }
+                        }
+                        catch ( NoSuchAlgorithmException ex )
+                        {
+                            giveAlertFeedback(ex.getMessage());
+                        }
+
                         break;
                     }
                 }
@@ -560,6 +524,57 @@ public class GUI_Main extends javax.swing.JFrame
         jtaLedger.setText("");
     }//GEN-LAST:event_jbCheckClientAccountsActionPerformed
 
+    /**
+     * Abre uma nova janela onde o cliente consegue preencher as informações da
+     * movimentação na sua conta.
+     *
+     * @param movType Tipo de movimentação ( 'Deposit' ou 'Withdrawal )
+     */
+    public void callMovmentWindow(String movType)
+    {
+        GUI_DepositWithdrawal movWindow = new GUI_DepositWithdrawal();
+
+        // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
+        movWindow.passThroughGUI_Main(this);
+
+        movWindow.setVisible(true);
+        movWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Aguarda que o jframe seja fechado
+        movWindow.addWindowListener(new java.awt.event.WindowAdapter()
+        {
+            @Override
+            public void windowClosed(WindowEvent e)
+            {
+                // Chama o método que irá criar o movimento de conta
+                try
+                {
+                    performAccountMovment(
+                            movType, // Informa o tipo de movimento ( 'Deposit' ou 'Withdawal' )
+                            askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada
+                    );
+                }
+                catch ( NoSuchAlgorithmException ex )
+                {
+                    // Caso ocorra algum erro, informa o utilizador via a label de feedback
+                    giveAlertFeedback(
+                            ex.getMessage()
+                    );
+                }
+            }
+
+        });
+    }
+
+    /**
+     * Cria a movimentação pretendida pelo cliente
+     * <p>
+     * Faz a verificação da autenticidade do cliente via a sua password.
+     *
+     * @param type
+     * @param pvK
+     * @throws NoSuchAlgorithmException
+     */
     public void performAccountMovment(String type, PrivateKey pvK) throws NoSuchAlgorithmException
     {
 
@@ -575,7 +590,7 @@ public class GUI_Main extends javax.swing.JFrame
             if ( info.comparePublicKeys(publicKey) )
             {
                 // Assinala que encontrou a conta do cliente
-                found = !found;
+                found = true;
 
                 // Verifica a password do cliente
                 if ( info.authenticateLogin(passwordHash) )
@@ -612,7 +627,7 @@ public class GUI_Main extends javax.swing.JFrame
                 }
                 else
                 {
-                    giveAlertFeedback("Wrong passoword.");
+                    giveAlertFeedback("Wrong passoword provided.");
                 }
 
                 break;
@@ -627,6 +642,11 @@ public class GUI_Main extends javax.swing.JFrame
         jtaLedger.setText(accounts.toString());
     }
 
+    /**
+     * Abre uma janela onde permite dar load a uma chave privada.
+     *
+     * @return
+     */
     public PrivateKey askForPrivateKey()
     {
         try
@@ -649,16 +669,56 @@ public class GUI_Main extends javax.swing.JFrame
         return null;
     }
 
+    /**
+     * Fornece feedback ao utilizador.
+     *
+     * @param feedback
+     */
     public void giveNormalFeedback(String feedback)
     {
         jlFeedback.setText(feedback);
         jlFeedback.setForeground(Color.black);
     }
 
+    /**
+     * Fornece feedback de alertas ao utilizador.
+     *
+     * @param feedback
+     */
     public void giveAlertFeedback(String feedback)
     {
         jlFeedback.setText(feedback);
         jlFeedback.setForeground(Color.red);
+    }
+
+    /**
+     * Define o hash da password do cliente para poder ser verificado.
+     *
+     * @param passwordHash
+     */
+    public void setPasswordHash(String passwordHash)
+    {
+        this.passwordHash = passwordHash;
+    }
+
+    /**
+     * Define a chave pública do cliente.
+     *
+     * @param publicKey
+     */
+    public void setPublicKey(Key publicKey)
+    {
+        this.publicKey = publicKey;
+    }
+
+    /**
+     * Define o motante a ser transferido na movimentação.
+     *
+     * @param amount
+     */
+    public void setAmount(double amount)
+    {
+        this.amount = amount;
     }
 
     /**
