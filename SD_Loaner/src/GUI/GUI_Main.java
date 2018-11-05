@@ -5,9 +5,18 @@
  */
 package GUI;
 
+import AccountServices.AccountMovments;
+import BlockChain.Accounts;
+import BlockChain.BlockChain;
 import SecureUtils.SecurityUtils;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.Key;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -17,6 +26,7 @@ import javax.swing.JOptionPane;
  */
 public class GUI_Main extends javax.swing.JFrame
 {
+    Accounts accounts;
 
     /**
      * Creates new form GUI
@@ -24,8 +34,20 @@ public class GUI_Main extends javax.swing.JFrame
     public GUI_Main()
     {
         initComponents();
-        
+
+        // Centra a janela
         this.setLocationRelativeTo(null);
+
+        try
+        {
+            accounts = new Accounts();
+            jtaLedger.setText(accounts.toString());
+
+        }
+        catch ( NoSuchAlgorithmException ex )
+        {
+            jlFeedback.setText(ex.getMessage());
+        }
     }
 
     /**
@@ -56,10 +78,10 @@ public class GUI_Main extends javax.swing.JFrame
         jbLoanPayment = new javax.swing.JButton();
         jbCheckRemainingPayments = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
-        jbCreateNewAccount1 = new javax.swing.JButton();
+        jbGenerateRSAKeys = new javax.swing.JButton();
         jbCreateNewAccount = new javax.swing.JButton();
         jbExit = new javax.swing.JButton();
-        jlError = new javax.swing.JLabel();
+        jlFeedback = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -145,8 +167,22 @@ public class GUI_Main extends javax.swing.JFrame
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Account Management"));
 
         jbDeposit.setText("Deposit");
+        jbDeposit.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbDepositActionPerformed(evt);
+            }
+        });
 
         jbWithdrawal.setText("Withdrawal");
+        jbWithdrawal.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbWithdrawalActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -202,12 +238,12 @@ public class GUI_Main extends javax.swing.JFrame
 
         jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("New Account"));
 
-        jbCreateNewAccount1.setText("Generate RSA Keys");
-        jbCreateNewAccount1.addActionListener(new java.awt.event.ActionListener()
+        jbGenerateRSAKeys.setText("Generate RSA Keys");
+        jbGenerateRSAKeys.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                jbCreateNewAccount1ActionPerformed(evt);
+                jbGenerateRSAKeysActionPerformed(evt);
             }
         });
 
@@ -227,7 +263,7 @@ public class GUI_Main extends javax.swing.JFrame
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jbCreateNewAccount1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jbGenerateRSAKeys, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jbCreateNewAccount, javax.swing.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -235,7 +271,7 @@ public class GUI_Main extends javax.swing.JFrame
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jbCreateNewAccount1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jbGenerateRSAKeys, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jbCreateNewAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -273,7 +309,7 @@ public class GUI_Main extends javax.swing.JFrame
             }
         });
 
-        jlError.setText("Choose your option");
+        jlFeedback.setText("Choose your option");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -285,7 +321,7 @@ public class GUI_Main extends javax.swing.JFrame
                     .addComponent(jbExit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jlError, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jlFeedback, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12))
@@ -294,7 +330,7 @@ public class GUI_Main extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jlError, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jlFeedback, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
@@ -315,8 +351,8 @@ public class GUI_Main extends javax.swing.JFrame
         System.exit(0);
     }//GEN-LAST:event_jbExitActionPerformed
 
-    private void jbCreateNewAccount1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCreateNewAccount1ActionPerformed
-    {//GEN-HEADEREND:event_jbCreateNewAccount1ActionPerformed
+    private void jbGenerateRSAKeysActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbGenerateRSAKeysActionPerformed
+    {//GEN-HEADEREND:event_jbGenerateRSAKeysActionPerformed
         KeyPair keys;
 
         try
@@ -361,18 +397,123 @@ public class GUI_Main extends javax.swing.JFrame
                 }
             }
 
-        } catch ( Exception e )
+        }
+        catch ( Exception e )
         {
-            jlError.setText(e.getMessage());
+            jlFeedback.setText(e.getMessage());
         }
 
-    }//GEN-LAST:event_jbCreateNewAccount1ActionPerformed
+    }//GEN-LAST:event_jbGenerateRSAKeysActionPerformed
 
     private void jbCreateNewAccountActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCreateNewAccountActionPerformed
     {//GEN-HEADEREND:event_jbCreateNewAccountActionPerformed
         GUI_NewAccount newAccount = new GUI_NewAccount();
         newAccount.setVisible(true);
     }//GEN-LAST:event_jbCreateNewAccountActionPerformed
+
+    private void jbDepositActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbDepositActionPerformed
+    {//GEN-HEADEREND:event_jbDepositActionPerformed
+//        GUI_DepositWithdrawal deposit = new GUI_DepositWithdrawal();
+//        deposit.setVisible(true);
+
+        try
+        {
+            JFileChooser file = new JFileChooser();
+            file.setCurrentDirectory(new File("."));
+            int i = file.showOpenDialog(null);
+            if ( i == JFileChooser.APPROVE_OPTION )
+            {
+                byte[] privateKeyBytes = Files.readAllBytes(Paths.get(file.getSelectedFile().getAbsolutePath()));
+                PrivateKey privateKey = (PrivateKey) SecurityUtils.getPrivateKey(privateKeyBytes);
+
+                String publickKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDtcERsbYsU4ThzKETVaGLcHmXoKesdMhzZoe9bOVJ8wSioWaV92NjGDQUezMvbZM2ZAferjSWF47vqm/r63iDB2nxH0dpZL0qB+pI8BvGhdIin5+8RXtkEHi68mCtzGwS+22eUjwg5veVQDW+vGpg5b8KJW9HsUiDcnjwCVhehwIDAQAB";
+                Double amount = 4.0;
+
+                boolean found = false;
+                
+                for ( BlockChain bc : accounts.accounts )
+                {
+                    if ( bc.chain.get(0).comparePublicKey(publickKey) )
+                    {
+                        AccountMovments deposit = new AccountMovments(publickKey, amount, "Deposit");
+                        deposit.sign(privateKey);
+                        bc.add(deposit);
+                        found = !found;
+                        break;
+                    }
+                }
+
+                if(found)
+                {
+                    jlFeedback.setText("Deposit completed with success.");
+                }
+                else
+                {
+                    jlFeedback.setText("Account not found.");
+                }
+                
+                jtaLedger.setText(accounts.toString());
+            }
+
+        }
+        catch ( Exception e )
+        {
+            jlFeedback.setText(e.getMessage());
+        }
+
+
+    }//GEN-LAST:event_jbDepositActionPerformed
+
+    private void jbWithdrawalActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbWithdrawalActionPerformed
+    {//GEN-HEADEREND:event_jbWithdrawalActionPerformed
+//        GUI_DepositWithdrawal withdrawal = new GUI_DepositWithdrawal();
+//        withdrawal.setVisible(true);
+        
+        try
+        {
+            JFileChooser file = new JFileChooser();
+            file.setCurrentDirectory(new File("."));
+            int i = file.showOpenDialog(null);
+            if ( i == JFileChooser.APPROVE_OPTION )
+            {
+                byte[] privateKeyBytes = Files.readAllBytes(Paths.get(file.getSelectedFile().getAbsolutePath()));
+                PrivateKey privateKey = (PrivateKey) SecurityUtils.getPrivateKey(privateKeyBytes);
+
+                String publickKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDtcERsbYsU4ThzKETVaGLcHmXoKesdMhzZoe9bOVJ8wSioWaV92NjGDQUezMvbZM2ZAferjSWF47vqm/r63iDB2nxH0dpZL0qB+pI8BvGhdIin5+8RXtkEHi68mCtzGwS+22eUjwg5veVQDW+vGpg5b8KJW9HsUiDcnjwCVhehwIDAQAB";
+                Double amount = 4.0;
+
+                boolean found = false;
+                
+                for ( BlockChain bc : accounts.accounts )
+                {
+                    if ( bc.chain.get(0).comparePublicKey(publickKey) )
+                    {
+                        AccountMovments deposit = new AccountMovments(publickKey, amount, "Withdrawal");
+                        deposit.sign(privateKey);
+                        bc.add(deposit);
+                        found = !found;
+                        break;
+                    }
+                }
+
+                if(found)
+                {
+                    jlFeedback.setText("Withdrawal completed with success.");
+                }
+                else
+                {
+                    jlFeedback.setText("Account not found.");
+                }
+                
+                jtaLedger.setText(accounts.toString());
+            }
+
+        }
+        catch ( Exception e )
+        {
+            jlFeedback.setText(e.getMessage());
+        }
+    }//GEN-LAST:event_jbWithdrawalActionPerformed
 
     /**
      * @param args the command line arguments
@@ -444,14 +585,14 @@ public class GUI_Main extends javax.swing.JFrame
     private javax.swing.JButton jbCheckLoans;
     private javax.swing.JButton jbCheckRemainingPayments;
     private javax.swing.JButton jbCreateNewAccount;
-    private javax.swing.JButton jbCreateNewAccount1;
     private javax.swing.JButton jbDeposit;
     private javax.swing.JButton jbExit;
+    private javax.swing.JButton jbGenerateRSAKeys;
     private javax.swing.JButton jbLoanPayment;
     private javax.swing.JButton jbRequestLoan;
     private javax.swing.JButton jbSetLoanInterest;
     private javax.swing.JButton jbWithdrawal;
-    private javax.swing.JLabel jlError;
+    private javax.swing.JLabel jlFeedback;
     private javax.swing.JTextArea jtaLedger;
     // End of variables declaration//GEN-END:variables
 }

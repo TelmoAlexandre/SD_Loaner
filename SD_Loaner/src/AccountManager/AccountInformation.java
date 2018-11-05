@@ -86,4 +86,10 @@ public class AccountInformation extends AccountManager
     {
         return name;
     }
+    
+    @Override
+    public String toString()
+    {
+        return name;
+    }
 }

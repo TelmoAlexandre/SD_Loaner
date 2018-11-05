@@ -6,6 +6,9 @@
 package BlockChain;
 
 import AccountManager.AccountManager;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 /**
  *
@@ -15,11 +18,64 @@ public class Block
 {
     AccountManager message;
     // previousHash é o hash do bloco anterior. hash é o hash do bloco
-    String previousHash, hash;
+    String previousHash, hashCode;
+    int nounce = 0;
+    MessageDigest messageDigest;
 
-    public Block(AccountManager message)
+    public Block(Block last, AccountManager message) throws NoSuchAlgorithmException
     {
         this.message = message;
+        this.previousHash = last == null ? "0" : last.hashCode;
+
+        // Definir o algoritmo para o hashCode
+        messageDigest = MessageDigest.getInstance("SHA-512");
+        
+        // Cria a hash provisória
+        hashCode = Base64.getEncoder().encodeToString(messageDigest.digest((previousHash + message + nounce).getBytes())
+        );
+    }
+
+    /**
+     * Retorna os conteudos do bloco em forma de String.
+     * 
+     * @return message + previousHash + hashCode
+     */
+    @Override
+    public String toString()
+    {
+        return "{\n" + message.toString() + "\n    Previous Hash: " + previousHash + "\n    HashCode: " + hashCode + "\n}";
+    }
+
+    /**
+     * Verifica a integridade do bloco.
+     *
+     * @return
+     * @throws java.security.NoSuchAlgorithmException
+     */
+    public boolean checkBlock() throws NoSuchAlgorithmException
+    {
+        String msg = message.toString() + previousHash;
+        MessageDigest sha = MessageDigest
+                    .getInstance("SHA-256");
+
+            sha.update(msg.getBytes());
+            sha.update(("" + nounce).getBytes());
+
+            String newCalculatedHash = Base64.getEncoder().encodeToString(sha.digest());
+            
+            byte[] digest = sha.digest();
+        
+        return hashCode.equals(newCalculatedHash);
     }
     
+    /**
+     * Compara a public key recibida por parametro com a public key do message do bloco.
+     * 
+     * @param pbK
+     * @return 
+     */
+    public boolean comparePublicKey(String pbK)
+    {
+        return message.comparePublicKeys(pbK);
+    }
 }

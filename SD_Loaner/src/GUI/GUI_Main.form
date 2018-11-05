@@ -29,7 +29,7 @@
                   <Component id="jbExit" max="32767" attributes="0"/>
                   <Component id="jPanel2" alignment="0" max="32767" attributes="0"/>
                   <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
-                  <Component id="jlError" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jlFeedback" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jScrollPane1" min="-2" pref="359" max="-2" attributes="0"/>
@@ -41,7 +41,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jlError" min="-2" pref="25" max="-2" attributes="0"/>
+              <Component id="jlFeedback" min="-2" pref="25" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                   <Group type="102" attributes="0">
@@ -275,11 +275,17 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Deposit"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbDepositActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="jbWithdrawal">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Withdrawal"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbWithdrawalActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
@@ -352,7 +358,7 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jbCreateNewAccount1" max="32767" attributes="0"/>
+                          <Component id="jbGenerateRSAKeys" max="32767" attributes="0"/>
                           <Component id="jbCreateNewAccount" alignment="0" pref="157" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -363,7 +369,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jbCreateNewAccount1" min="-2" pref="60" max="-2" attributes="0"/>
+                      <Component id="jbGenerateRSAKeys" min="-2" pref="60" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jbCreateNewAccount" min="-2" pref="60" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
@@ -372,12 +378,12 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JButton" name="jbCreateNewAccount1">
+            <Component class="javax.swing.JButton" name="jbGenerateRSAKeys">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Generate RSA Keys"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbCreateNewAccount1ActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbGenerateRSAKeysActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="jbCreateNewAccount">
@@ -400,7 +406,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbExitActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jlError">
+    <Component class="javax.swing.JLabel" name="jlFeedback">
       <Properties>
         <Property name="text" type="java.lang.String" value="Choose your option"/>
       </Properties>

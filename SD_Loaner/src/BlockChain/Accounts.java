@@ -15,7 +15,7 @@ import java.util.ArrayList;
  */
 public class Accounts
 {
-    ArrayList<BlockChain> accounts;
+    public ArrayList<BlockChain> accounts;
 
     public Accounts() throws NoSuchAlgorithmException
     {
@@ -46,4 +46,10 @@ public class Accounts
         // Adiciona a nova BlockChain do cliente às contas de clientes.
         accounts.add(blockChain);
     }
+    
+    @Override
+   public String toString()
+   {
+       return accounts.get(0).toString();
+   }
 }

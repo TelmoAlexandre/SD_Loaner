@@ -5,20 +5,28 @@
  */
 package GUI;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
 /**
  *
  * @author Telmo
  */
-public class GUI_NewAccount extends javax.swing.JFrame
+public class GUI_DepositWithdrawal extends javax.swing.JFrame
 {
 
+    double amount;
+    String passwordHash;
+
     /**
-     * Creates new form GUI_NewAccount
+     * Creates new form GUI_DepositWithdrawal
      */
-    public GUI_NewAccount()
+    public GUI_DepositWithdrawal()
     {
         initComponents();
-        
+
+        // Centra a janela
         this.setLocationRelativeTo(null);
     }
 
@@ -33,29 +41,34 @@ public class GUI_NewAccount extends javax.swing.JFrame
     {
 
         jLabel1 = new javax.swing.JLabel();
-        jtfName = new javax.swing.JTextField();
+        jtfAmount = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jbLoadPublicKey = new javax.swing.JButton();
-        jlFeedback = new javax.swing.JLabel();
-        jbSave = new javax.swing.JButton();
-        jbCancel = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         jtfPassword = new javax.swing.JTextField();
-        jtfPasswordConfirm = new javax.swing.JTextField();
         jSeparator1 = new javax.swing.JSeparator();
+        jbConfirm = new javax.swing.JButton();
+        jbCancel = new javax.swing.JButton();
+        jlFeedback = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setText("Name:");
+        jLabel1.setText("Amount:");
 
         jLabel2.setText("Public Key:");
 
         jbLoadPublicKey.setText("Load");
 
-        jlFeedback.setText("Fill up your information:");
+        jLabel3.setText("Password:");
 
-        jbSave.setText("Save");
+        jbConfirm.setText("Confirm");
+        jbConfirm.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbConfirmActionPerformed(evt);
+            }
+        });
 
         jbCancel.setText("Cancel");
         jbCancel.addActionListener(new java.awt.event.ActionListener()
@@ -66,9 +79,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
             }
         });
 
-        jLabel4.setText("Password:");
-
-        jLabel5.setText("Confirm Password:");
+        jlFeedback.setText("Fill up the fields:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -76,26 +87,24 @@ public class GUI_NewAccount extends javax.swing.JFrame
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jbSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbCancel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jlFeedback)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbLoadPublicKey, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel3)
+                    .addComponent(jtfPassword)
+                    .addComponent(jtfAmount)
                     .addComponent(jSeparator1)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel1)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addGap(60, 60, 60)
-                                .addComponent(jbLoadPublicKey, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel5)
-                            .addComponent(jtfPassword)
-                            .addComponent(jtfName)
-                            .addComponent(jtfPasswordConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jlFeedback)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(jbConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -105,26 +114,22 @@ public class GUI_NewAccount extends javax.swing.JFrame
                 .addComponent(jlFeedback)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel1)
+                .addGap(4, 4, 4)
+                .addComponent(jtfAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jtfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2)
-                .addComponent(jLabel4)
+                .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jtfPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jtfPasswordConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jbLoadPublicKey))
                 .addGap(18, 18, 18)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(1, 1, 1)
-                .addComponent(jbSave, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jbCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jbConfirm)
+                    .addComponent(jbCancel))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -136,6 +141,27 @@ public class GUI_NewAccount extends javax.swing.JFrame
         this.setVisible(false);
         dispose();
     }//GEN-LAST:event_jbCancelActionPerformed
+
+    private void jbConfirmActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbConfirmActionPerformed
+    {//GEN-HEADEREND:event_jbConfirmActionPerformed
+        
+        // Recolhe a quantidade a transferir
+        this.amount = Double.valueOf(jtfAmount.getText());
+
+        // Transforma a password num hash
+        try
+        {
+            MessageDigest hash;
+            hash = MessageDigest
+                    .getInstance("SHA-512");
+            hash.update(jtfPassword.getText().getBytes());
+            passwordHash = Base64.getEncoder().encodeToString(hash.digest());
+        }
+        catch ( NoSuchAlgorithmException ex )
+        {
+            jlFeedback.setText(ex.getMessage());
+        }
+    }//GEN-LAST:event_jbConfirmActionPerformed
 
     /**
      * @param args the command line arguments
@@ -160,19 +186,19 @@ public class GUI_NewAccount extends javax.swing.JFrame
         }
         catch ( ClassNotFoundException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_NewAccount.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_DepositWithdrawal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         catch ( InstantiationException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_NewAccount.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_DepositWithdrawal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         catch ( IllegalAccessException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_NewAccount.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_DepositWithdrawal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         catch ( javax.swing.UnsupportedLookAndFeelException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_NewAccount.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_DepositWithdrawal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -181,7 +207,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
         {
             public void run()
             {
-                new GUI_NewAccount().setVisible(true);
+                new GUI_DepositWithdrawal().setVisible(true);
             }
         });
     }
@@ -189,15 +215,13 @@ public class GUI_NewAccount extends javax.swing.JFrame
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton jbCancel;
+    private javax.swing.JButton jbConfirm;
     private javax.swing.JButton jbLoadPublicKey;
-    private javax.swing.JButton jbSave;
     private javax.swing.JLabel jlFeedback;
-    private javax.swing.JTextField jtfName;
+    private javax.swing.JTextField jtfAmount;
     private javax.swing.JTextField jtfPassword;
-    private javax.swing.JTextField jtfPasswordConfirm;
     // End of variables declaration//GEN-END:variables
 }

@@ -14,14 +14,14 @@ import java.security.PrivateKey;
  */
 public class AccountMovments extends Service
 {
-    double value;
+    double amount;
     String type;
     byte[] signature;
 
-    public AccountMovments(String publicKey, double value, String type, byte[] signature)
+    public AccountMovments(String publicKey, double value, String type)
     {
         super(publicKey);
-        this.value = value;
+        this.amount = value;
         this.type = type;
     }
 
@@ -33,8 +33,7 @@ public class AccountMovments extends Service
      */
     public void sign(PrivateKey pvKey) throws Exception
     {
-        // 
-        byte[] data = (type + value).getBytes();
+        byte[] data = (publickKey + amount).getBytes();
 
         signature = SecurityUtils.signRSA(data, pvKey);
     }
@@ -49,4 +48,10 @@ public class AccountMovments extends Service
         
     }
 
+    
+    @Override
+    public String toString()
+    {
+        return " Type: " + type + "\n Amount: " + amount;
+    }
 }

@@ -24,4 +24,15 @@ public abstract class AccountManager
     protected String getPublicKey(){
         return publickKey;
     }
+    
+    /**
+     * Compara uma public key recebida por parâmetro com a do cliente.
+     * 
+     * @param pbK
+     * @return 
+     */
+    public boolean comparePublicKeys(String pbK)
+    {
+        return (pbK.equals(publickKey));
+    }
 }

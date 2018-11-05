@@ -6,6 +6,7 @@
 package BlockChain;
 
 import AccountManager.AccountManager;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 /**
@@ -18,18 +19,36 @@ public class BlockChain
 {
     public ArrayList<Block> chain;
 
-    public BlockChain(AccountManager message)
+    public BlockChain(AccountManager message) throws NoSuchAlgorithmException
     {
         chain = new ArrayList<>();
         
         // Cria o primeiro bloco assim que um objeto BlockChain for criado.
-        Block block = new Block(message);
+        Block block = new Block(null, message);
         chain.add(block);
     }
     
-    public void add(AccountManager message)
+    public void add(AccountManager message) throws NoSuchAlgorithmException
     {
-        
+        // Cria o primeiro bloco assim que um objeto BlockChain for criado.
+        Block block = new Block(null, message);
+        chain.add(block);
     }
     
+    /**
+     * Retorna os conteudos de cada bloco da BlockChain.
+     * 
+     * @return 
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder txt = new StringBuilder();
+
+        chain.forEach((block) ->
+        {
+            txt.append(block.toString()).append("\n\n");
+        });
+        return txt.toString();
+    }
 }
