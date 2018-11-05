@@ -7,6 +7,7 @@ package BlockChain;
 
 import AccountManager.AccountManager;
 import Miner.Miner;
+import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -17,7 +18,7 @@ import java.util.Base64;
  */
 public class Block
 {
-    AccountManager message;
+    public AccountManager message;
     // previousHash é o hash do bloco anterior. hash é o hash do bloco
     String previousHash, hashCode;
     int nounce = 0;
@@ -75,7 +76,7 @@ public class Block
      * @param pbK
      * @return 
      */
-    public boolean comparePublicKey(String pbK)
+    public boolean comparePublicKey(Key pbK)
     {
         return message.comparePublicKeys(pbK);
     }

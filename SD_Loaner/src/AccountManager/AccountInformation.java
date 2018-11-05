@@ -20,14 +20,15 @@ public class AccountInformation extends AccountManager
 {
     private final String name;
     private String passwordHash;
+    private double money;
 
     public AccountInformation(String name, Key publickKey, String password) throws NoSuchAlgorithmException
     {
         // publicKey
         super(publickKey);
-        
+
         this.name = name;
-        
+
         setPassword(password);
     }
 
@@ -48,12 +49,15 @@ public class AccountInformation extends AccountManager
     }
 
     /**
-     * Compara o hash da password de login com o hash guardado quando a password foi definida.
-     * <p>O booleano resultanto deste método informa se a autenticação do cliente é bem sucedida.
-     * 
+     * Compara o hash da password de login com o hash guardado quando a password
+     * foi definida.
+     * <p>
+     * O booleano resultanto deste método informa se a autenticação do cliente é
+     * bem sucedida.
+     *
      * @param password
      * @return booleano que informa se a autenticação do cliente é bem sucedida.
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      */
     public boolean authenticateLogin(String password) throws NoSuchAlgorithmException
     {
@@ -68,7 +72,7 @@ public class AccountInformation extends AccountManager
         return (Base64.getEncoder().encodeToString(hash.digest()).equals(passwordHash));
     }
 
-     /**
+    /**
      * Retorna o nome do cliente.
      *
      * @return name
@@ -77,10 +81,21 @@ public class AccountInformation extends AccountManager
     {
         return name;
     }
-    
+
+    /**
+     * Define o total de dinheiro do cliente.
+     *
+     * @param money
+     */
+    public void setMoney(double money)
+    {
+        this.money = money;
+    }
+
     @Override
     public String toString()
     {
-        return name;
+        return "Client: " + name + "\nTotal money: " + money;
+
     }
 }

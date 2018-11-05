@@ -6,7 +6,7 @@
 package BlockChain;
 
 import AccountManager.AccountManager;
-import AccountServices.AccountMovments;
+import AccountServices.AccountMovment;
 import AccountServices.Service;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class BlockChain
             chain.add(b);
         } else
         {
-            throw new RuntimeException("Not enough coins to complete the transaction.");
+            throw new RuntimeException("Not enough money to complete the transaction.");
         }
     }
     

@@ -5,13 +5,15 @@
  */
 package GUI;
 
-import AccountServices.AccountMovments;
+import AccountServices.AccountMovment;
 import BlockChain.Accounts;
 import BlockChain.BlockChain;
 import SecureUtils.SecurityUtils;
+import java.awt.Color;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.Key;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import javax.swing.JFileChooser;
@@ -24,11 +26,13 @@ import javax.swing.JOptionPane;
 public class GUI_Main extends javax.swing.JFrame
 {
     Accounts accounts;
+    Key publickKey;
+    Double amount = 4.0;
 
     /**
      * Creates new form GUI
      */
-    public GUI_Main()  
+    public GUI_Main()
     {
         initComponents();
 
@@ -40,6 +44,9 @@ public class GUI_Main extends javax.swing.JFrame
             accounts = new Accounts();
             jtaLedger.setText(accounts.toString());
 
+            publickKey = SecurityUtils.loadB64Key(
+                    "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDtcERsbYsU4ThzKETVaGLcHmXoKesdMhzZoe9bOVJ8wSioWaV92NjGDQUezMvbZM2ZAferjSWF47vqm/r63iDB2nxH0dpZL0qB+pI8BvGhdIin5+8RXtkEHi68mCtzGwS+22eUjwg5veVQDW+vGpg5b8KJW9HsUiDcnjwCVhehwIDAQAB",
+                    "RSA");
         }
         catch ( Exception ex )
         {
@@ -182,6 +189,13 @@ public class GUI_Main extends javax.swing.JFrame
         });
 
         jbCheckMoney.setText("Check money");
+        jbCheckMoney.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbCheckMoneyActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -417,62 +431,46 @@ public class GUI_Main extends javax.swing.JFrame
 //        GUI_DepositWithdrawal deposit = new GUI_DepositWithdrawal();
 //        deposit.setVisible(true);
 
-        try
-        {
-            JFileChooser file = new JFileChooser();
-            file.setCurrentDirectory(new File("."));
-            int i = file.showOpenDialog(null);
-            if ( i == JFileChooser.APPROVE_OPTION )
-            {
-                byte[] privateKeyBytes = Files.readAllBytes(Paths.get(file.getSelectedFile().getAbsolutePath()));
-                PrivateKey privateKey = (PrivateKey) SecurityUtils.getPrivateKey(privateKeyBytes);
-
-                String publickKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDtcERsbYsU4ThzKETVaGLcHmXoKesdMhzZoe9bOVJ8wSioWaV92NjGDQUezMvbZM2ZAferjSWF47vqm/r63iDB2nxH0dpZL0qB+pI8BvGhdIin5+8RXtkEHi68mCtzGwS+22eUjwg5veVQDW+vGpg5b8KJW9HsUiDcnjwCVhehwIDAQAB";
-                Double amount = 4.0;
-
-                boolean found = false;
-                
-                for ( BlockChain bc : accounts.accounts )
-                {
-                    if ( bc.chain.get(0).comparePublicKey(publickKey) )
-                    {
-                        AccountMovments deposit = new AccountMovments(
-                                SecurityUtils.loadB64Key(publickKey, "RSA"), 
-                                amount, 
-                                "Deposit");
-                        deposit.sign(privateKey);
-                        bc.add(deposit);
-                        found = !found;
-                        break;
-                    }
-                }
-
-                if(found)
-                {
-                    jlFeedback.setText("Deposit completed with success.");
-                }
-                else
-                {
-                    jlFeedback.setText("Account not found.");
-                }
-                
-                jtaLedger.setText(accounts.toString());
-            }
-
-        }
-        catch ( Exception e )
-        {
-            jlFeedback.setText(e.getMessage());
-        }
-
-
+        performAccountMovment("Deposit");
     }//GEN-LAST:event_jbDepositActionPerformed
 
     private void jbWithdrawalActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbWithdrawalActionPerformed
     {//GEN-HEADEREND:event_jbWithdrawalActionPerformed
 //        GUI_DepositWithdrawal withdrawal = new GUI_DepositWithdrawal();
 //        withdrawal.setVisible(true);
-        
+
+        performAccountMovment("Withdrawal");
+    }//GEN-LAST:event_jbWithdrawalActionPerformed
+
+    private void jbCheckMoneyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckMoneyActionPerformed
+    {//GEN-HEADEREND:event_jbCheckMoneyActionPerformed
+
+        // Booleano para verificar se foi encontrada a conta do cliente.
+        boolean found = false;
+
+        for ( BlockChain bc : accounts.accounts )
+        {
+            if ( bc.chain.get(0).comparePublicKey(publickKey) )
+            {
+                // Verifica o dineiro do cliente.
+                // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
+                // as informações do cliente, com o dinheiro total da conta do cliente.
+                AccountMovment.getMyMoney(bc);
+                jtaLedger.setText(accounts.toString());
+                found = !found;
+                break;
+            }
+        }
+
+        if ( !found )
+        {
+            jlFeedback.setText("Account not found.");
+        }
+
+    }//GEN-LAST:event_jbCheckMoneyActionPerformed
+
+    public void performAccountMovment(String type)
+    {
         try
         {
             JFileChooser file = new JFileChooser();
@@ -483,37 +481,35 @@ public class GUI_Main extends javax.swing.JFrame
                 byte[] privateKeyBytes = Files.readAllBytes(Paths.get(file.getSelectedFile().getAbsolutePath()));
                 PrivateKey privateKey = (PrivateKey) SecurityUtils.getPrivateKey(privateKeyBytes);
 
-                String publickKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDtcERsbYsU4ThzKETVaGLcHmXoKesdMhzZoe9bOVJ8wSioWaV92NjGDQUezMvbZM2ZAferjSWF47vqm/r63iDB2nxH0dpZL0qB+pI8BvGhdIin5+8RXtkEHi68mCtzGwS+22eUjwg5veVQDW+vGpg5b8KJW9HsUiDcnjwCVhehwIDAQAB";
-                
-                Double amount = 4.0;
-
                 boolean found = false;
-                
+
                 for ( BlockChain bc : accounts.accounts )
                 {
                     if ( bc.chain.get(0).comparePublicKey(publickKey) )
                     {
-                        AccountMovments deposit = new AccountMovments(
-                                SecurityUtils.loadB64Key(publickKey, "RSA"), 
-                                amount, 
-                                "Withdrawal");
-                        
+                        AccountMovment deposit = new AccountMovment(
+                                publickKey,
+                                amount,
+                                type);
+
                         deposit.sign(privateKey);
                         bc.add(deposit);
+                        // Verifica o dineiro do cliente.
+                        // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
+                        // as informações do cliente, com o dinheiro total da conta do cliente.
+                        AccountMovment.getMyMoney(bc);
+                        
+                        jlFeedback.setText(type + " completed with success.");
                         found = !found;
                         break;
                     }
                 }
 
-                if(found)
-                {
-                    jlFeedback.setText("Withdrawal completed with success.");
-                }
-                else
+                if ( !found )
                 {
                     jlFeedback.setText("Account not found.");
                 }
-                
+
                 jtaLedger.setText(accounts.toString());
             }
 
@@ -521,9 +517,10 @@ public class GUI_Main extends javax.swing.JFrame
         catch ( Exception e )
         {
             jlFeedback.setText(e.getMessage());
+            jlFeedback.setForeground(Color.red);
         }
-    }//GEN-LAST:event_jbWithdrawalActionPerformed
-
+    }
+    
     /**
      * @param args the command line arguments
      */

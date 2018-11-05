@@ -6,6 +6,7 @@
 package AccountManager;
 
 import java.security.Key;
+import java.util.Base64;
 
 /**
  *
@@ -33,8 +34,9 @@ public abstract class AccountManager
      * @param pbK
      * @return 
      */
-    public boolean comparePublicKeys(String pbK)
+    public boolean comparePublicKeys(Key pbK)
     {
-        return (pbK.equals(publicKey));
+        return (Base64.getEncoder().encodeToString(pbK.getEncoded()).equals(
+                Base64.getEncoder().encodeToString(publicKey.getEncoded())));
     }
 }
