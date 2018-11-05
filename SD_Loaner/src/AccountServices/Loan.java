@@ -11,6 +11,11 @@ package AccountServices;
  */
 public class Loan extends Service
 {
+    public Loan(String publicKey)
+    {
+        super(publicKey);
+    }
+    
     @Override
     public void validate()
     {

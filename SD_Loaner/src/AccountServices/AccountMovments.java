@@ -7,7 +7,6 @@ package AccountServices;
 
 import SecureUtils.SecurityUtils;
 import java.security.PrivateKey;
-import java.util.Base64;
 
 /**
  *
@@ -19,8 +18,9 @@ public class AccountMovments extends Service
     String type;
     byte[] signature;
 
-    public AccountMovments(double value, String type, byte[] signature)
+    public AccountMovments(String publicKey, double value, String type, byte[] signature)
     {
+        super(publicKey);
         this.value = value;
         this.type = type;
     }

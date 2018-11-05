@@ -14,6 +14,8 @@ import AccountManager.AccountManager;
 public class Block
 {
     AccountManager message;
+    // previousHash é o hash do bloco anterior. hash é o hash do bloco
+    String previousHash, hash;
 
     public Block(AccountManager message)
     {

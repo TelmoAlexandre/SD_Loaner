@@ -16,4 +16,12 @@ public abstract class AccountManager
      * Contem a chave publica do cliente.
      */
     protected String publickKey;
+    
+    protected AccountManager (String publicKey){
+        this.publickKey = publicKey;
+    }
+    
+    protected String getPublicKey(){
+        return publickKey;
+    }
 }

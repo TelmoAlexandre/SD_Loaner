@@ -7,7 +7,6 @@ package AccountManager;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Base64;
 
 /**
@@ -21,12 +20,14 @@ public class AccountInformation extends AccountManager
     private final String name;
     private String passwordHash;
 
-    public AccountInformation(String name, String publickKey)
+    public AccountInformation(String name, String publickKey, String password) throws NoSuchAlgorithmException
     {
+        // publicKey
+        super(publickKey);
+        
         this.name = name;
-
-        // publickKey é herdada do AccountManager
-        this.publickKey = publickKey;
+        
+        setPassword(password);
     }
 
     /**
@@ -36,7 +37,7 @@ public class AccountInformation extends AccountManager
      * @param password
      * @throws java.security.NoSuchAlgorithmException
      */
-    public void setPassword(String password) throws NoSuchAlgorithmException
+    private void setPassword(String password) throws NoSuchAlgorithmException
     {
         MessageDigest hash = MessageDigest
                 .getInstance("SHA-512");

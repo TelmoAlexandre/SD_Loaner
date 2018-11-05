@@ -15,6 +15,12 @@ import BlockChain.BlockChain;
  */
 public abstract class Service extends AccountManager
 {
+    
+    public Service (String publicKey)
+    {
+        super(publicKey);
+    }
+    
     public abstract void validate();
     
     /**
@@ -34,6 +40,7 @@ public abstract class Service extends AccountManager
         {
             // Saltar o primeiro block porque este só tem informações sobre o cliente. Não contém transacções.
             if(isFirst){
+                isFirst = !isFirst;
                 continue;
             }
         }

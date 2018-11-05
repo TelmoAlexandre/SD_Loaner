@@ -5,8 +5,6 @@
  */
 package Tests;
 
-import AccountManager.AccountInformation;
-
 /**
  *
  * @author Telmo
@@ -14,9 +12,7 @@ import AccountManager.AccountInformation;
 public class tests
 {
     public static void main(String[] args)
-    {
-        AccountInformation test = new AccountInformation("Telmo", "publickey");
-        
+    {     
         
     }
 }
