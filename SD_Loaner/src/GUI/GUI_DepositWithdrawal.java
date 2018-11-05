@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import javax.swing.JFileChooser;
 
 /**
@@ -171,8 +170,10 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
                     new String(jpfPassword.getPassword()).getBytes()
             );
             
-            // Guarda o hash da password no atributo estático do GUI_Main
-            main.setPasswordHash(Base64.getEncoder().encodeToString(hash.digest()));
+            // Guarda o hash da password no main
+            main.setPasswordHash(
+                    new String(jpfPassword.getPassword())
+            );
         }
         catch ( NoSuchAlgorithmException ex )
         {
@@ -205,7 +206,7 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
      * 
      * @param main 
      */
-    public void passThroughGUI_Main(GUI_Main main)
+    public void loadMain(GUI_Main main)
     {
         this.main = main;
     }

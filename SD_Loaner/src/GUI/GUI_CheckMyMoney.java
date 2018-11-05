@@ -153,9 +153,8 @@ public class GUI_CheckMyMoney extends javax.swing.JFrame
                     new String(jpfPassword.getPassword()).getBytes()
             );
 
-            // Guarda o hash da password no atributo estático do GUI_Main
             main.setPasswordHash(
-                    Base64.getEncoder().encodeToString(hash.digest())
+                    new String(jpfPassword.getPassword())
             );
         }
         catch ( NoSuchAlgorithmException ex )

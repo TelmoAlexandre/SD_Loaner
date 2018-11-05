@@ -17,8 +17,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyPair;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.util.Base64;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -47,7 +49,6 @@ public class GUI_Main extends javax.swing.JFrame
         try
         {
             accounts = new Accounts();
-            jtaLedger.setText(accounts.toString());
         }
         catch ( Exception ex )
         {
@@ -437,8 +438,7 @@ public class GUI_Main extends javax.swing.JFrame
 
     private void jbCreateNewAccountActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCreateNewAccountActionPerformed
     {//GEN-HEADEREND:event_jbCreateNewAccountActionPerformed
-        GUI_NewAccount newAccount = new GUI_NewAccount();
-        newAccount.setVisible(true);
+        createNewClientAccount();
     }//GEN-LAST:event_jbCreateNewAccountActionPerformed
 
     private void jbDepositActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbDepositActionPerformed
@@ -494,8 +494,10 @@ public class GUI_Main extends javax.swing.JFrame
                                 // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
                                 // as informações do cliente, com o dinheiro total da conta do cliente.
                                 AccountMovment.getMyMoney(bc);
-                                jtaLedger.setText(accounts.toString());
-                            }else{
+                                jtaLedger.setText(accounts.toString(publicKey, passwordHash));
+                            }
+                            else
+                            {
                                 giveAlertFeedback("Wrong password provided.");
                             }
                         }
@@ -535,7 +537,7 @@ public class GUI_Main extends javax.swing.JFrame
         GUI_DepositWithdrawal movWindow = new GUI_DepositWithdrawal();
 
         // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
-        movWindow.passThroughGUI_Main(this);
+        movWindow.loadMain(this);
 
         movWindow.setVisible(true);
         movWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -639,7 +641,7 @@ public class GUI_Main extends javax.swing.JFrame
             giveAlertFeedback("Account not found.");
         }
 
-        jtaLedger.setText(accounts.toString());
+        jtaLedger.setText(accounts.toString(publicKey, passwordHash));
     }
 
     /**
@@ -670,6 +672,67 @@ public class GUI_Main extends javax.swing.JFrame
     }
 
     /**
+     * Abre uma janela onde é possível preencher os dados de um novo cliente.
+     *
+     */
+    public void createNewClientAccount()
+    {
+        GUI_NewAccount newAccountWindow = new GUI_NewAccount();
+        newAccountWindow.loadObjectos(this, accounts);
+        newAccountWindow.setVisible(true);
+        newAccountWindow.addWindowListener(new java.awt.event.WindowAdapter()
+        {
+            @Override
+            public void windowClosed(WindowEvent e)
+            {
+                // Booleano para verificar se foi encontrada a conta do cliente.
+                boolean found = false;
+
+                for ( BlockChain bc : accounts.accounts )
+                {
+                    // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
+                    AccountInformation info = (AccountInformation) bc.chain.get(0).message;
+
+                    if ( info.comparePublicKeys(publicKey) )
+                    {
+                        // Se entrar aqui, então encontrou a conta do cliente
+                        found = true;
+
+                        try
+                        {
+                            if ( info.authenticateLogin(passwordHash) )
+                            {
+                                // Verifica o dineiro do cliente.
+                                // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
+                                // as informações do cliente, com o dinheiro total da conta do cliente.
+                                AccountMovment.getMyMoney(bc);
+                                jtaLedger.setText(accounts.toString(publicKey, passwordHash));
+                            }
+                            else
+                            {
+                                giveAlertFeedback("Wrong password provided.");
+                            }
+                        }
+                        catch ( NoSuchAlgorithmException ex )
+                        {
+                            giveAlertFeedback(ex.getMessage());
+                        }
+
+                        break;
+                    }
+                }
+
+                if ( !found )
+                {
+                    giveAlertFeedback("Account not found.");
+                }
+            }
+                    
+        });
+        
+    }
+
+    /**
      * Fornece feedback ao utilizador.
      *
      * @param feedback
@@ -694,11 +757,27 @@ public class GUI_Main extends javax.swing.JFrame
     /**
      * Define o hash da password do cliente para poder ser verificado.
      *
-     * @param passwordHash
+     * @param password
      */
-    public void setPasswordHash(String passwordHash)
+    public void setPasswordHash(String password)
     {
-        this.passwordHash = passwordHash;
+        // Transforma a password num hash
+        try
+        {
+            MessageDigest hash;
+            hash = MessageDigest
+                    .getInstance("SHA-512");
+            hash.update(
+                    password.getBytes()
+            );
+            
+            // Guarda o hash da password
+            passwordHash = Base64.getEncoder().encodeToString(hash.digest());
+        }
+        catch ( NoSuchAlgorithmException ex )
+        {
+            jlFeedback.setText(ex.getMessage());
+        }
     }
 
     /**
