@@ -6,10 +6,10 @@
 package BlockChain;
 
 import AccountManager.AccountManager;
-import AccountServices.AccountMovment;
 import AccountServices.Service;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BlockChain que irá conter blocos. O primeiro bloco de todos contém as informações do cliente, nomeadamente o Nome e a Hash da Password.
@@ -19,7 +19,7 @@ import java.util.ArrayList;
  */
 public class BlockChain
 {
-    public ArrayList<Block> chain;
+    public List<Block> chain;
 
     public BlockChain(AccountManager message) throws NoSuchAlgorithmException, InterruptedException
     {
@@ -31,10 +31,17 @@ public class BlockChain
         chain.add(block);
     }
     
+    /**
+     * Adiciona um novo bloco à block chain.
+     * 
+     * @param message
+     * @throws Exception 
+     */
     public void add(AccountManager message) throws Exception
     {
         // Cria o primeiro bloco assim que um objeto BlockChain for criado.
-        Block b = new Block(null, message);
+        Block last = getLast();
+        Block b = new Block(last, message);
         Service msg = (Service)b.message;
         if (msg.validate(this))
         {
@@ -44,6 +51,22 @@ public class BlockChain
         {
             throw new RuntimeException("Not enough money to complete the transaction.");
         }
+    }
+    
+    public Block getLast() throws NoSuchAlgorithmException
+    {
+        for (int i = 1; i < chain.size(); i++)
+        {
+            // Se o bloco estiver corrompido, termina a chain
+            if (!chain.get(i).checkBlock())
+            {
+                // Limpar a lista a partir do bloco corrompido
+                chain = chain.subList(0, i);
+                return chain.get(i - 1);
+            }
+        }
+        // Último bloco quando não está corrompido
+        return chain.get(chain.size() - 1);
     }
     
     /**

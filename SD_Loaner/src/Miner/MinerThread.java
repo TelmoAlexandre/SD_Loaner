@@ -59,7 +59,7 @@ public class MinerThread extends Thread
         try
         {
             MessageDigest sha = MessageDigest
-                    .getInstance("SHA-256");
+                    .getInstance("SHA-512");
 
             sha.update(message.getBytes());
             sha.update(("" + nonce).getBytes());

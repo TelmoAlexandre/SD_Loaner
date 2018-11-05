@@ -58,7 +58,7 @@ public class Block
     {
         String msg = message.toString() + previousHash;
         MessageDigest sha = MessageDigest
-                    .getInstance("SHA-256");
+                    .getInstance("SHA-512");
 
             sha.update(msg.getBytes());
             sha.update(("" + nounce).getBytes());
