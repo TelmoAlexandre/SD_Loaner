@@ -7,6 +7,7 @@ package BlockChain;
 
 import AccountManager.AccountManager;
 import AccountServices.Service;
+import GUI.GUI_Main;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +22,13 @@ public class BlockChain
 {
     public List<Block> chain;
 
-    public BlockChain(AccountManager message) throws NoSuchAlgorithmException, InterruptedException
+    public BlockChain(AccountManager message, GUI_Main main) throws NoSuchAlgorithmException, InterruptedException
     {
         chain = new ArrayList<>();
         
         // Cria o primeiro bloco assim que um objeto BlockChain for criado.
         Block block = new Block(null, message);
-        block.mine();
+        block.mine(null);
         chain.add(block);
     }
     
@@ -35,9 +36,10 @@ public class BlockChain
      * Adiciona um novo bloco à block chain.
      * 
      * @param message
+     * @param main
      * @throws Exception 
      */
-    public void add(AccountManager message) throws Exception
+    public void add(AccountManager message, GUI_Main main) throws Exception
     {
         // Cria o primeiro bloco assim que um objeto BlockChain for criado.
         Block last = getLast();
@@ -45,7 +47,7 @@ public class BlockChain
         Service msg = (Service)b.message;
         if (msg.validate(this))
         {
-            b.mine();
+            b.mine(main);
             chain.add(b);
         } else
         {

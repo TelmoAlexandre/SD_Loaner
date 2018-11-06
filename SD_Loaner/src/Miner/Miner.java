@@ -5,22 +5,29 @@
  */
 package Miner;
 
+import BlockChain.Block;
+import GUI.GUI_Main;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.swing.SwingWorker;
 
 /**
  *
  * @author Telmo
  */
-public class Miner
+public class Miner extends SwingWorker<String, Integer>
 {
-
+    GUI_Main main;
+    private final Block block;
     private final String msg;
     private int nounce = 0;
+    private String hashCode;
 
-    public Miner(String msg)
+    public Miner(String msg, GUI_Main main, Block block)
     {
         this.msg = msg;
+        this.main = main;
+        this.block = block;
     }
 
     public int getNounce()
@@ -28,7 +35,13 @@ public class Miner
         return nounce;
     }
 
-    public String mine() throws InterruptedException
+    public String mine() throws Exception
+    {
+        return doInBackground();
+    }
+
+    @Override
+    protected String doInBackground() throws Exception
     {
         AtomicInteger nonceSequence = new AtomicInteger(0);
         AtomicBoolean isSolved = new AtomicBoolean(false);
@@ -37,11 +50,11 @@ public class Miner
 
         MinerThread[] threads = new MinerThread[processors];
 
-        for (int i = 0; i < threads.length; i++)
+        for ( int i = 0; i < threads.length; i++ )
         {
             MinerThread thr = new MinerThread(
                     this.msg,
-                    3,
+                    4,
                     nonceSequence,
                     isSolved
             );
@@ -51,17 +64,31 @@ public class Miner
             thr.start();
         }
 
-        for (MinerThread thread : threads)
+        for ( MinerThread thread : threads )
         {
             thread.join();
-            if (thread.isSolvedByMe())
+            if ( thread.isSolvedByMe() )
             {
                 this.nounce = thread.getSolution();
-                return thread.getHash();
+                hashCode = thread.getHash();
             }
 
         }
 
         return "";
+    }
+
+    @Override
+    public void done()
+    {
+        //abortar threads
+
+        block.hashCode = hashCode;
+        block.nounce = nounce;
+        
+        if ( main != null )
+        {
+            main.showClientAccountMovments();
+        }
     }
 }

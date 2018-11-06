@@ -479,8 +479,26 @@ public class GUI_Main extends javax.swing.JFrame
             @Override
             public void windowClosed(WindowEvent e)
             {
+                showClientAccountMovments();
+            }
+        });
 
-                // Booleano para verificar se foi encontrada a conta do cliente.
+
+    }//GEN-LAST:event_jbCheckMoneyActionPerformed
+
+    private void jbCheckClientAccountsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckClientAccountsActionPerformed
+    {//GEN-HEADEREND:event_jbCheckClientAccountsActionPerformed
+        jtaLedger.setText(accounts.toString());
+    }//GEN-LAST:event_jbCheckClientAccountsActionPerformed
+
+    private void jbCheckLoansActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckLoansActionPerformed
+    {//GEN-HEADEREND:event_jbCheckLoansActionPerformed
+        jtaLedger.setText("");
+    }//GEN-LAST:event_jbCheckLoansActionPerformed
+
+    public void showClientAccountMovments()
+    {
+        // Booleano para verificar se foi encontrada a conta do cliente.
                 boolean found = false;
 
                 for ( BlockChain bc : accounts.accounts )
@@ -522,22 +540,8 @@ public class GUI_Main extends javax.swing.JFrame
                     giveAlertFeedback("Account not found.");
                 }
 
-            }
-        });
-
-
-    }//GEN-LAST:event_jbCheckMoneyActionPerformed
-
-    private void jbCheckClientAccountsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckClientAccountsActionPerformed
-    {//GEN-HEADEREND:event_jbCheckClientAccountsActionPerformed
-        jtaLedger.setText(accounts.toString());
-    }//GEN-LAST:event_jbCheckClientAccountsActionPerformed
-
-    private void jbCheckLoansActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckLoansActionPerformed
-    {//GEN-HEADEREND:event_jbCheckLoansActionPerformed
-        jtaLedger.setText("");
-    }//GEN-LAST:event_jbCheckLoansActionPerformed
-
+    }
+    
     /**
      * Abre uma nova janela onde o cliente consegue preencher as informações da
      * movimentação na sua conta.
@@ -623,7 +627,7 @@ public class GUI_Main extends javax.swing.JFrame
                         mov.sign(pvK);
 
                         // Adiciona o movimento de conta à block chain do cliente
-                        bc.add(mov);
+                        bc.add(mov, this);
                     }
                     catch ( Exception ex )
                     {

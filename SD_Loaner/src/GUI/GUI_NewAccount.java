@@ -182,7 +182,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
                     try
                     {
                         // Cria a conta de cliente
-                        accounts.createAccount(name, publicKey, new String(jpfPassword.getPassword()));
+                        accounts.createAccount(name, publicKey, new String(jpfPassword.getPassword()), main);
 
                         // Passa os dados da nova conta para mostrar a mesma no ledger
                         main.setPublicKey(publicKey);

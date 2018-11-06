@@ -24,7 +24,7 @@ public abstract class AccountManager
         this.publicKey = publicKey;
     }
     
-    protected Key getPublicKey(){
+    public Key getPublicKey(){
         return publicKey;
     }
     

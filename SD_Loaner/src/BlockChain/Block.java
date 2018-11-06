@@ -6,10 +6,12 @@
 package BlockChain;
 
 import AccountManager.AccountManager;
+import GUI.GUI_Main;
 import Miner.Miner;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.util.Base64;
 
 /**
@@ -20,8 +22,8 @@ public class Block
 {
     public AccountManager message;
     // previousHash é o hash do bloco anterior. hash é o hash do bloco
-    String previousHash, hashCode;
-    int nounce = 0;
+    public String previousHash, hashCode;
+    public int nounce = 0;
     MessageDigest messageDigest;
 
     public Block(Block last, AccountManager message) throws NoSuchAlgorithmException
@@ -75,11 +77,21 @@ public class Block
      *
      * @throws java.lang.InterruptedException
      */
-    public void mine() throws InterruptedException 
+    public void mine(GUI_Main main) throws InterruptedException 
     {
         String msg = message.toString() + previousHash;
-        Miner miner = new Miner(msg);
-        hashCode = miner.mine();
+        Miner miner = new Miner(msg, main, this);
+        miner.execute();
         nounce = miner.getNounce();
+    }
+    
+    /**
+     * Retorna a public key da do movimento que se encontra dentro do bloco.
+     * 
+     * @return 
+     */
+    public Key getPublicKey()
+    {
+        return message.getPublicKey();
     }
 }
