@@ -22,7 +22,7 @@ public class BlockChain
 {
     public List<Block> chain;
 
-    public BlockChain(AccountManager message, GUI_Main main) throws NoSuchAlgorithmException, InterruptedException
+    public BlockChain(AccountManager message) throws NoSuchAlgorithmException, InterruptedException
     {
         chain = new ArrayList<>();
         

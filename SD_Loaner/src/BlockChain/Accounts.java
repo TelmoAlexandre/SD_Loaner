@@ -6,7 +6,6 @@
 package BlockChain;
 
 import AccountManager.AccountInformation;
-import AccountServices.AccountMovment;
 import GUI.GUI_Main;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -45,7 +44,7 @@ public class Accounts
 
         // Cria a blockChain do cliente, criando o primeiro bloco que irá conter informações do cliente.
         // Todas as transações do cliente seram guardadas nesta blockChain.
-        BlockChain blockChain = new BlockChain(clientInfo, null);
+        BlockChain blockChain = new BlockChain(clientInfo);
 
         // Adiciona a nova BlockChain do cliente às contas de clientes.
         accounts.add(blockChain);
@@ -62,7 +61,7 @@ public class Accounts
 
         // Cria a blockChain do cliente, criando o primeiro bloco que irá conter informações do cliente.
         // Todas as transações do cliente seram guardadas nesta blockChain.
-        BlockChain blockChain = new BlockChain(clientInfo, main);
+        BlockChain blockChain = new BlockChain(clientInfo);
 
         // Adiciona a nova BlockChain do cliente às contas de clientes.
         accounts.add(blockChain);

@@ -21,7 +21,7 @@ public class MinerThread extends Thread
 
     private final String msg;
     private final int difficulty;
-    private final AtomicInteger nonceSequence;
+    private final AtomicInteger nounceSequence;
     private final AtomicBoolean isSolved;
     private int solution;
     private boolean solvedByMe;
@@ -44,17 +44,17 @@ public class MinerThread extends Thread
 
     public MinerThread(
             String msg, int difficulty,
-            AtomicInteger nonceSequence,
+            AtomicInteger nounceSequence,
             AtomicBoolean isSolved
     )
     {
         this.msg = msg;
         this.difficulty = difficulty;
-        this.nonceSequence = nonceSequence;
+        this.nounceSequence = nounceSequence;
         this.isSolved = isSolved;
     }
 
-    public String calculateHash(String message, int nonce)
+    public String calculateHash(String message, int nounce)
     {
         try
         {
@@ -62,7 +62,7 @@ public class MinerThread extends Thread
                     .getInstance("SHA-512");
 
             sha.update(message.getBytes());
-            sha.update(("" + nonce).getBytes());
+            sha.update(("" + nounce).getBytes());
 
             byte[] digest = sha.digest();
 
@@ -86,7 +86,7 @@ public class MinerThread extends Thread
 
         while (!isSolved.get())
         {
-            int nounce = nonceSequence.getAndIncrement();
+            int nounce = nounceSequence.getAndIncrement();
 
             String hash = this.calculateHash(this.msg, nounce);
 

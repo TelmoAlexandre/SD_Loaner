@@ -17,7 +17,7 @@ import javax.swing.SwingWorker;
  */
 public class Miner extends SwingWorker<String, Integer>
 {
-    GUI_Main main;
+    private GUI_Main main;
     private final Block block;
     private final String msg;
     private int nounce = 0;
@@ -43,6 +43,12 @@ public class Miner extends SwingWorker<String, Integer>
     @Override
     protected String doInBackground() throws Exception
     {
+        // Desabilita os butões de movimentos de conta
+        if ( main != null )
+        {
+            main.disableButtonsWhileMining();
+        }
+
         AtomicInteger nonceSequence = new AtomicInteger(0);
         AtomicBoolean isSolved = new AtomicBoolean(false);
 
@@ -85,10 +91,11 @@ public class Miner extends SwingWorker<String, Integer>
 
         block.hashCode = hashCode;
         block.nounce = nounce;
-        
+
         if ( main != null )
         {
             main.showClientAccountMovments();
+            main.enableButtonsAfterMining();
         }
     }
 }

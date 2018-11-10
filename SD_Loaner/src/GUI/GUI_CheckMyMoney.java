@@ -200,7 +200,7 @@ public class GUI_CheckMyMoney extends javax.swing.JFrame
      *
      * @param main
      */
-    public void passThroughGUI_Main(GUI_Main main)
+    public void loadMain(GUI_Main main)
     {
         this.main = main;
     }

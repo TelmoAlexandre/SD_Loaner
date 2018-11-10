@@ -20,9 +20,9 @@ import java.util.Base64;
  */
 public class AccountMovment extends Service
 {
-    double amount;
-    String type;
-    byte[] signature;
+    private final double amount;
+    private final String type;
+    private byte[] signature;
 
     public AccountMovment(Key publicKey, double value, String type)
     {

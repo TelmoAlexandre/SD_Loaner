@@ -31,7 +31,7 @@ import javax.swing.JOptionPane;
  */
 public class GUI_Main extends javax.swing.JFrame
 {
-    Accounts accounts;
+    private Accounts accounts;
     public double amount;
     public Key publicKey;
     public String passwordHash;
@@ -468,7 +468,7 @@ public class GUI_Main extends javax.swing.JFrame
         GUI_CheckMyMoney cmm = new GUI_CheckMyMoney();
 
         // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
-        cmm.passThroughGUI_Main(this);
+        cmm.loadMain(this);
 
         cmm.setVisible(true);
         cmm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -496,6 +496,10 @@ public class GUI_Main extends javax.swing.JFrame
         jtaLedger.setText("");
     }//GEN-LAST:event_jbCheckLoansActionPerformed
 
+    /**
+     * Apresenta a conta do cliente juntamente com os movimentos de conta.
+     * 
+     */
     public void showClientAccountMovments()
     {
         // Booleano para verificar se foi encontrada a conta do cliente.
@@ -694,7 +698,7 @@ public class GUI_Main extends javax.swing.JFrame
     public void createNewClientAccount()
     {
         GUI_NewAccount newAccountWindow = new GUI_NewAccount();
-        newAccountWindow.loadObjectos(this, accounts);
+        newAccountWindow.loadMainAndAccounts(this, accounts);
         newAccountWindow.setVisible(true);
         newAccountWindow.addWindowListener(new java.awt.event.WindowAdapter()
         {
@@ -816,6 +820,25 @@ public class GUI_Main extends javax.swing.JFrame
         this.amount = amount;
     }
 
+    /**
+     * Desabilita os butões de deposito e de levantamente durante a mineração.
+     * 
+     */
+    public void disableButtonsWhileMining()
+    {
+        jbDeposit.setEnabled(false);
+        jbWithdrawal.setEnabled(false);
+    }
+    
+    /**
+     * Re-abilita os butões de deposito e de levantamente após a mineração.
+     * 
+     */
+    public void enableButtonsAfterMining()
+    {
+        jbDeposit.setEnabled(true);
+        jbWithdrawal.setEnabled(true);
+    }
     /**
      * @param args the command line arguments
      */

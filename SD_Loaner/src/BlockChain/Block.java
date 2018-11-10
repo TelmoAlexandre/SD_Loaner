@@ -11,7 +11,6 @@ import Miner.Miner;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.util.Base64;
 
 /**
@@ -24,7 +23,7 @@ public class Block
     // previousHash é o hash do bloco anterior. hash é o hash do bloco
     public String previousHash, hashCode;
     public int nounce = 0;
-    MessageDigest messageDigest;
+    private final MessageDigest messageDigest;
 
     public Block(Block last, AccountManager message) throws NoSuchAlgorithmException
     {
@@ -75,6 +74,7 @@ public class Block
     /**
      * Mina a transação.
      *
+     * @param main
      * @throws java.lang.InterruptedException
      */
     public void mine(GUI_Main main) throws InterruptedException 
