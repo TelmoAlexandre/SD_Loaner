@@ -56,6 +56,30 @@ public class BlockChain
     }
     
     /**
+     * Adiciona um novo bloco à block chain.
+     * 
+     * @param message
+     * @param main
+     * @param bc
+     * @throws Exception 
+     */
+    public void addLoanPayment(AccountManager message, GUI_Main main, BlockChain bc) throws Exception
+    {
+        // Cria o primeiro bloco assim que um objeto BlockChain for criado.
+        Block last = getLast();
+        Block b = new Block(last, message);
+        Service msg = (Service)b.message;
+        if (msg.validate(bc))
+        {
+            b.mine(main);
+            chain.add(b);
+        } else
+        {
+            throw new RuntimeException("Not enough money to complete the transaction.");
+        }
+    }
+    
+    /**
      * Retorna o último bloco da chain. Verifica a integridade dos blocos à medida que percorre a chain.
      * 
      * @return

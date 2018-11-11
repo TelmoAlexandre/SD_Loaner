@@ -333,20 +333,22 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                         // Assina o movimento
                         mov.sign(pvK);
 
-                        // Adiciona o movimento de conta à block chain do cliente
-                        bc.add(mov, main);
+                        
                         
                         if ( movType.equals("Loan Payment") )
                         {
                             BlockChain loanBC = findLoanBlockChain();
                             
-                            loanBC.add(mov, main);
+                            loanBC.addLoanPayment(mov, main, bc);
                             
                             if ( Loans.getWhatsLeftToPay(loanBC) == 0.0 )
                             {
                                 info.setActiveLoan(false);
                             }
                         }
+                        
+                        // Adiciona o movimento de conta à block chain do cliente
+                        bc.add(mov, main);
                     }
                     catch ( Exception ex )
                     {

@@ -67,8 +67,10 @@ public class AccountMovment extends Service
     }
 
     /**
-     * Corre a Block Chain e calcula o montante de dinheiro do cliente. 
-     * <p>Atualiza o bloco de informação do cliente para conter o total de dinheiro.
+     * Corre a Block Chain e calcula o montante de dinheiro do cliente.
+     * <p>
+     * Atualiza o bloco de informação do cliente para conter o total de
+     * dinheiro.
      *
      * @param bc
      * @return
@@ -94,14 +96,15 @@ public class AccountMovment extends Service
 
         }
 
-        AccountInformation info = (AccountInformation)bc.chain.get(0).message;
+        AccountInformation info = (AccountInformation) bc.chain.get(0).message;
         info.setMoney(money);
         return money;
     }
 
     /**
-     * Retorna o valor do movimento. Se for deposito ou deposito proveniente de um empréstimo, retorna positivo, 
-     * se for levantamento ou pagamento de empréstimo retorna negativo.
+     * Retorna o valor do movimento. Se for deposito ou deposito proveniente de
+     * um empréstimo, retorna positivo, se for levantamento ou pagamento de
+     * empréstimo retorna negativo.
      *
      * @return
      */
