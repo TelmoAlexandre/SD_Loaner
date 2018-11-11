@@ -5,11 +5,11 @@
  */
 package GUI;
 
-import AccountManager.AccountInformation;
-import AccountServices.AccountMovment;
-import BlockChain.Accounts;
+import Information.AccountInformation;
+import BankServices.AccountMovment;
+import AccountsAndLoans.Accounts;
 import BlockChain.BlockChain;
-import BlockChain.Loans;
+import AccountsAndLoans.Loans;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.io.File;
@@ -256,7 +256,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
                     // Chegando aqui, existe certeza que se trata do cliente em questão
 
                     // Caso o cliente não tenha um emprestimo activo, cria um emprestimo
-                    if(!info.getActiveLoan()){
+                    if(!info.clienteHasLoan()){
                     
                     // Verificar se os conteudos intruduzidos manualmente respeitam os limites do spinner
                     jsAmount.commitEdit();

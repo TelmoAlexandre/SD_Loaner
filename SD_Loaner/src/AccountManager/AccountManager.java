@@ -9,7 +9,8 @@ import java.security.Key;
 import java.util.Base64;
 
 /**
- *
+ * Classe abstrata que irá ser herdada por todos os objetos que irão ser colocados dentro dos blocos das BlockChains.
+ * 
  * @author Telmo
  */
 public abstract class AccountManager
@@ -24,6 +25,11 @@ public abstract class AccountManager
         this.publicKey = publicKey;
     }
     
+    /**
+     * Retorna a chave pública do cliente.
+     * 
+     * @return 
+     */
     public Key getPublicKey(){
         return publicKey;
     }

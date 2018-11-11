@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package AccountServices;
+package BankServices;
 
-import AccountManager.AccountInformation;
+import Information.AccountInformation;
 import BlockChain.Block;
 import BlockChain.BlockChain;
 import SecureUtils.SecurityUtils;
@@ -56,7 +56,7 @@ public class AccountMovment extends Service
     @Override
     public boolean validate(BlockChain bc) throws Exception
     {
-        if ( type.equals("Withdrawal") )
+        if ( type.equals("Withdrawal") || type.equals("Loan Payment") )
         {
             return (amount <= getMyMoney(bc) && verifySignature());
         }
@@ -100,8 +100,8 @@ public class AccountMovment extends Service
     }
 
     /**
-     * Retorna o valor do movimento. Se for deposito, retorna positivo, se for
-     * levantamento retorna negativo.
+     * Retorna o valor do movimento. Se for deposito ou deposito proveniente de um empréstimo, retorna positivo, 
+     * se for levantamento ou pagamento de empréstimo retorna negativo.
      *
      * @return
      */

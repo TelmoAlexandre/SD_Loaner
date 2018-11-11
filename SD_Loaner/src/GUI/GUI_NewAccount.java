@@ -5,7 +5,7 @@
  */
 package GUI;
 
-import BlockChain.Accounts;
+import AccountsAndLoans.Accounts;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.io.File;

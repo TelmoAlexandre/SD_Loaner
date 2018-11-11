@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package AccountManager;
+package Information;
 
+import AccountManager.AccountManager;
 import java.security.Key;
 
 /**
@@ -16,7 +17,7 @@ import java.security.Key;
 public class LoanInformation extends AccountManager
 {
     private final double amountRequest, interest;
-    private double leftToPay;
+    private double leftToPay, amountWithInterest;
     private boolean isActive = true;
     private final String clientName;
 
@@ -34,7 +35,7 @@ public class LoanInformation extends AccountManager
         this.clientName = clientName;
 
         // Calcula o montante a pagar já com os interesses incluidos
-        leftToPay = (amountRequest * (100 + interest)) / 100;
+        amountWithInterest = leftToPay = (amountRequest * (100 + interest)) / 100;
     }
 
     /**
@@ -64,9 +65,9 @@ public class LoanInformation extends AccountManager
      *
      * @return O montante que falta pagar.
      */
-    public double getLeftToPay()
+    public double getAmountWithInterest()
     {
-        return leftToPay;
+        return amountWithInterest;
     }
 
     /**
@@ -97,7 +98,7 @@ public class LoanInformation extends AccountManager
     @Override
     public String toString()
     {
-        return "Client: " + clientName + "\nLoan amount: " + amountRequest + "€\nLeft to pay: " + leftToPay + "€";
+        return "Client: " + clientName + "\nLoan amount: " + amountRequest + "€\nTotal Amount: " + amountWithInterest + "€\nLeft to pay: " + leftToPay + "€";
     }
 
 }

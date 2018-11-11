@@ -14,7 +14,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 /**
- *
+ *  Bloco que será inserido na BlockChain.
+ * 
  * @author Telmo
  */
 public class Block
@@ -39,7 +40,7 @@ public class Block
     }
 
     /**
-     * Retorna os conteudos do bloco em forma de String.
+     * Retorna os conteúdos do bloco em forma de String.
      * 
      * @return message + previousHash + hashCode
      */
@@ -72,7 +73,7 @@ public class Block
     }
     
     /**
-     * Mina a transação.
+     * Cria o objeto Miner que por sua vez irá criar e gerir as Threads de mineração.
      *
      * @param main
      * @throws java.lang.InterruptedException
@@ -86,7 +87,7 @@ public class Block
     }
     
     /**
-     * Retorna a public key da do movimento que se encontra dentro do bloco.
+     * Retorna a public key do movimento que se encontra dentro do bloco.
      * 
      * @return 
      */

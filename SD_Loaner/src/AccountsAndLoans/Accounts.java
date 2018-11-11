@@ -3,16 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package BlockChain;
+package AccountsAndLoans;
 
-import AccountManager.AccountInformation;
+import BlockChain.BlockChain;
+import Information.AccountInformation;
 import GUI.GUI_Main;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 /**
- *
+ * Faz a gestão das contas dos clientes.
  * @author Telmo
  */
 public class Accounts
@@ -50,9 +51,20 @@ public class Accounts
         accounts.add(blockChain);
     }
 
+    /**
+     * Cria uma nova conta de cliente.
+     * <p>Cria uma nova BlockChain já com o bloco de informação do cliente.
+     * 
+     * @param name
+     * @param publicKey
+     * @param password
+     * @param main
+     * @throws NoSuchAlgorithmException
+     * @throws InterruptedException 
+     */
     public void createAccount(String name, Key publicKey, String password, GUI_Main main) throws NoSuchAlgorithmException, InterruptedException
     {
-        // Cria a informação do primeiro cliente
+        // Cria a informação do cliente
         AccountInformation clientInfo = new AccountInformation(
                 name, // Nome do cliente
                 publicKey,
@@ -67,6 +79,15 @@ public class Accounts
         accounts.add(blockChain);
     }
 
+    
+    /**
+     * Retorna a BlockChain inteira do cliente como String.
+     * 
+     * @param publicKey
+     * @param passwordHash
+     * @return
+     * @throws NoSuchAlgorithmException 
+     */
     public String toString(Key publicKey, String passwordHash) throws NoSuchAlgorithmException
     {
         // Booleano para verificar se foi encontrada a conta do cliente.

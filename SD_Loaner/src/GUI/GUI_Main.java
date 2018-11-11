@@ -5,12 +5,12 @@
  */
 package GUI;
 
-import AccountManager.AccountInformation;
-import AccountManager.LoanInformation;
-import AccountServices.AccountMovment;
-import BlockChain.Accounts;
+import Information.AccountInformation;
+import Information.LoanInformation;
+import BankServices.AccountMovment;
+import AccountsAndLoans.Accounts;
 import BlockChain.BlockChain;
-import BlockChain.Loans;
+import AccountsAndLoans.Loans;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.awt.event.WindowEvent;
@@ -563,7 +563,7 @@ public class GUI_Main extends javax.swing.JFrame
                     if ( info.authenticateLogin(passwordHash) )
                     {
                         // Verifica o dineiro do cliente.
-                        // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
+                        // O método estático getWhatsLeftToPay atualiza o primeiro bloco da chain, bloco esse que contém
                         // as informações do cliente, com o dinheiro total da conta do cliente.
                         AccountMovment.getMyMoney(bc);
                         jtaLedger.setText(accounts.toString(publicKey, passwordHash));
@@ -677,7 +677,7 @@ public class GUI_Main extends javax.swing.JFrame
                                 if ( info.authenticateLogin(passwordHash) )
                                 {
                                     // Verifica o dineiro do cliente.
-                                    // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
+                                    // O método estático getWhatsLeftToPay atualiza o primeiro bloco da chain, bloco esse que contém
                                     // as informações do cliente, com o dinheiro total da conta do cliente.
                                     AccountMovment.getMyMoney(bc);
                                     jtaLedger.setText(accounts.toString(publicKey, passwordHash));
@@ -775,10 +775,10 @@ public class GUI_Main extends javax.swing.JFrame
     }
 
     /**
-     * Desabilita os butões de deposito e de levantamente durante a mineração.
+     * Desabilita os botões de movimento de conta.
      *
      */
-    public void disableButtonsWhileMining()
+    public void disableButtons()
     {
         jbDeposit.setEnabled(false);
         jbWithdrawal.setEnabled(false);
@@ -787,10 +787,10 @@ public class GUI_Main extends javax.swing.JFrame
     }
 
     /**
-     * Re-abilita os butões de deposito e de levantamente após a mineração.
+     * Ativa os botões de movimento de conta.
      *
      */
-    public void enableButtonsAfterMining()
+    public void enableButtons()
     {
         jbDeposit.setEnabled(true);
         jbWithdrawal.setEnabled(true);

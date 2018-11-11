@@ -3,10 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package BlockChain;
+package AccountsAndLoans;
 
-import AccountManager.LoanInformation;
-import AccountServices.AccountMovment;
+import BlockChain.Block;
+import BlockChain.BlockChain;
+import Information.LoanInformation;
+import BankServices.AccountMovment;
 import GUI.GUI_Main;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -27,7 +29,8 @@ public class Loans
     }
 
     /**
-     * Cria um novo emprestimo
+     * Cria um novo emprestimo.
+     * <p>Cria uma nova BlockChain já com o primeiro bloco de informação do emprestimo.
      *
      * @param publicKey Chave do cliente
      * @param clientName Nome do cliente
@@ -89,18 +92,17 @@ public class Loans
     }
 
     /**
-     * Corre a Block Chain e calcula o montante de dinheiro do cliente.
+     * Corre a Block Chain e calcula o montante pagamentos já efetuados.
      * <p>
-     * Atualiza o bloco de informação do cliente para conter o total de
-     * dinheiro.
+     * Atualiza o bloco de informação do empréstimo para dispor o que falta pagar.
      *
      * @param bc
      * @return
      */
-    public static double getMyMoney(BlockChain bc)
+    public static double getWhatsLeftToPay(BlockChain bc)
     {
         LoanInformation loanInfo = (LoanInformation) bc.chain.get(0).message;
-        double money = loanInfo.getLeftToPay();
+        double money = loanInfo.getAmountWithInterest();
         boolean isFirst = true;
 
         for ( Block b : bc.chain )

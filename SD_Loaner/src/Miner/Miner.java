@@ -12,7 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.SwingWorker;
 
 /**
- *
+ *  Cria e gere Threads mineiras de acordo com o numero de cores do CPU.
+ * 
  * @author Telmo
  */
 public class Miner extends SwingWorker<String, Integer>
@@ -30,23 +31,40 @@ public class Miner extends SwingWorker<String, Integer>
         this.block = block;
     }
 
+    /**
+     * Retorna o nounce do Miner.
+     * 
+     * @return 
+     */
     public int getNounce()
     {
         return nounce;
     }
 
+    /**
+     * Mina e retorna a hash minada.
+     * 
+     * @return
+     * @throws Exception 
+     */
     public String mine() throws Exception
     {
         return doInBackground();
     }
 
+    /**
+     * Cria as Threads mineiras e sincroniza as mesmas.
+     * 
+     * @return
+     * @throws Exception 
+     */
     @Override
     protected String doInBackground() throws Exception
     {
         // Desabilita os butões de movimentos de conta
         if ( main != null )
         {
-            main.disableButtonsWhileMining();
+            main.disableButtons();
         }
 
         AtomicInteger nonceSequence = new AtomicInteger(0);
@@ -84,6 +102,10 @@ public class Miner extends SwingWorker<String, Integer>
         return "";
     }
 
+    /**
+     * Faz os últimos acertos da mineração.
+     * 
+     */
     @Override
     public void done()
     {
@@ -94,7 +116,7 @@ public class Miner extends SwingWorker<String, Integer>
 
         if ( main != null )
         {
-            main.enableButtonsAfterMining();
+            main.enableButtons();
             main.giveNormalFeedback("Mining has finished.");
         }
     }

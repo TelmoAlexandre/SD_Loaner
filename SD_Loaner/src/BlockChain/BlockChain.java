@@ -6,7 +6,7 @@
 package BlockChain;
 
 import AccountManager.AccountManager;
-import AccountServices.Service;
+import BankServices.Service;
 import GUI.GUI_Main;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -55,6 +55,12 @@ public class BlockChain
         }
     }
     
+    /**
+     * Retorna o último bloco da chain. Verifica a integridade dos blocos à medida que percorre a chain.
+     * 
+     * @return
+     * @throws NoSuchAlgorithmException 
+     */
     public Block getLast() throws NoSuchAlgorithmException
     {
         for (int i = 1; i < chain.size(); i++)

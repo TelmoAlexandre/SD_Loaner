@@ -3,15 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package AccountManager;
+package Information;
 
+import AccountManager.AccountManager;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 /**
- *
  * Esta classe contem informações sobre o cliente.
  *
  * @author Telmo
@@ -51,7 +51,7 @@ public class AccountInformation extends AccountManager
     }
 
     /**
-     * Compara o hash da password de login com o hash guardado quando a password
+     * Compara o hash da password de login com o hash guardada quando a password
      * foi definida.
      * <p>
      * O booleano resultanto deste método informa se a autenticação do cliente é
@@ -96,10 +96,21 @@ public class AccountInformation extends AccountManager
         this.activeLoan = bool;
     }
     
-    public boolean getActiveLoan()
+    /**
+     * Retorna se o cliente tem um empréstimo ativo.
+     * 
+     * @return 
+     */
+    public boolean clienteHasLoan()
     {
         return activeLoan;
     }
+    
+    /**
+     * Retorna as informações do cliente.
+     * 
+     * @return 
+     */
     @Override
     public String toString()
     {
