@@ -652,58 +652,6 @@ public class GUI_Main extends javax.swing.JFrame
         GUI_NewAccount newAccountWindow = new GUI_NewAccount();
         newAccountWindow.loadMainAndAccounts(this, accounts);
         newAccountWindow.setVisible(true);
-        newAccountWindow.addWindowListener(new java.awt.event.WindowAdapter()
-        {
-            @Override
-            public void windowClosed(WindowEvent e)
-            {
-                if ( !windowWasCancelled )
-                {
-                    // Booleano para verificar se foi encontrada a conta do cliente.
-                    boolean found = false;
-
-                    for ( BlockChain bc : accounts.accounts )
-                    {
-                        // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
-                        AccountInformation info = (AccountInformation) bc.chain.get(0).message;
-
-                        if ( info.comparePublicKeys(publicKey) )
-                        {
-                            // Se entrar aqui, então encontrou a conta do cliente
-                            found = true;
-
-                            try
-                            {
-                                if ( info.authenticateLogin(passwordHash) )
-                                {
-                                    // Verifica o dineiro do cliente.
-                                    // O método estático getWhatsLeftToPay atualiza o primeiro bloco da chain, bloco esse que contém
-                                    // as informações do cliente, com o dinheiro total da conta do cliente.
-                                    AccountMovment.getMyMoney(bc);
-                                    jtaLedger.setText(accounts.toString(publicKey, passwordHash));
-                                }
-                                else
-                                {
-                                    giveAlertFeedback("Wrong password provided.");
-                                }
-                            }
-                            catch ( NoSuchAlgorithmException ex )
-                            {
-                                giveAlertFeedback(ex.getMessage());
-                            }
-
-                            break;
-                        }
-                    }
-
-                    if ( !found )
-                    {
-                        giveAlertFeedback("Account not found.");
-                    }
-                }
-            }
-        });
-
     }
 
     /**

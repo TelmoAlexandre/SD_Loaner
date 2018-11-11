@@ -488,7 +488,6 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                     
                 }
             }
-            giveAlertFeedback("You have no active loan.");
             
             return false;
         }
