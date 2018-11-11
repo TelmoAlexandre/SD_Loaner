@@ -240,11 +240,27 @@ public class GUI_AccountMovment extends javax.swing.JFrame
     }//GEN-LAST:event_jbLoadPublicKeyActionPerformed
 
     /**
+     * Carrega os objetos necessários para completar o movimento de conta.
+     *
+     * @param main
+     * @param accounts
+     * @param loans
+     * @param movType
+     */
+    public void loadMainAndChains(GUI_Main main, Accounts accounts, Loans loans, String movType)
+    {
+        this.main = main;
+        this.accounts = accounts;
+        this.loans = loans;
+        this.movType = movType;
+    }
+    
+    /**
      * Atualiza o pagamento do emprestimo na blockchain de emprestimos.
      *
      * @return
      */
-    public BlockChain findLoanBlockChain()
+    private BlockChain findLoanBlockChain()
     {
         for ( BlockChain bc : loans.loans )
         {
@@ -349,21 +365,6 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         {
             giveAlertFeedback("Account not found.");
         }
-    }
-
-    /**
-     * Carrega os objetos necessários para completar o movimento de conta.
-     *
-     * @param main
-     * @param accounts
-     * @param loans
-     */
-    public void loadMainAndChains(GUI_Main main, Accounts accounts, Loans loans, String movType)
-    {
-        this.main = main;
-        this.accounts = accounts;
-        this.loans = loans;
-        this.movType = movType;
     }
 
     /**

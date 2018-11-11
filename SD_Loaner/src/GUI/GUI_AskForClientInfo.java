@@ -213,7 +213,7 @@ public class GUI_AskForClientInfo extends javax.swing.JFrame
      *
      * @param feedback
      */
-    public void giveNormalFeedback(String feedback)
+    private void giveNormalFeedback(String feedback)
     {
         jlFeedback.setText(feedback);
         jlFeedback.setForeground(Color.black);
@@ -224,7 +224,7 @@ public class GUI_AskForClientInfo extends javax.swing.JFrame
      *
      * @param feedback
      */
-    public void giveAlertFeedback(String feedback)
+    private void giveAlertFeedback(String feedback)
     {
         jlFeedback.setText(feedback);
         jlFeedback.setForeground(Color.red);

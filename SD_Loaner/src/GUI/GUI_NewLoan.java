@@ -25,7 +25,8 @@ import java.util.Base64;
 import javax.swing.JFileChooser;
 
 /**
- *
+ *  Apresenta uma GUI para a criação de um novo emprestimo.
+ * 
  * @author Telmo
  */
 public class GUI_NewLoan extends javax.swing.JFrame
@@ -233,7 +234,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
      * @throws java.lang.InterruptedException
      * @throws java.text.ParseException
      */
-    public boolean createLoan() throws NoSuchAlgorithmException, InterruptedException, ParseException
+    private boolean createLoan() throws NoSuchAlgorithmException, InterruptedException, ParseException
     {
         boolean found = false;
 
@@ -325,7 +326,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
      *
      * @return
      */
-    public PrivateKey askForPrivateKey()
+    private PrivateKey askForPrivateKey()
     {
         try
         {
@@ -352,7 +353,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
      *
      * @param password
      */
-    public void setPasswordHash(String password)
+    private void setPasswordHash(String password)
     {
         // Transforma a password num hash
         try
@@ -392,7 +393,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
      *
      * @param feedback
      */
-    public void giveNormalFeedback(String feedback)
+    private void giveNormalFeedback(String feedback)
     {
         jlFeedback.setText(feedback);
         jlFeedback.setForeground(Color.black);
@@ -403,7 +404,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
      *
      * @param feedback
      */
-    public void giveAlertFeedback(String feedback)
+    private void giveAlertFeedback(String feedback)
     {
         jlFeedback.setText(feedback);
         jlFeedback.setForeground(Color.red);
@@ -412,7 +413,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[])
+    private static void main(String args[])
     {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

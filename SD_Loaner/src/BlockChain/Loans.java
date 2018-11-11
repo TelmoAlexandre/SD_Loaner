@@ -5,7 +5,6 @@
  */
 package BlockChain;
 
-import AccountManager.AccountInformation;
 import AccountManager.LoanInformation;
 import AccountServices.AccountMovment;
 import GUI.GUI_Main;
@@ -14,7 +13,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 /**
- *
+ *  Contem e gere as BlockChains dos emprestimos.
+ * 
  * @author Telmo
  */
 public class Loans
@@ -32,6 +32,7 @@ public class Loans
      * @param publicKey Chave do cliente
      * @param clientName Nome do cliente
      * @param amountRequest Motante do emprestimo
+     * @param main
      * @throws NoSuchAlgorithmException
      * @throws InterruptedException
      */

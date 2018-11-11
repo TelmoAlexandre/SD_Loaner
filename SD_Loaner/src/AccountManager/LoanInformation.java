@@ -8,7 +8,9 @@ package AccountManager;
 import java.security.Key;
 
 /**
- *
+ * Informação do emprestimo. Deverá ser o conteúdo do primeiro bloco.
+ * <p>Tem informações sobre o cliente, o montante do emprestimo e que ainda falta pagar relativamente ao emprestimo.
+ * 
  * @author Telmo
  */
 public class LoanInformation extends AccountManager
@@ -32,7 +34,7 @@ public class LoanInformation extends AccountManager
         this.clientName = clientName;
 
         // Calcula o montante a pagar já com os interesses incluidos
-        leftToPay = (amountRequest * (100 + 20.0)) / 100;
+        leftToPay = (amountRequest * (100 + interest)) / 100;
     }
 
     /**
@@ -60,13 +62,18 @@ public class LoanInformation extends AccountManager
     /**
      * Retorna o montante que ainda falta pagar do emprestimo.
      *
-     * @return
+     * @return O montante que falta pagar.
      */
     public double getLeftToPay()
     {
         return leftToPay;
     }
 
+    /**
+     * Questiona se o emprestimo se encontra activo.
+     * 
+     * @return Se o emprestimo se encontra activo.
+     */
     public boolean isTheLoanActive()
     {
         return isActive;
@@ -81,6 +88,12 @@ public class LoanInformation extends AccountManager
     {
         this.isActive = bool;
     }
+    
+    /**
+     * Retorna a informação do emprestimo.
+     * 
+     * @return 
+     */
     @Override
     public String toString()
     {
