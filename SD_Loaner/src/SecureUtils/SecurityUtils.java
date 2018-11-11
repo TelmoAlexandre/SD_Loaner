@@ -146,8 +146,8 @@ public class SecurityUtils {
      * @throws IOException
      */
     public static void saveKey(Key key, String fileName) throws IOException {
-        System.out.println("Saving key to file " + fileName + " ...");
-        System.out.println("Key: " + Base64.getEncoder().encodeToString(key.getEncoded()));
+        //System.out.println("Saving key to file " + fileName + " ...");
+        //System.out.println("Key: " + Base64.getEncoder().encodeToString(key.getEncoded()));
         Files.write(Paths.get(fileName), key.getEncoded());
     }
 
@@ -160,11 +160,11 @@ public class SecurityUtils {
      * @throws IOException
      */
     public static Key loadKey(String fileName, String algorithm) throws IOException {
-        System.out.println("Loading key from file " + fileName + " ...");
+        //System.out.println("Loading key from file " + fileName + " ...");
         byte[] encoded = Files.readAllBytes(Paths.get(fileName));
         //gerar a chave com os bytes e com as especificações do algoritmo
         Key key = new SecretKeySpec(encoded, algorithm);
-        System.out.println("Key: " + Base64.getEncoder().encodeToString(key.getEncoded()));
+        //System.out.println("Key: " + Base64.getEncoder().encodeToString(key.getEncoded()));
         return key;
     }
 
@@ -177,7 +177,7 @@ public class SecurityUtils {
      * @throws IOException
      */
     public static Key loadB64Key(String data, String algorithm) throws Exception {
-        System.out.println("Loading key from Base64 ...");
+        //System.out.println("Loading key from Base64 ...");
         byte[] encoded = Base64.getDecoder().decode(data);
         Key key = new SecretKeySpec(encoded, algorithm);
         return key;
@@ -195,14 +195,14 @@ public class SecurityUtils {
      * @throws Exception
      */
     public static Key generateKey(String algorithm, int keySize) throws Exception {
-        System.out.println("Generating " + algorithm + " - " + keySize + " key ...");
+        //System.out.println("Generating " + algorithm + " - " + keySize + " key ...");
         // gerador de chaves
         KeyGenerator keyGen = KeyGenerator.getInstance(algorithm);
         //tamanho da chave
         keyGen.init(keySize);
         //gerar a chave
         Key key = keyGen.generateKey();
-        System.out.println("Key :" + Base64.getEncoder().encodeToString(key.getEncoded()));
+        //System.out.println("Key :" + Base64.getEncoder().encodeToString(key.getEncoded()));
         return key;
     }
 
@@ -252,7 +252,7 @@ public class SecurityUtils {
      * @throws Exception
      */
     public static KeyPair generateKeyPair(int size) throws Exception {
-        System.out.println("Generating RSA " + size + " keys ...");
+        //System.out.println("Generating RSA " + size + " keys ...");
         // gerador de chaves RSA
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         //tamanho da chave

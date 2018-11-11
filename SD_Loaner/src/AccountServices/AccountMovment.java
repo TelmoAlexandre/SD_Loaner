@@ -107,7 +107,7 @@ public class AccountMovment extends Service
      */
     public double getMovmentValue()
     {
-        return (type.equals("Withdrawal")) ? amount * (-1.0) : amount;
+        return (type.equals("Withdrawal") || type.equals("Loan Payment")) ? amount * (-1.0) : amount;
     }
 
     /**

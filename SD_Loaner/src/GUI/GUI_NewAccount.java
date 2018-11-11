@@ -159,6 +159,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
 
     private void jbCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCancelActionPerformed
     {//GEN-HEADEREND:event_jbCancelActionPerformed
+        main.windowWasCancelled = true;
         this.setVisible(false);
         dispose();
     }//GEN-LAST:event_jbCancelActionPerformed
@@ -193,6 +194,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
                         main.giveNormalFeedback("Account created with success.");
                         
                         // Esconde a janela e dá dispose()
+                        main.windowWasCancelled = false;
                         this.setVisible(false);
                         dispose();
                     }
@@ -232,7 +234,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
             }
             catch ( IOException ex )
             {
-                jlFeedback.setText(ex.getMessage());
+                giveAlertFeedback(ex.getMessage());
             }
         }
     }//GEN-LAST:event_jbLoadPublicKeyActionPerformed
@@ -247,6 +249,17 @@ public class GUI_NewAccount extends javax.swing.JFrame
     {
         this.main = main;
         this.accounts = accounts;
+    }
+
+    /**
+     * Fornece feedback ao utilizador.
+     *
+     * @param feedback
+     */
+    public void giveNormalFeedback(String feedback)
+    {
+        jlFeedback.setText(feedback);
+        jlFeedback.setForeground(Color.black);
     }
 
     /**

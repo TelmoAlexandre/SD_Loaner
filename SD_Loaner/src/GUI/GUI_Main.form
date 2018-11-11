@@ -26,16 +26,16 @@
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jlFeedback" max="32767" attributes="0"/>
+                  <Component id="jlFeedback" pref="466" max="32767" attributes="0"/>
                   <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
                       <Component id="jbExit" alignment="0" max="32767" attributes="0"/>
                       <Component id="jPanel2" alignment="0" max="32767" attributes="0"/>
                       <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane1" min="-2" pref="300" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Component id="jScrollPane1" min="-2" pref="327" max="-2" attributes="0"/>
+              <EmptySpace pref="12" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -89,9 +89,7 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <Component id="jPanel5" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jPanel6" max="32767" attributes="0"/>
+                  <Component id="jPanel5" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -99,7 +97,6 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Component id="jPanel5" max="32767" attributes="0"/>
-              <Component id="jPanel6" pref="0" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -116,11 +113,11 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
+                  <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jbCheckClientAccounts" max="32767" attributes="0"/>
                           <Component id="jbCheckLoans" max="32767" attributes="0"/>
-                          <Component id="jbCheckClientAccounts" pref="208" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -154,53 +151,6 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbCheckLoansActionPerformed"/>
               </Events>
-            </Component>
-          </SubComponents>
-        </Container>
-        <Container class="javax.swing.JPanel" name="jPanel6">
-          <Properties>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="Services"/>
-              </Border>
-            </Property>
-          </Properties>
-
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jbSetLoanInterest" max="32767" attributes="0"/>
-                          <Component id="jbAddFunds" alignment="0" max="32767" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="32767" attributes="0"/>
-                      <Component id="jbSetLoanInterest" min="-2" pref="40" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jbAddFunds" min="-2" pref="40" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-          </Layout>
-          <SubComponents>
-            <Component class="javax.swing.JButton" name="jbSetLoanInterest">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Set Loan Interest"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JButton" name="jbAddFunds">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Add Funds"/>
-              </Properties>
             </Component>
           </SubComponents>
         </Container>
@@ -323,7 +273,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jbRequestLoan" alignment="0" max="32767" attributes="0"/>
                           <Component id="jbLoanPayment" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jbCheckRemainingPayments" alignment="1" max="32767" attributes="0"/>
+                          <Component id="jbCheckLoan" alignment="1" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -336,7 +286,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jbLoanPayment" min="-2" pref="40" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jbCheckRemainingPayments" min="-2" pref="40" max="-2" attributes="0"/>
+                      <Component id="jbCheckLoan" min="-2" pref="40" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
@@ -347,16 +297,25 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Request a Loan"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbRequestLoanActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="jbLoanPayment">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Loan Payment"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbLoanPaymentActionPerformed"/>
+              </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="jbCheckRemainingPayments">
+            <Component class="javax.swing.JButton" name="jbCheckLoan">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Check remaining payments"/>
+                <Property name="text" type="java.lang.String" value="Check Loan"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbCheckLoanActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

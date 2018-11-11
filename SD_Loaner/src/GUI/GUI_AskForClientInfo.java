@@ -6,6 +6,7 @@
 package GUI;
 
 import SecureUtils.SecurityUtils;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.security.Key;
@@ -17,18 +18,18 @@ import javax.swing.JFileChooser;
  *
  * @author Telmo
  */
-public class GUI_DepositWithdrawal extends javax.swing.JFrame
+public class GUI_AskForClientInfo extends javax.swing.JFrame
 {
     private Key publicKey;
     private GUI_Main main;
-    
+
     /**
-     * Creates new form GUI_DepositWithdrawal
+     * Creates new form GUI_CheckMyMoney
      */
-    public GUI_DepositWithdrawal()
+    public GUI_AskForClientInfo()
     {
         initComponents();
-        
+
         // Centra a janela
         this.setLocationRelativeTo(null);
     }
@@ -43,22 +44,20 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
     private void initComponents()
     {
 
+        jlFeedback = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        jtfAmount = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
         jbLoadPublicKey = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         jbConfirm = new javax.swing.JButton();
         jbCancel = new javax.swing.JButton();
-        jlFeedback = new javax.swing.JLabel();
         jpfPassword = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setText("Amount:");
+        jlFeedback.setText("Fill up the fields:");
 
-        jLabel2.setText("Public Key:");
+        jLabel1.setText("Public Key:");
 
         jbLoadPublicKey.setText("Load");
         jbLoadPublicKey.addActionListener(new java.awt.event.ActionListener()
@@ -69,9 +68,9 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
             }
         });
 
-        jLabel3.setText("Password:");
+        jLabel2.setText("Password:");
 
-        jbConfirm.setText("Confirm and Sign");
+        jbConfirm.setText("Confirm");
         jbConfirm.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -89,8 +88,6 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
             }
         });
 
-        jlFeedback.setText("Fill up the fields:");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -98,43 +95,36 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jlFeedback)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jSeparator1)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addComponent(jbConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jbCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jpfPassword)
-                        .addComponent(jLabel1)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jLabel2)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jbLoadPublicKey, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addComponent(jLabel3)
-                        .addComponent(jtfAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jbConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jbLoadPublicKey, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jlFeedback)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jpfPassword))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jlFeedback)
-                .addGap(18, 18, 18)
+                .addGap(30, 30, 30)
                 .addComponent(jLabel1)
-                .addGap(4, 4, 4)
-                .addComponent(jtfAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3)
+                .addComponent(jbLoadPublicKey)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jpfPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jbLoadPublicKey))
                 .addGap(18, 18, 18)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jbConfirm)
@@ -145,47 +135,62 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jbCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCancelActionPerformed
-    {//GEN-HEADEREND:event_jbCancelActionPerformed
-        this.setVisible(false);
-        dispose();
-    }//GEN-LAST:event_jbCancelActionPerformed
-
     private void jbConfirmActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbConfirmActionPerformed
     {//GEN-HEADEREND:event_jbConfirmActionPerformed
 
-        // Recolhe a quantidade a transferir
-        main.setAmount(Double.valueOf(jtfAmount.getText()));
-        // Recolhe a chave pública do cliente
-        main.setPublicKey(publicKey);
-        
-        
-        // Transforma a password num hash
-        try
+        if ( !(new String(jpfPassword.getPassword()).equals("")) )
         {
-            MessageDigest hash;
-            hash = MessageDigest
-                    .getInstance("SHA-512");
-            hash.update(
-                    new String(jpfPassword.getPassword()).getBytes()
-            );
-            
-            // Guarda o hash da password no main
-            main.setPasswordHash(
-                    new String(jpfPassword.getPassword())
-            );
+            if ( publicKey != null )
+            {
+                // Recolhe a chave pública do cliente
+                main.setPublicKey(publicKey);
+
+                // Transforma a password num hash
+                try
+                {
+                    MessageDigest hash;
+
+                    hash = MessageDigest
+                            .getInstance("SHA-512");
+
+                    hash.update(
+                            new String(jpfPassword.getPassword()).getBytes()
+                    );
+
+                    main.setPasswordHash(
+                            new String(jpfPassword.getPassword())
+                    );
+                }
+                catch ( NoSuchAlgorithmException ex )
+                {
+                    jlFeedback.setText(ex.getMessage());
+                }
+
+                main.windowWasCancelled = false;
+                this.setVisible(false);
+                dispose();
+            }else{
+                giveAlertFeedback("Please upload a public key.");
+            }
+        }else{
+            giveAlertFeedback("Please enter the password.");
         }
-        catch ( NoSuchAlgorithmException ex )
-        {
-            jlFeedback.setText(ex.getMessage());
-        }
-        
+
+
+    }//GEN-LAST:event_jbConfirmActionPerformed
+
+    private void jbCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCancelActionPerformed
+    {//GEN-HEADEREND:event_jbCancelActionPerformed
+
+        main.windowWasCancelled = true;
         this.setVisible(false);
         dispose();
-    }//GEN-LAST:event_jbConfirmActionPerformed
+
+    }//GEN-LAST:event_jbCancelActionPerformed
 
     private void jbLoadPublicKeyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbLoadPublicKeyActionPerformed
     {//GEN-HEADEREND:event_jbLoadPublicKeyActionPerformed
+
         JFileChooser file = new JFileChooser();
         file.setCurrentDirectory(new File("."));
         int i = file.showOpenDialog(null);
@@ -194,23 +199,47 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
             try
             {
                 publicKey = SecurityUtils.loadKey(file.getSelectedFile().getAbsolutePath(), "RSA");
-            } catch ( IOException ex )
+            }
+            catch ( IOException ex )
             {
                 jlFeedback.setText(ex.getMessage());
             }
         }
+
     }//GEN-LAST:event_jbLoadPublicKeyActionPerformed
 
     /**
+     * Fornece feedback ao utilizador.
+     *
+     * @param feedback
+     */
+    public void giveNormalFeedback(String feedback)
+    {
+        jlFeedback.setText(feedback);
+        jlFeedback.setForeground(Color.black);
+    }
+
+    /**
+     * Fornece feedback de alertas ao utilizador.
+     *
+     * @param feedback
+     */
+    public void giveAlertFeedback(String feedback)
+    {
+        jlFeedback.setText(feedback);
+        jlFeedback.setForeground(Color.red);
+    }
+    
+    /**
      * Permite carregar o objecto GUI_Main.
-     * 
-     * @param main 
+     *
+     * @param main
      */
     public void loadMain(GUI_Main main)
     {
         this.main = main;
     }
-    
+
     /**
      * @param args the command line arguments
      */
@@ -234,20 +263,21 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
         }
         catch ( ClassNotFoundException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_DepositWithdrawal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_AskForClientInfo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         catch ( InstantiationException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_DepositWithdrawal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_AskForClientInfo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         catch ( IllegalAccessException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_DepositWithdrawal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_AskForClientInfo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         catch ( javax.swing.UnsupportedLookAndFeelException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_DepositWithdrawal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_AskForClientInfo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
@@ -255,7 +285,7 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
         {
             public void run()
             {
-                new GUI_DepositWithdrawal().setVisible(true);
+                new GUI_AskForClientInfo().setVisible(true);
             }
         });
     }
@@ -263,13 +293,11 @@ public class GUI_DepositWithdrawal extends javax.swing.JFrame
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton jbCancel;
     private javax.swing.JButton jbConfirm;
     private javax.swing.JButton jbLoadPublicKey;
     private javax.swing.JLabel jlFeedback;
     private javax.swing.JPasswordField jpfPassword;
-    private javax.swing.JTextField jtfAmount;
     // End of variables declaration//GEN-END:variables
 }

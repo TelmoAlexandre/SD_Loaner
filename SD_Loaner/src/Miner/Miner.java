@@ -17,7 +17,7 @@ import javax.swing.SwingWorker;
  */
 public class Miner extends SwingWorker<String, Integer>
 {
-    private GUI_Main main;
+    private final GUI_Main main;
     private final Block block;
     private final String msg;
     private int nounce = 0;
@@ -60,7 +60,7 @@ public class Miner extends SwingWorker<String, Integer>
         {
             MinerThread thr = new MinerThread(
                     this.msg,
-                    4,
+                    3,
                     nonceSequence,
                     isSolved
             );
@@ -94,8 +94,8 @@ public class Miner extends SwingWorker<String, Integer>
 
         if ( main != null )
         {
-            main.showClientAccountMovments();
             main.enableButtonsAfterMining();
+            main.giveNormalFeedback("Mining has finished.");
         }
     }
 }

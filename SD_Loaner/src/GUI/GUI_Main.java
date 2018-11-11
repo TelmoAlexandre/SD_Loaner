@@ -6,9 +6,11 @@
 package GUI;
 
 import AccountManager.AccountInformation;
+import AccountManager.LoanInformation;
 import AccountServices.AccountMovment;
 import BlockChain.Accounts;
 import BlockChain.BlockChain;
+import BlockChain.Loans;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.awt.event.WindowEvent;
@@ -32,9 +34,11 @@ import javax.swing.JOptionPane;
 public class GUI_Main extends javax.swing.JFrame
 {
     private Accounts accounts;
+    private Loans loans;
     public double amount;
     public Key publicKey;
     public String passwordHash;
+    public boolean windowWasCancelled;
 
     /**
      * Creates new form GUI
@@ -45,10 +49,12 @@ public class GUI_Main extends javax.swing.JFrame
 
         // Centra a janela
         this.setLocationRelativeTo(null);
+        windowWasCancelled = false;
 
         try
         {
             accounts = new Accounts();
+            loans = new Loans();
         }
         catch ( Exception ex )
         {
@@ -72,9 +78,6 @@ public class GUI_Main extends javax.swing.JFrame
         jPanel5 = new javax.swing.JPanel();
         jbCheckClientAccounts = new javax.swing.JButton();
         jbCheckLoans = new javax.swing.JButton();
-        jPanel6 = new javax.swing.JPanel();
-        jbSetLoanInterest = new javax.swing.JButton();
-        jbAddFunds = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jbDeposit = new javax.swing.JButton();
@@ -83,7 +86,7 @@ public class GUI_Main extends javax.swing.JFrame
         jPanel4 = new javax.swing.JPanel();
         jbRequestLoan = new javax.swing.JButton();
         jbLoanPayment = new javax.swing.JButton();
-        jbCheckRemainingPayments = new javax.swing.JButton();
+        jbCheckLoan = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
         jbGenerateRSAKeys = new javax.swing.JButton();
         jbCreateNewAccount = new javax.swing.JButton();
@@ -122,11 +125,11 @@ public class GUI_Main extends javax.swing.JFrame
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+            .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jbCheckLoans, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbCheckClientAccounts, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE))
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jbCheckClientAccounts, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jbCheckLoans, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
@@ -139,47 +142,17 @@ public class GUI_Main extends javax.swing.JFrame
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Services"));
-
-        jbSetLoanInterest.setText("Set Loan Interest");
-
-        jbAddFunds.setText("Add Funds");
-
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jbSetLoanInterest, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbAddFunds, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jbSetLoanInterest, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jbAddFunds, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12))
-        );
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Client"));
@@ -240,10 +213,31 @@ public class GUI_Main extends javax.swing.JFrame
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Services"));
 
         jbRequestLoan.setText("Request a Loan");
+        jbRequestLoan.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbRequestLoanActionPerformed(evt);
+            }
+        });
 
         jbLoanPayment.setText("Loan Payment");
+        jbLoanPayment.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbLoanPaymentActionPerformed(evt);
+            }
+        });
 
-        jbCheckRemainingPayments.setText("Check remaining payments");
+        jbCheckLoan.setText("Check Loan");
+        jbCheckLoan.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbCheckLoanActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -254,7 +248,7 @@ public class GUI_Main extends javax.swing.JFrame
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jbRequestLoan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jbLoanPayment, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbCheckRemainingPayments, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jbCheckLoan, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -264,7 +258,7 @@ public class GUI_Main extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jbLoanPayment, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jbCheckRemainingPayments, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jbCheckLoan, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -348,14 +342,14 @@ public class GUI_Main extends javax.swing.JFrame
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jlFeedback, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jlFeedback, javax.swing.GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(jbExit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(12, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -465,21 +459,24 @@ public class GUI_Main extends javax.swing.JFrame
     private void jbCheckMoneyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckMoneyActionPerformed
     {//GEN-HEADEREND:event_jbCheckMoneyActionPerformed
 
-        GUI_CheckMyMoney cmm = new GUI_CheckMyMoney();
+        GUI_AskForClientInfo askForClientInfo = new GUI_AskForClientInfo();
 
         // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
-        cmm.loadMain(this);
+        askForClientInfo.loadMain(this);
 
-        cmm.setVisible(true);
-        cmm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        askForClientInfo.setVisible(true);
+        askForClientInfo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Aguarda que o jframe seja fechado
-        cmm.addWindowListener(new java.awt.event.WindowAdapter()
+        askForClientInfo.addWindowListener(new java.awt.event.WindowAdapter()
         {
             @Override
             public void windowClosed(WindowEvent e)
             {
-                showClientAccountMovments();
+                if ( !windowWasCancelled )
+                {
+                    showClientAccountMovments();
+                }
             }
         });
 
@@ -493,163 +490,92 @@ public class GUI_Main extends javax.swing.JFrame
 
     private void jbCheckLoansActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckLoansActionPerformed
     {//GEN-HEADEREND:event_jbCheckLoansActionPerformed
-        jtaLedger.setText("");
+        jtaLedger.setText(loans.toString());
     }//GEN-LAST:event_jbCheckLoansActionPerformed
 
-    /**
-     * Apresenta a conta do cliente juntamente com os movimentos de conta.
-     * 
-     */
-    public void showClientAccountMovments()
-    {
-        // Booleano para verificar se foi encontrada a conta do cliente.
-                boolean found = false;
+    private void jbRequestLoanActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbRequestLoanActionPerformed
+    {//GEN-HEADEREND:event_jbRequestLoanActionPerformed
+        GUI_NewLoan newLoan = new GUI_NewLoan();
+        newLoan.loadMainAndChains(this, accounts, loans);
+        newLoan.setVisible(true);
+        newLoan.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }//GEN-LAST:event_jbRequestLoanActionPerformed
 
-                for ( BlockChain bc : accounts.accounts )
-                {
-                    // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
-                    AccountInformation info = (AccountInformation) bc.chain.get(0).message;
+    private void jbCheckLoanActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckLoanActionPerformed
+    {//GEN-HEADEREND:event_jbCheckLoanActionPerformed
 
-                    if ( info.comparePublicKeys(publicKey) )
-                    {
-                        // Se entrar aqui, então encontrou a conta do cliente
-                        found = true;
-
-                        try
-                        {
-                            if ( info.authenticateLogin(passwordHash) )
-                            {
-                                // Verifica o dineiro do cliente.
-                                // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
-                                // as informações do cliente, com o dinheiro total da conta do cliente.
-                                AccountMovment.getMyMoney(bc);
-                                jtaLedger.setText(accounts.toString(publicKey, passwordHash));
-                            }
-                            else
-                            {
-                                giveAlertFeedback("Wrong password provided.");
-                            }
-                        }
-                        catch ( NoSuchAlgorithmException ex )
-                        {
-                            giveAlertFeedback(ex.getMessage());
-                        }
-
-                        break;
-                    }
-                }
-
-                if ( !found )
-                {
-                    giveAlertFeedback("Account not found.");
-                }
-
-    }
-    
-    /**
-     * Abre uma nova janela onde o cliente consegue preencher as informações da
-     * movimentação na sua conta.
-     *
-     * @param movType Tipo de movimentação ( 'Deposit' ou 'Withdrawal )
-     */
-    public void callMovmentWindow(String movType)
-    {
-        GUI_DepositWithdrawal movWindow = new GUI_DepositWithdrawal();
+        GUI_AskForClientInfo askForClientInfo = new GUI_AskForClientInfo();
 
         // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
-        movWindow.loadMain(this);
+        askForClientInfo.loadMain(this);
 
-        movWindow.setVisible(true);
-        movWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        askForClientInfo.setVisible(true);
+        askForClientInfo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Aguarda que o jframe seja fechado
-        movWindow.addWindowListener(new java.awt.event.WindowAdapter()
+        askForClientInfo.addWindowListener(new java.awt.event.WindowAdapter()
         {
             @Override
             public void windowClosed(WindowEvent e)
             {
-                // Chama o método que irá criar o movimento de conta
                 try
                 {
-                    performAccountMovment(
-                            movType, // Informa o tipo de movimento ( 'Deposit' ou 'Withdawal' )
-                            askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada
-                    );
+                    if ( !windowWasCancelled )
+                    {
+                        jtaLedger.setText(loans.toString(publicKey));
+                    }
                 }
-                catch ( NoSuchAlgorithmException ex )
+                catch ( Exception ex )
                 {
-                    // Caso ocorra algum erro, informa o utilizador via a label de feedback
-                    giveAlertFeedback(
-                            ex.getMessage()
-                    );
+                    giveAlertFeedback(ex.getMessage());
                 }
             }
-
         });
-    }
+
+    }//GEN-LAST:event_jbCheckLoanActionPerformed
+
+    private void jbLoanPaymentActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbLoanPaymentActionPerformed
+    {//GEN-HEADEREND:event_jbLoanPaymentActionPerformed
+        callMovmentWindow("Loan Payment");
+    }//GEN-LAST:event_jbLoanPaymentActionPerformed
 
     /**
-     * Cria a movimentação pretendida pelo cliente
-     * <p>
-     * Faz a verificação da autenticidade do cliente via a sua password.
+     * Apresenta a conta do cliente juntamente com os movimentos de conta.
      *
-     * @param type
-     * @param pvK
-     * @throws NoSuchAlgorithmException
      */
-    public void performAccountMovment(String type, PrivateKey pvK) throws NoSuchAlgorithmException
+    public void showClientAccountMovments()
     {
-
+        // Booleano para verificar se foi encontrada a conta do cliente.
         boolean found = false;
 
         for ( BlockChain bc : accounts.accounts )
         {
-
             // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
             AccountInformation info = (AccountInformation) bc.chain.get(0).message;
 
-            // Verifica se se trata da block chain do cliente em questão
             if ( info.comparePublicKeys(publicKey) )
             {
-                // Assinala que encontrou a conta do cliente
+                // Se entrar aqui, então encontrou a conta do cliente
                 found = true;
 
-                // Verifica a password do cliente
-                if ( info.authenticateLogin(passwordHash) )
+                try
                 {
-                    // Chegando aqui, existe certeza que se trata do cliente em questão
-
-                    // É criado o movimento de conta
-                    AccountMovment mov = new AccountMovment(
-                            publicKey,
-                            amount,
-                            type);
-
-                    try
+                    if ( info.authenticateLogin(passwordHash) )
                     {
-                        // Assina o movimento
-                        mov.sign(pvK);
-
-                        // Adiciona o movimento de conta à block chain do cliente
-                        bc.add(mov, this);
+                        // Verifica o dineiro do cliente.
+                        // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
+                        // as informações do cliente, com o dinheiro total da conta do cliente.
+                        AccountMovment.getMyMoney(bc);
+                        jtaLedger.setText(accounts.toString(publicKey, passwordHash));
                     }
-                    catch ( Exception ex )
+                    else
                     {
-                        giveAlertFeedback(ex.getMessage());
+                        giveAlertFeedback("Wrong password provided.");
                     }
-
-                    // Verifica o dineiro do cliente.
-                    // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
-                    // as informações do cliente, com o dinheiro total da conta do cliente.
-                    AccountMovment.getMyMoney(bc);
-
-                    // Dá feedback ao cliente
-                    giveNormalFeedback(type + " completed with success.");
-
                 }
-                else
+                catch ( NoSuchAlgorithmException ex )
                 {
-                    giveAlertFeedback("Wrong passoword provided.");
+                    giveAlertFeedback(ex.getMessage());
                 }
 
                 break;
@@ -661,7 +587,33 @@ public class GUI_Main extends javax.swing.JFrame
             giveAlertFeedback("Account not found.");
         }
 
-        jtaLedger.setText(accounts.toString(publicKey, passwordHash));
+    }
+
+    /**
+     * Abre uma nova janela onde o cliente consegue preencher as informações da
+     * movimentação na sua conta.
+     *
+     * @param movType Tipo de movimentação ( 'Deposit' ou 'Withdrawal )
+     */
+    public void callMovmentWindow(String movType)
+    {
+        GUI_AccountMovment movWindow = new GUI_AccountMovment();
+
+        // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
+        movWindow.loadMainAndChains(this, accounts, loans, movType);
+
+        movWindow.setVisible(true);
+        movWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    /**
+     * Escreve no ledger.
+     *
+     * @param str
+     */
+    public void setLedger(String str)
+    {
+        jtaLedger.setText(str);
     }
 
     /**
@@ -705,51 +657,53 @@ public class GUI_Main extends javax.swing.JFrame
             @Override
             public void windowClosed(WindowEvent e)
             {
-                // Booleano para verificar se foi encontrada a conta do cliente.
-                boolean found = false;
-
-                for ( BlockChain bc : accounts.accounts )
+                if ( !windowWasCancelled )
                 {
-                    // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
-                    AccountInformation info = (AccountInformation) bc.chain.get(0).message;
+                    // Booleano para verificar se foi encontrada a conta do cliente.
+                    boolean found = false;
 
-                    if ( info.comparePublicKeys(publicKey) )
+                    for ( BlockChain bc : accounts.accounts )
                     {
-                        // Se entrar aqui, então encontrou a conta do cliente
-                        found = true;
+                        // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
+                        AccountInformation info = (AccountInformation) bc.chain.get(0).message;
 
-                        try
+                        if ( info.comparePublicKeys(publicKey) )
                         {
-                            if ( info.authenticateLogin(passwordHash) )
-                            {
-                                // Verifica o dineiro do cliente.
-                                // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
-                                // as informações do cliente, com o dinheiro total da conta do cliente.
-                                AccountMovment.getMyMoney(bc);
-                                jtaLedger.setText(accounts.toString(publicKey, passwordHash));
-                            }
-                            else
-                            {
-                                giveAlertFeedback("Wrong password provided.");
-                            }
-                        }
-                        catch ( NoSuchAlgorithmException ex )
-                        {
-                            giveAlertFeedback(ex.getMessage());
-                        }
+                            // Se entrar aqui, então encontrou a conta do cliente
+                            found = true;
 
-                        break;
+                            try
+                            {
+                                if ( info.authenticateLogin(passwordHash) )
+                                {
+                                    // Verifica o dineiro do cliente.
+                                    // O método estático getMyMoney atualiza o primeiro bloco da chain, bloco esse que contém
+                                    // as informações do cliente, com o dinheiro total da conta do cliente.
+                                    AccountMovment.getMyMoney(bc);
+                                    jtaLedger.setText(accounts.toString(publicKey, passwordHash));
+                                }
+                                else
+                                {
+                                    giveAlertFeedback("Wrong password provided.");
+                                }
+                            }
+                            catch ( NoSuchAlgorithmException ex )
+                            {
+                                giveAlertFeedback(ex.getMessage());
+                            }
+
+                            break;
+                        }
+                    }
+
+                    if ( !found )
+                    {
+                        giveAlertFeedback("Account not found.");
                     }
                 }
-
-                if ( !found )
-                {
-                    giveAlertFeedback("Account not found.");
-                }
             }
-                    
         });
-        
+
     }
 
     /**
@@ -790,7 +744,7 @@ public class GUI_Main extends javax.swing.JFrame
             hash.update(
                     password.getBytes()
             );
-            
+
             // Guarda o hash da password
             passwordHash = Base64.getEncoder().encodeToString(hash.digest());
         }
@@ -822,23 +776,28 @@ public class GUI_Main extends javax.swing.JFrame
 
     /**
      * Desabilita os butões de deposito e de levantamente durante a mineração.
-     * 
+     *
      */
     public void disableButtonsWhileMining()
     {
         jbDeposit.setEnabled(false);
         jbWithdrawal.setEnabled(false);
+        jbRequestLoan.setEnabled(false);
+        jbLoanPayment.setEnabled(false);
     }
-    
+
     /**
      * Re-abilita os butões de deposito e de levantamente após a mineração.
-     * 
+     *
      */
     public void enableButtonsAfterMining()
     {
         jbDeposit.setEnabled(true);
         jbWithdrawal.setEnabled(true);
+        jbRequestLoan.setEnabled(true);
+        jbLoanPayment.setEnabled(true);
     }
+
     /**
      * @param args the command line arguments
      */
@@ -909,21 +868,18 @@ public class GUI_Main extends javax.swing.JFrame
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JButton jbAddFunds;
     private javax.swing.JButton jbCheckClientAccounts;
+    private javax.swing.JButton jbCheckLoan;
     private javax.swing.JButton jbCheckLoans;
     private javax.swing.JButton jbCheckMoney;
-    private javax.swing.JButton jbCheckRemainingPayments;
     private javax.swing.JButton jbCreateNewAccount;
     private javax.swing.JButton jbDeposit;
     private javax.swing.JButton jbExit;
     private javax.swing.JButton jbGenerateRSAKeys;
     private javax.swing.JButton jbLoanPayment;
     private javax.swing.JButton jbRequestLoan;
-    private javax.swing.JButton jbSetLoanInterest;
     private javax.swing.JButton jbWithdrawal;
     private javax.swing.JLabel jlFeedback;
     private javax.swing.JTextArea jtaLedger;

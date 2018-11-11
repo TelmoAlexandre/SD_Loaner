@@ -44,7 +44,7 @@ public class Accounts
 
         // Cria a blockChain do cliente, criando o primeiro bloco que irá conter informações do cliente.
         // Todas as transações do cliente seram guardadas nesta blockChain.
-        BlockChain blockChain = new BlockChain(clientInfo);
+        BlockChain blockChain = new BlockChain(clientInfo, null);
 
         // Adiciona a nova BlockChain do cliente às contas de clientes.
         accounts.add(blockChain);
@@ -61,7 +61,7 @@ public class Accounts
 
         // Cria a blockChain do cliente, criando o primeiro bloco que irá conter informações do cliente.
         // Todas as transações do cliente seram guardadas nesta blockChain.
-        BlockChain blockChain = new BlockChain(clientInfo);
+        BlockChain blockChain = new BlockChain(clientInfo, main);
 
         // Adiciona a nova BlockChain do cliente às contas de clientes.
         accounts.add(blockChain);
@@ -102,6 +102,11 @@ public class Accounts
         return "Account not found.";
     }
 
+    /**
+     * Retorna o bloco de informação de todos os clientes.
+     * 
+     * @return 
+     */
     @Override
     public String toString()
     {
