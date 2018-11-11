@@ -67,6 +67,16 @@ public class LoanInformation extends AccountManager
         return leftToPay;
     }
 
+    public boolean isTheLoanActive()
+    {
+        return isActive;
+    }
+    
+    /**
+     * Permite alterar o estado do emprestimo.
+     * 
+     * @param bool 
+     */
     public void setIsActive(boolean bool)
     {
         this.isActive = bool;

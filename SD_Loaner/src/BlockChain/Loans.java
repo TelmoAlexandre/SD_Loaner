@@ -69,7 +69,7 @@ public class Loans
             // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação do emprestimop
             LoanInformation info = (LoanInformation) bc.chain.get(0).message;
 
-            if ( info.comparePublicKeys(publicKey) )
+            if ( info.comparePublicKeys(publicKey) && info.isTheLoanActive())
             {
                 // Se entrar aqui, então encontrou a conta do cliente
                 found = true;
