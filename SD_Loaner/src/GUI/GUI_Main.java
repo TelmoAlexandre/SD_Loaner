@@ -51,6 +51,8 @@ public class GUI_Main extends javax.swing.JFrame
         this.setLocationRelativeTo(null);
         windowWasCancelled = false;
 
+        jtaLedger.setEditable(false);
+        
         try
         {
             accounts = new Accounts();
