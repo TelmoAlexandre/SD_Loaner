@@ -15,12 +15,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 /**
- *  Contem e gere as BlockChains dos emprestimos.
- * 
+ * Contem e gere as BlockChains dos emprestimos.
+ *
  * @author Telmo
  */
 public class Loans
 {
+
     public ArrayList<BlockChain> loans;
 
     public Loans()
@@ -30,7 +31,9 @@ public class Loans
 
     /**
      * Cria um novo emprestimo.
-     * <p>Cria uma nova BlockChain já com o primeiro bloco de informação do emprestimo.
+     * <p>
+     * Cria uma nova BlockChain já com o primeiro bloco de informação do
+     * emprestimo.
      *
      * @param publicKey Chave do cliente
      * @param clientName Nome do cliente
@@ -57,6 +60,49 @@ public class Loans
     }
 
     /**
+     * Recebe uma chave pública e verifica se esse cliente tem um empréstimo activo.
+     * 
+     * @param key
+     * @return 
+     */
+    public boolean hasActiveLoan(Key key)
+    {
+
+        for (BlockChain bc : loans) 
+        {
+            if(bc.chain.get(0).message.comparePublicKeys(key))
+            {
+                return isThisLoanActive(bc);
+            }
+        }
+
+        return true;
+    }
+    
+    /**
+     * Recebe um empréstimo e verfifica se se encontra activo.
+     * 
+     * @param bc
+     * @return 
+     */
+    public boolean isThisLoanActive(BlockChain bc)
+    {
+        return (AccountMovment.getMyMoney(bc) == 0.0);
+    }
+    
+    /**
+     * Recebe a BlockChain do empréstimo e o montante a pagar e valida-os.
+     * 
+     * @param bc
+     * @param amount
+     * @return 
+     */
+    public boolean loanValidate(BlockChain bc, double amount)
+    {
+        return (amount <= AccountMovment.getMyMoney(bc));
+    }
+    
+    /**
      * Imprime a blockChain do emprestimo.
      *
      * @param publicKey Chave do cliente
@@ -68,12 +114,12 @@ public class Loans
         // Booleano para verificar se foi encontrada o emprestimo
         boolean found = false;
 
-        for ( BlockChain bc : loans )
+        for (BlockChain bc : loans)
         {
             // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação do emprestimop
             LoanInformation info = (LoanInformation) bc.chain.get(0).message;
 
-            if ( info.comparePublicKeys(publicKey) && info.isTheLoanActive())
+            if (info.comparePublicKeys(publicKey) && hasActiveLoan(publicKey))
             {
                 // Se entrar aqui, então encontrou a conta do cliente
                 found = true;
@@ -83,7 +129,7 @@ public class Loans
             }
         }
 
-        if ( !found )
+        if (!found)
         {
             throw new RuntimeException("Loan not found.");
         }
@@ -94,7 +140,8 @@ public class Loans
     /**
      * Corre a Block Chain e calcula o montante pagamentos já efetuados.
      * <p>
-     * Atualiza o bloco de informação do empréstimo para dispor o que falta pagar.
+     * Atualiza o bloco de informação do empréstimo para dispor o que falta
+     * pagar.
      *
      * @param bc
      * @return
@@ -105,14 +152,13 @@ public class Loans
         double money = loanInfo.getAmountWithInterest();
         boolean isFirst = true;
 
-        for ( Block b : bc.chain )
+        for (Block b : bc.chain)
         {
             // Salta o primeiro bloco da chain pois este é apenas informação do cliente.
-            if ( isFirst )
+            if (isFirst)
             {
                 isFirst = !isFirst;
-            }
-            else
+            } else
             {
                 AccountMovment mov = (AccountMovment) b.message;
 
@@ -122,12 +168,6 @@ public class Loans
         }
 
         LoanInformation info = (LoanInformation) bc.chain.get(0).message;
-        // Caso o emprestimo estja pago, ativa os booleanos
-        if ( money == 0.0 )
-        {
-            info.setIsActive(false);
-        }
-        info.setLeftToPay(money);
         return money;
     }
 
@@ -141,7 +181,7 @@ public class Loans
     {
         StringBuilder txt = new StringBuilder();
 
-        for ( BlockChain bc : loans )
+        for (BlockChain bc : loans)
         {
             txt.append(bc.chain.get(0).toString()).append("\n\n");
         }

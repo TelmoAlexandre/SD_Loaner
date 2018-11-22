@@ -20,7 +20,6 @@ public class AccountInformation extends AccountManager
 {
     private final String name;
     private String passwordHash;
-    private boolean activeLoan;
 
     public AccountInformation(String name, Key publickKey, String password) throws NoSuchAlgorithmException
     {
@@ -28,7 +27,6 @@ public class AccountInformation extends AccountManager
         super(publickKey);
 
         this.name = name;
-        this.activeLoan = false;
 
         setPassword(password);
     }
@@ -73,26 +71,6 @@ public class AccountInformation extends AccountManager
     public String getName()
     {
         return name;
-    }
-
-    /**
-     * Permite alterar o booleano do emprestimo activo.
-     * 
-     * @param bool 
-     */
-    public void setActiveLoan(boolean bool)
-    {
-        this.activeLoan = bool;
-    }
-    
-    /**
-     * Retorna se o cliente tem um empréstimo ativo.
-     * 
-     * @return 
-     */
-    public boolean clienteHasLoan()
-    {
-        return activeLoan;
     }
     
     /**

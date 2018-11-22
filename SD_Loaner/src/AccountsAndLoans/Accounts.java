@@ -5,6 +5,7 @@
  */
 package AccountsAndLoans;
 
+import BankServices.AccountMovment;
 import BlockChain.BlockChain;
 import Information.AccountInformation;
 import GUI.GUI_Main;
@@ -135,7 +136,8 @@ public class Accounts
                 
         for ( BlockChain bc : accounts )
         {
-            txt.append(bc.chain.get(0).toString()).append("\n\n");
+            txt.append(bc.chain.get(0).toString()).append("\n");
+            txt.append("Total Money: ").append(AccountMovment.getMyMoney(bc)).append("€\n\n");
         }
 
         return txt.toString();

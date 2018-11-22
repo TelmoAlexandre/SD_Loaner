@@ -278,7 +278,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
             LoanInformation loanInfo = (LoanInformation) bc.chain.get(0).message;
 
             // Encontra o emprestimo do cliente
-            if ( loanInfo.comparePublicKeys(publicKey) && loanInfo.isTheLoanActive() )
+            if ( loanInfo.comparePublicKeys(publicKey) && loans.isThisLoanActive(bc) )
             {
                 // Retorna a blockchain que contém o emprestimo
                 return bc;
@@ -340,11 +340,6 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                             BlockChain loanBC = findLoanBlockChain();
                             
                             loanBC.addLoanPayment(mov, main, bc);
-                            
-                            if ( Loans.getWhatsLeftToPay(loanBC) == 0.0 )
-                            {
-                                info.setActiveLoan(false);
-                            }
                         }
                         
                         // Adiciona o movimento de conta à block chain do cliente
@@ -470,13 +465,13 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                 LoanInformation info = (LoanInformation) bc.chain.get(0).message;
 
                 // Verifica se se trata da block chain do cliente em questão
-                if ( info.comparePublicKeys(publicKey)  && info.isTheLoanActive() )
+                if ( info.comparePublicKeys(publicKey)  && loans.isThisLoanActive(bc) )
                 {
                     // Transformar o conteudo do spinner num double
                     String value = jsAmount.getValue() + "";
                     double amount = Double.parseDouble(value);
                     
-                    if ( info.validate(amount) )
+                    if ( loans.loanValidate(bc, amount) )
                     {
                         return true;
                     }

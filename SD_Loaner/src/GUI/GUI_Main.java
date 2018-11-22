@@ -487,6 +487,7 @@ public class GUI_Main extends javax.swing.JFrame
     private void jbCheckClientAccountsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckClientAccountsActionPerformed
     {//GEN-HEADEREND:event_jbCheckClientAccountsActionPerformed
         jtaLedger.setText(accounts.toString());
+        
     }//GEN-LAST:event_jbCheckClientAccountsActionPerformed
 
     private void jbCheckLoansActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckLoansActionPerformed

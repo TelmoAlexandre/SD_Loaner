@@ -17,8 +17,7 @@ import java.security.Key;
 public class LoanInformation extends AccountManager
 {
     private final double amountRequest, interest;
-    private double leftToPay, amountWithInterest;
-    private boolean isActive = true;
+    private double amountWithInterest;
     private final String clientName;
 
     /**
@@ -35,29 +34,7 @@ public class LoanInformation extends AccountManager
         this.clientName = clientName;
 
         // Calcula o montante a pagar já com os interesses incluidos
-        amountWithInterest = leftToPay = (amountRequest * (100 + interest)) / 100;
-    }
-
-    /**
-     * Valida se o pagamento é possivel.
-     * 
-     * @param amountToPay
-     * @return 
-     */
-    public boolean validate(double amountToPay)
-    {
-        return (amountToPay <= leftToPay);
-    }
-
-    /**
-     * Permite definir o montante restante do emprestimo.
-     * <p>Permite saber que o emprestimo ainda se encontra ativo.
-     *
-     * @param lefToPay 
-     */
-    public void setLeftToPay(double lefToPay)
-    {
-        this.leftToPay = lefToPay;
+        amountWithInterest = (amountRequest * (100 + interest)) / 100;
     }
 
     /**
@@ -69,26 +46,6 @@ public class LoanInformation extends AccountManager
     {
         return amountWithInterest;
     }
-
-    /**
-     * Questiona se o emprestimo se encontra activo.
-     * 
-     * @return Se o emprestimo se encontra activo.
-     */
-    public boolean isTheLoanActive()
-    {
-        return isActive;
-    }
-    
-    /**
-     * Permite alterar o estado do emprestimo.
-     * 
-     * @param bool 
-     */
-    public void setIsActive(boolean bool)
-    {
-        this.isActive = bool;
-    }
     
     /**
      * Retorna a informação do emprestimo.
@@ -98,7 +55,7 @@ public class LoanInformation extends AccountManager
     @Override
     public String toString()
     {
-        return "Client: " + clientName + "\nLoan amount: " + amountRequest + "€\nTotal Amount: " + amountWithInterest + "€\nLeft to pay: " + leftToPay + "€";
+        return "Client: " + clientName + "\nLoan amount: " + amountRequest + "€\nTotal Amount: " + amountWithInterest + "€\n";
     }
 
 }

@@ -25,12 +25,13 @@ import java.util.Base64;
 import javax.swing.JFileChooser;
 
 /**
- *  Apresenta uma GUI para a criação de um novo emprestimo.
- * 
+ * Apresenta uma GUI para a criação de um novo emprestimo.
+ *
  * @author Telmo
  */
 public class GUI_NewLoan extends javax.swing.JFrame
 {
+
     private GUI_Main main;
     private Accounts accounts;
     private Loans loans;
@@ -162,12 +163,12 @@ public class GUI_NewLoan extends javax.swing.JFrame
 
     private void jbConfirmAndSignActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbConfirmAndSignActionPerformed
     {//GEN-HEADEREND:event_jbConfirmAndSignActionPerformed
-     
+
         // Verifica se o campo password foi preenchido
-        if ( !(new String(jpfPassword.getPassword()).equals("")) )
+        if (!(new String(jpfPassword.getPassword()).equals("")))
         {
             // Por fim verifica se foi carregada uma publicKey
-            if ( publicKey != null )
+            if (publicKey != null)
             {
 
                 // Cria o hash da password e guarda o mesmo no atributo passwordHash
@@ -177,23 +178,20 @@ public class GUI_NewLoan extends javax.swing.JFrame
                 {
                     // Verifica se o cliente tem conta, e caso tenha chama um metodo para criar o emprestimo
                     // Caso tenha sido criado o emprestimo, fecha a janela
-                    if ( createLoan() )
+                    if (createLoan())
                     {
                         this.setVisible(false);
                         dispose();
                     }
-                }
-                catch ( InterruptedException | NoSuchAlgorithmException | ParseException ex )
+                } catch (InterruptedException | NoSuchAlgorithmException | ParseException ex)
                 {
                     giveAlertFeedback(ex.getMessage());
                 }
-            }
-            else
+            } else
             {
                 giveAlertFeedback("A public key is required to be loaded.");
             }
-        }
-        else
+        } else
         {
             giveAlertFeedback("Passwords field is empty.");
         }
@@ -212,13 +210,12 @@ public class GUI_NewLoan extends javax.swing.JFrame
         JFileChooser file = new JFileChooser();
         file.setCurrentDirectory(new File("."));
         int i = file.showOpenDialog(null);
-        if ( i == JFileChooser.APPROVE_OPTION )
+        if (i == JFileChooser.APPROVE_OPTION)
         {
             try
             {
                 publicKey = SecurityUtils.loadKey(file.getSelectedFile().getAbsolutePath(), "RSA");
-            }
-            catch ( IOException ex )
+            } catch (IOException ex)
             {
                 giveAlertFeedback(ex.getMessage());
             }
@@ -229,7 +226,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
      * Verifica se o cliente tem conta, caso tenha e a password esteja correta,
      * cria o emprestimo.
      *
-     * @return 
+     * @return
      * @throws java.security.NoSuchAlgorithmException
      * @throws java.lang.InterruptedException
      * @throws java.text.ParseException
@@ -238,73 +235,69 @@ public class GUI_NewLoan extends javax.swing.JFrame
     {
         boolean found = false;
 
-        for ( BlockChain bc : accounts.accounts )
+        for (BlockChain bc : accounts.accounts)
         {
 
             // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
             AccountInformation info = (AccountInformation) bc.chain.get(0).message;
 
             // Verifica se se trata da block chain do cliente em questão
-            if ( info.comparePublicKeys(publicKey) )
+            if (info.comparePublicKeys(publicKey))
             {
                 // Assinala que encontrou a conta do cliente
                 found = true;
 
                 // Verifica a password do cliente
-                if ( info.authenticateLogin(passwordHash) )
+                if (info.authenticateLogin(passwordHash))
                 {
                     // Chegando aqui, existe certeza que se trata do cliente em questão
 
                     // Caso o cliente não tenha um emprestimo activo, cria um emprestimo
-                    if(!info.clienteHasLoan()){
-                    
-                    // Verificar se os conteudos intruduzidos manualmente respeitam os limites do spinner
-                    jsAmount.commitEdit();
-                    // Transformar o conteudo do spinner num double
-                    String value = jsAmount.getValue() + "";
-                    double amount = Double.parseDouble(value);
-                    
-                    // É criado o emprestimo
-                    loans.createLoan(
-                            publicKey,
-                            info.getName(),
-                            amount,
-                            main
-                    );
-
-                    // É criado o movimento de conta
-                    AccountMovment mov = new AccountMovment(
-                            publicKey,
-                            amount,
-                            "Loan");
-
-                    try
+                    if (!loans.hasActiveLoan(publicKey))
                     {
-                        // Assina o movimento
-                        mov.sign(askForPrivateKey());
 
-                        // Adiciona o movimento de conta à block chain do cliente
-                        bc.add(mov, main);
-                    }
-                    catch ( Exception ex )
-                    {
-                        giveAlertFeedback(ex.getMessage());
-                    }
-                    
-                    // Dá feedback ao cliente
-                    main.giveNormalFeedback("Loan created with success.");
-                    info.setActiveLoan(true);
-                    
-                    return true;
-                    }
-                    
+                        // Verificar se os conteudos intruduzidos manualmente respeitam os limites do spinner
+                        jsAmount.commitEdit();
+                        // Transformar o conteudo do spinner num double
+                        String value = jsAmount.getValue() + "";
+                        double amount = Double.parseDouble(value);
+
+                        // É criado o emprestimo
+                        loans.createLoan(
+                                publicKey,
+                                info.getName(),
+                                amount,
+                                main
+                        );
+
+                        // É criado o movimento de conta
+                        AccountMovment mov = new AccountMovment(
+                                publicKey,
+                                amount,
+                                "Loan");
+
+                        try
+                        {
+                            // Assina o movimento
+                            mov.sign(askForPrivateKey());
+
+                            // Adiciona o movimento de conta à block chain do cliente
+                            bc.add(mov, main);
+                        } catch (Exception ex)
+                        {
+                            giveAlertFeedback(ex.getMessage());
+                        }
+
+                        // Dá feedback ao cliente
+                        main.giveNormalFeedback("Loan created with success.");
+                        return true;
+                    } 
                     else
                     {
                         giveNormalFeedback("You already have an active loan.");
                     }
 
-                }
-                else
+                } else
                 {
                     giveAlertFeedback("Wrong passoword provided.");
                 }
@@ -313,7 +306,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
             }
         }
 
-        if ( !found )
+        if (!found)
         {
             giveAlertFeedback("Account not found.");
         }
@@ -333,21 +326,20 @@ public class GUI_NewLoan extends javax.swing.JFrame
             JFileChooser file = new JFileChooser();
             file.setCurrentDirectory(new File("."));
             int i = file.showOpenDialog(null);
-            if ( i == JFileChooser.APPROVE_OPTION )
+            if (i == JFileChooser.APPROVE_OPTION)
             {
                 byte[] privateKeyBytes = Files.readAllBytes(Paths.get(file.getSelectedFile().getAbsolutePath()));
                 PrivateKey privateKey = (PrivateKey) SecurityUtils.getPrivateKey(privateKeyBytes);
                 return privateKey;
             }
-        }
-        catch ( Exception ex )
+        } catch (Exception ex)
         {
             giveAlertFeedback(ex.getMessage());
         }
 
         return null;
     }
-    
+
     /**
      * Recebe a password, cria o hash e guarda o mesmo.
      *
@@ -367,8 +359,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
 
             // Guarda o hash da password
             passwordHash = Base64.getEncoder().encodeToString(hash.digest());
-        }
-        catch ( NoSuchAlgorithmException ex )
+        } catch (NoSuchAlgorithmException ex)
         {
             giveAlertFeedback(ex.getMessage());
         }
@@ -376,10 +367,10 @@ public class GUI_NewLoan extends javax.swing.JFrame
 
     /**
      * Carrega os objetos necessários para completar o emprestimo.
-     * 
+     *
      * @param main
      * @param accounts
-     * @param loans 
+     * @param loans
      */
     public void loadMainAndChains(GUI_Main main, Accounts accounts, Loans loans)
     {
@@ -422,28 +413,24 @@ public class GUI_NewLoan extends javax.swing.JFrame
          */
         try
         {
-            for ( javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels() )
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())
             {
-                if ( "Nimbus".equals(info.getName()) )
+                if ("Nimbus".equals(info.getName()))
                 {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
             }
-        }
-        catch ( ClassNotFoundException ex )
+        } catch (ClassNotFoundException ex)
         {
             java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        catch ( InstantiationException ex )
+        } catch (InstantiationException ex)
         {
             java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        catch ( IllegalAccessException ex )
+        } catch (IllegalAccessException ex)
         {
             java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        catch ( javax.swing.UnsupportedLookAndFeelException ex )
+        } catch (javax.swing.UnsupportedLookAndFeelException ex)
         {
             java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
