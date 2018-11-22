@@ -97,7 +97,6 @@ public class AccountMovment extends Service
         }
 
         AccountInformation info = (AccountInformation) bc.chain.get(0).message;
-        info.setMoney(money);
         return money;
     }
 

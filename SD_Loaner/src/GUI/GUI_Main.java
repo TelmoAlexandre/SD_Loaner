@@ -6,7 +6,6 @@
 package GUI;
 
 import Information.AccountInformation;
-import Information.LoanInformation;
 import BankServices.AccountMovment;
 import AccountsAndLoans.Accounts;
 import BlockChain.BlockChain;
@@ -567,8 +566,8 @@ public class GUI_Main extends javax.swing.JFrame
                         // Verifica o dineiro do cliente.
                         // O método estático getWhatsLeftToPay atualiza o primeiro bloco da chain, bloco esse que contém
                         // as informações do cliente, com o dinheiro total da conta do cliente.
-                        AccountMovment.getMyMoney(bc);
                         jtaLedger.setText(accounts.toString(publicKey, passwordHash));
+                        jtaLedger.append("{\n Total money: " + AccountMovment.getMyMoney(bc)+ "€\n}");
                     }
                     else
                     {

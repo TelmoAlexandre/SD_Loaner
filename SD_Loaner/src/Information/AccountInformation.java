@@ -20,7 +20,6 @@ public class AccountInformation extends AccountManager
 {
     private final String name;
     private String passwordHash;
-    private double money;
     private boolean activeLoan;
 
     public AccountInformation(String name, Key publickKey, String password) throws NoSuchAlgorithmException
@@ -77,16 +76,6 @@ public class AccountInformation extends AccountManager
     }
 
     /**
-     * Define o total de dinheiro do cliente.
-     *
-     * @param money
-     */
-    public void setMoney(double money)
-    {
-        this.money = money;
-    }
-
-    /**
      * Permite alterar o booleano do emprestimo activo.
      * 
      * @param bool 
@@ -114,7 +103,7 @@ public class AccountInformation extends AccountManager
     @Override
     public String toString()
     {
-        return "Client: " + name + "\nTotal money: " + money;
+        return "Client: " + name;
 
     }
 }
