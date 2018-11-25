@@ -55,7 +55,7 @@ public class LoanInformation extends AccountManager
     @Override
     public String toString()
     {
-        return "Client: " + clientName + "\nLoan amount: " + amountRequest + "€\nTotal Amount: " + amountWithInterest + "€\n";
+        return "Client: " + clientName + "\nLoan amount: " + amountRequest + "€\nTotal Amount: " + amountWithInterest + "€";
     }
 
 }

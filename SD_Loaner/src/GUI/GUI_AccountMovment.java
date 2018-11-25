@@ -32,6 +32,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
 {
     private Key publicKey;
     private BlockChain blockChain;
+    private double loanWithInterest;
     private String loanBlockHash;
     private GUI_Main main;
     private String passwordHash, movType;
@@ -376,18 +377,18 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                     // Transformar o conteudo do spinner num double
                     String value = jsAmount.getValue() + "";
                     double amount = Double.parseDouble(value);
-                    
+
                     // Recolhe o montante restante a pagar no emprestimo
-                    double whatsLeftToPay = LoanPayment.whatsLeftToPayInThisLoan(loanBlockHash, blockChain, amount);
-                    
+                    double whatsLeftToPay = LoanPayment.whatsLeftToPayInThisLoan(loanBlockHash, blockChain, loanWithInterest);
+
                     // Caso o cliente tente pagar um motante maior do que falta pagar no emprestimo, 
                     // reduz esse motante para o total que falta pagar
-                    amount = (amount > whatsLeftToPay)? whatsLeftToPay : amount;
+                    amount = (amount > whatsLeftToPay) ? whatsLeftToPay : amount;
 
                     // É criado o movimento de conta
                     LoanPayment payment = new LoanPayment(
-                            publicKey, 
-                            amount, 
+                            publicKey,
+                            amount,
                             loanBlockHash
                     );
 
@@ -522,7 +523,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                 {
                     // Guarda o hash do ultimo bloco de emprestimo encontra do cliente
                     loanBlockHash = b.hashCode;
-                    
+
                     // Recolhe o que falta pagar do emprestimo
                     double whatsLeftToPay = LoanPayment.whatsLeftToPayInThisLoan(
                             b.hashCode, // O Hash do bloco de emprestimo porque existe referencia a ele em todos os pagamentos do emprestimo
@@ -532,7 +533,15 @@ public class GUI_AccountMovment extends javax.swing.JFrame
 
                     // Caso ainda não tenha pago tudo, coloca como activo (TRUE)
                     // Seão coloca como FALSE
-                    hasLoan = (whatsLeftToPay != 0.0);
+                    if ( whatsLeftToPay != 0.0 )
+                    {
+                        hasLoan = true;
+                        loanWithInterest = loanInfo.getAmountWithInterest();
+                    }
+                    else
+                    {
+                        hasLoan = false;
+                    }
                 }
             }
         }

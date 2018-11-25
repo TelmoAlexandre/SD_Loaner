@@ -559,11 +559,11 @@ public class GUI_Main extends javax.swing.JFrame
                         // Caso o cliente tenha conta
                         if ( clientHasAccount() )
                         {
-                            String loanBlockHash = getActiveLoanHash();
+                            Block loanActive = getActiveLoanHash();
 
-                            if ( !loanBlockHash.equals("") )
+                            if ( loanActive != null )
                             {
-                                showLoan(loanBlockHash);
+                                showLoan(loanActive);
                             }
                             else
                             {
@@ -617,7 +617,7 @@ public class GUI_Main extends javax.swing.JFrame
      * Retorna o hash code do bloco do emprestimo activo
      *
      */
-    private String getActiveLoanHash()
+    private Block getActiveLoanHash()
     {
         for ( Block b : blockChain.chain )
         {
@@ -642,22 +642,22 @@ public class GUI_Main extends javax.swing.JFrame
                     // Seão coloca como FALSE
                     if ( whatsLeftToPay != 0.0 )
                     {
-                        return b.hashCode;
+                        return b;
                     }
                 }
             }
         }
 
         // Caso não tenha emprestimo activo
-        return "";
+        return null;
     }
 
     /**
      * Mostra o emprestimo do hash que é recebido por paramatro.
      *
-     * @param loanBlockHash
+     * @param loanBlock
      */
-    private void showLoan(String loanBlockHash)
+    private void showLoan(Block loanBlock)
     {
         jtaLedger.setText("");
 
@@ -667,7 +667,8 @@ public class GUI_Main extends javax.swing.JFrame
             if ( b.content instanceof LoanInformation )
             {
                 // Caso esse emprestimo seja o emprestimo em questão
-                if(b.hashCode.equals(loanBlockHash)){
+                if ( b.hashCode.equals(loanBlock.hashCode) )
+                {
                     // Imprime o bloco de pagamento
                     jtaLedger.append(b.toString() + "\n\n");
                 }
@@ -678,7 +679,7 @@ public class GUI_Main extends javax.swing.JFrame
                 LoanPayment payment = (LoanPayment) b.content;
 
                 // Caso esse pagamento pertença ao emprestimo a ser imprimido
-                if ( payment.belongsToThisLoan(loanBlockHash) )
+                if ( payment.belongsToThisLoan(loanBlock.hashCode) )
                 {
 
                     // Imprime o bloco de pagamento
@@ -686,6 +687,11 @@ public class GUI_Main extends javax.swing.JFrame
                 }
             }
         }
+
+        LoanInformation loanInfo = (LoanInformation) loanBlock.content;
+        jtaLedger.append("{\n Left to pay: "
+                + LoanPayment.whatsLeftToPayInThisLoan(loanBlock.hashCode, blockChain, loanInfo.getAmountWithInterest()) + "€\n}"
+        );
     }
 
     /**
