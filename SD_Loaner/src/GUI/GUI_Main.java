@@ -556,7 +556,24 @@ public class GUI_Main extends javax.swing.JFrame
                 {
                     if ( !windowWasCancelled )
                     {
+                        // Caso o cliente tenha conta
+                        if ( clientHasAccount() )
+                        {
+                            String loanBlockHash = getActiveLoanHash();
 
+                            if ( !loanBlockHash.equals("") )
+                            {
+                                showLoan(loanBlockHash);
+                            }
+                            else
+                            {
+                                jtaLedger.setText("{\n You have no active loans.\n}");
+                            }
+                        }
+                        else
+                        {
+                            giveAlertFeedback("Account does not exist.");
+                        }
                     }
                 }
                 catch ( Exception ex )
@@ -597,13 +614,86 @@ public class GUI_Main extends javax.swing.JFrame
     }
 
     /**
+     * Retorna o hash code do bloco do emprestimo activo
+     *
+     */
+    private String getActiveLoanHash()
+    {
+        for ( Block b : blockChain.chain )
+        {
+            // Caso se trate de um emprestimo
+            if ( b.content instanceof LoanInformation )
+            {
+                // Individualizar a instancia do LoanInformation
+                LoanInformation loanInfo = (LoanInformation) b.content;
+
+                // Se se tratar de um empretimo do cliente
+                if ( loanInfo.comparePublicKeys(publicKey) )
+                {
+
+                    // Recolhe o que falta pagar do emprestimo
+                    double whatsLeftToPay = LoanPayment.whatsLeftToPayInThisLoan(
+                            b.hashCode, // O Hash do bloco de emprestimo porque existe referencia a ele em todos os pagamentos do emprestimo
+                            blockChain,
+                            loanInfo.getAmountWithInterest() // Total a pagar do emprestimo
+                    );
+
+                    // Caso ainda não tenha pago tudo, coloca como activo (TRUE)
+                    // Seão coloca como FALSE
+                    if ( whatsLeftToPay != 0.0 )
+                    {
+                        return b.hashCode;
+                    }
+                }
+            }
+        }
+
+        // Caso não tenha emprestimo activo
+        return "";
+    }
+
+    /**
+     * Mostra o emprestimo do hash que é recebido por paramatro.
+     *
+     * @param loanBlockHash
+     */
+    private void showLoan(String loanBlockHash)
+    {
+        jtaLedger.setText("");
+
+        for ( Block b : blockChain.chain )
+        {
+            // Caso seja um emprestimo
+            if ( b.content instanceof LoanInformation )
+            {
+                // Caso esse emprestimo seja o emprestimo em questão
+                if(b.hashCode.equals(loanBlockHash)){
+                    // Imprime o bloco de pagamento
+                    jtaLedger.append(b.toString() + "\n\n");
+                }
+            }
+            else if ( b.content instanceof LoanPayment ) // Caso seja um pagamento de emprestimo
+            {
+                // Individualizar esse pagamento
+                LoanPayment payment = (LoanPayment) b.content;
+
+                // Caso esse pagamento pertença ao emprestimo a ser imprimido
+                if ( payment.belongsToThisLoan(loanBlockHash) )
+                {
+
+                    // Imprime o bloco de pagamento
+                    jtaLedger.append(b.toString() + "\n\n");
+                }
+            }
+        }
+    }
+
+    /**
      * Verifica se o cliente tem conta criada no banco.
      *
      */
     private boolean clientHasAccount()
     {
-        // Booleano para verificar se foi encontrada a conta do cliente.
-        boolean found = false;
 
         for ( Block b : blockChain.chain )
         {
@@ -613,9 +703,6 @@ public class GUI_Main extends javax.swing.JFrame
             // Caso o conteudo do bloco seja uma informação de conta e esta pertença ao cliente
             if ( blockContent instanceof AccountInformation && blockContent.comparePublicKeys(publicKey) )
             {
-                // Se entrar aqui, então encontrou a conta do cliente
-                found = true;
-
                 // Transforma o blockContent na sua verdadeira instancia
                 AccountInformation info = (AccountInformation) blockContent;
 
@@ -646,7 +733,6 @@ public class GUI_Main extends javax.swing.JFrame
 
         giveAlertFeedback("Account not found.");
         return false;
-
     }
 
     /**
