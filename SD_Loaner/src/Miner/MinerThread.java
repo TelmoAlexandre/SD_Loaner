@@ -10,7 +10,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -19,42 +18,54 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MinerThread extends Thread
 {
 
-    private final String msg;
+    private final String toMine;
     private final int difficulty;
-    private final AtomicInteger nounceSequence;
     private final AtomicBoolean isSolved;
-    private int solution;
+    private String solution;
     private boolean solvedByMe;
     private String calculatedHash;
 
-    public int getSolution()
+    public MinerThread(
+            String toMine, int difficulty,
+            AtomicBoolean isSolved
+    )
+    {
+        this.toMine = toMine;
+        this.difficulty = difficulty;
+        this.isSolved = isSolved;
+    }
+
+    /**
+     * Retorna o nonce calculado.
+     *
+     * @return
+     */
+    public String getSolution()
     {
         return solution;
     }
 
+    /**
+     * Retorna o hash minado.
+     *
+     * @return
+     */
     public String getHash()
     {
         return calculatedHash;
     }
 
+    /**
+     * Indica se a esta foi a Thread que resolveu a mineração.
+     *
+     * @return
+     */
     public boolean isSolvedByMe()
     {
         return solvedByMe;
     }
 
-    public MinerThread(
-            String msg, int difficulty,
-            AtomicInteger nounceSequence,
-            AtomicBoolean isSolved
-    )
-    {
-        this.msg = msg;
-        this.difficulty = difficulty;
-        this.nounceSequence = nounceSequence;
-        this.isSolved = isSolved;
-    }
-
-    public String calculateHash(String message, int nounce)
+    public String calculateHash(String message, String nonce)
     {
         try
         {
@@ -62,14 +73,15 @@ public class MinerThread extends Thread
                     .getInstance("SHA-512");
 
             sha.update(message.getBytes());
-            sha.update(("" + nounce).getBytes());
+            sha.update((nonce).getBytes());
 
             byte[] digest = sha.digest();
-
+            
             return Base64.getEncoder()
                     .encodeToString(digest);
 
-        } catch (NoSuchAlgorithmException e)
+        }
+        catch ( NoSuchAlgorithmException e )
         {
             throw new RuntimeException(e);
         }
@@ -84,15 +96,21 @@ public class MinerThread extends Thread
 
         String test = new String(difficultyChars);
 
-        while (!isSolved.get())
+        while ( !isSolved.get() )
         {
-            int nounce = nounceSequence.getAndIncrement();
+            String nonce = new String();
+            
+            // Adiciona mais lixo ao nonce
+            nonce = nonce.concat((Math.random() * 1_000_000) + "");
+            nonce = nonce.concat((Math.random() * 1_000_000) + "");
+                        
+            //System.out.println(nonce);
 
-            String hash = this.calculateHash(this.msg, nounce);
-
-            if (hash.startsWith(test))
+            String hash = this.calculateHash(this.toMine, nonce);
+            
+            if ( hash.startsWith(test) )
             {
-                this.solution = nounce;
+                this.solution = nonce;
                 this.calculatedHash = hash;
                 isSolved.set(true);
                 solvedByMe = true;

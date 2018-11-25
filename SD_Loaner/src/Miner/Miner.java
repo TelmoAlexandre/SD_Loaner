@@ -5,81 +5,109 @@
  */
 package Miner;
 
+import AccountManager.AccountManager;
 import BlockChain.Block;
+import BlockChain.BlockChain;
 import GUI.GUI_Main;
+import GUI.GUI_NewLoan;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.SwingWorker;
 
 /**
- *  Cria e gere Threads mineiras de acordo com o numero de cores do CPU.
- * 
+ * Cria e gere Threads mineiras de acordo com o numero de cores do CPU.
+ *
  * @author Telmo
  */
 public class Miner extends SwingWorker<String, Integer>
 {
-    private final GUI_Main main;
-    private final Block block;
-    private final String msg;
-    private int nounce = 0;
+    private final GUI_Main guiMain;
+    private GUI_NewLoan guiLoan;
+    private final Block block;    
+    private AccountManager secondContent;
+    private final BlockChain blockChain;
+    private int difficulty = 4;
+    private String nonce;
     private String hashCode;
 
-    public Miner(String msg, GUI_Main main, Block block)
+    /**
+     * Mina um bloco e adiciona-o à chain.
+     *
+     * @param block Bloco a ser minado
+     * @param blockChain BlockChain à qual o bloco será adicionado
+     * @param main GUI_Main
+     */
+    public Miner(Block block, BlockChain blockChain, GUI_Main main)
     {
-        this.msg = msg;
-        this.main = main;
+        this.guiMain = main;
         this.block = block;
+        this.blockChain = blockChain;
     }
 
     /**
-     * Retorna o nounce do Miner.
-     * 
-     * @return 
+     * Mina um bloco e adiciona-o à chain. Recebe um segundo AccountManager para ser inserido na blockChain.
+     *
+     * @param block Bloco a ser minado
+     * @param blockChain BlockChain à qual o bloco será adicionado
+     * @param gui_Main GUI_Main
      */
-    public int getNounce()
+    public Miner(Block block, AccountManager secondContent, BlockChain blockChain, GUI_Main gui_Main, GUI_NewLoan guiLoan)
     {
-        return nounce;
+        this.guiMain = gui_Main;
+        this.block = block;
+        this.blockChain = blockChain;
+        this.guiLoan = guiLoan;
+        this.secondContent = secondContent;
     }
-
+    
     /**
-     * Mina e retorna a hash minada.
-     * 
+     * Retorna o nonce do Miner.
+     *
      * @return
-     * @throws Exception 
      */
-    public String mine() throws Exception
+    public String getnonce()
     {
-        return doInBackground();
+        return nonce;
+    }
+
+    /**
+     * Define a dificuldade.
+     *
+     * @param difficulty
+     */
+    public void setDifficulty(int difficulty)
+    {
+        this.difficulty = difficulty;
     }
 
     /**
      * Cria as Threads mineiras e sincroniza as mesmas.
-     * 
+     *
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     @Override
     protected String doInBackground() throws Exception
     {
-        // Desabilita os butões de movimentos de conta
-        if ( main != null )
-        {
-            main.disableButtons();
-        }
+        guiMain.disableButtons();
 
-        AtomicInteger nonceSequence = new AtomicInteger(0);
         AtomicBoolean isSolved = new AtomicBoolean(false);
 
         int processors = Runtime.getRuntime().availableProcessors();
 
         MinerThread[] threads = new MinerThread[processors];
 
+        // Define a dificuldade com que o bloco será minado
+        block.setDifficulty(difficulty);
+
+        // Constroi a String a ser minada
+        String toMine = block.content.toString() + block.previousHash + block.difficulty;
+
         for ( int i = 0; i < threads.length; i++ )
         {
             MinerThread thr = new MinerThread(
-                    this.msg,
-                    3,
-                    nonceSequence,
+                    toMine,
+                    difficulty,
                     isSolved
             );
 
@@ -93,7 +121,7 @@ public class Miner extends SwingWorker<String, Integer>
             thread.join();
             if ( thread.isSolvedByMe() )
             {
-                this.nounce = thread.getSolution();
+                nonce = thread.getSolution();
                 hashCode = thread.getHash();
             }
 
@@ -104,20 +132,22 @@ public class Miner extends SwingWorker<String, Integer>
 
     /**
      * Faz os últimos acertos da mineração.
-     * 
+     *
      */
     @Override
     public void done()
     {
-        //abortar threads
+        block.setHashCode(hashCode);
+        block.setNonce(nonce);
 
-        block.hashCode = hashCode;
-        block.nounce = nounce;
+        blockChain.addMinedBlock(block);
+        
+        guiMain.enableButtons();
+        guiMain.giveNormalFeedback("Mining has finished.");
 
-        if ( main != null )
+        if (guiLoan != null)
         {
-            main.enableButtons();
-            main.giveNormalFeedback("Mining has finished.");
+            guiLoan.addLoanToClientAccount(secondContent);
         }
     }
 }

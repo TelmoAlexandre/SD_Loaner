@@ -23,6 +23,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.text.ParseException;
 import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 
 /**
@@ -185,7 +187,6 @@ public class GUI_NewLoan extends javax.swing.JFrame
                         createLoan();
 
                         this.setVisible(false);
-                        dispose();
                     }
                     else
                     {
@@ -234,6 +235,25 @@ public class GUI_NewLoan extends javax.swing.JFrame
             }
         }
     }//GEN-LAST:event_jbLoadPublicKeyActionPerformed
+
+    /**
+     * Adiciona o movimento do emprestimo à conta do cliente.
+     *
+     * @param content
+     */
+    public void addLoanToClientAccount(AccountManager content)
+    {
+        try
+        {
+            blockChain.add(content, main);
+
+            dispose();
+        }
+        catch ( Exception ex )
+        {
+            giveAlertFeedback(ex.getMessage());
+        }
+    }
 
     /**
      * Verifica se o cliente tem conta criada no banco.
@@ -308,7 +328,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
                 clientName,
                 amount
         );
-        
+
         // É criado o movimento de conta
         AccountMovment mov = new AccountMovment(
                 publicKey,
@@ -322,16 +342,15 @@ public class GUI_NewLoan extends javax.swing.JFrame
             mov.sign(askForPrivateKey());
 
             // Adiciona o emprestimo e o movimento de conta à block chain
-            blockChain.add(loanInfo, main);
-            blockChain.add(mov, main);
+            blockChain.addLoanBlocks(loanInfo, mov, main, this);
+
+            // Dá feedback ao cliente
+            main.giveNormalFeedback("Loan created with success.");
         }
         catch ( Exception ex )
         {
             giveAlertFeedback(ex.getMessage());
         }
-
-        // Dá feedback ao cliente
-        main.giveNormalFeedback("Loan created with success.");
     }
 
     /**

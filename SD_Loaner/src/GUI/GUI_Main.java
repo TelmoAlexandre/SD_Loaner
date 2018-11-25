@@ -10,6 +10,7 @@ import Information.AccountInformation;
 import BankServices.AccountMovment;
 import BlockChain.BlockChain;
 import BlockChain.Block;
+import Information.LoanInformation;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.awt.event.WindowEvent;
@@ -22,8 +23,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -71,6 +70,7 @@ public class GUI_Main extends javax.swing.JFrame
         jPanel5 = new javax.swing.JPanel();
         jbCheckClientAccounts = new javax.swing.JButton();
         jbCheckLoans = new javax.swing.JButton();
+        jbPrintBlockChain = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jbDeposit = new javax.swing.JButton();
@@ -114,6 +114,15 @@ public class GUI_Main extends javax.swing.JFrame
             }
         });
 
+        jbPrintBlockChain.setText("Print BlockChain");
+        jbPrintBlockChain.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbPrintBlockChainActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -122,7 +131,10 @@ public class GUI_Main extends javax.swing.JFrame
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jbCheckClientAccounts, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbCheckLoans, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addComponent(jbCheckLoans, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbPrintBlockChain, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
@@ -131,7 +143,9 @@ public class GUI_Main extends javax.swing.JFrame
                 .addContainerGap()
                 .addComponent(jbCheckClientAccounts, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jbCheckLoans, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jbCheckLoans, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jbPrintBlockChain, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -145,7 +159,9 @@ public class GUI_Main extends javax.swing.JFrame
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 10, Short.MAX_VALUE))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Client"));
@@ -437,16 +453,13 @@ public class GUI_Main extends javax.swing.JFrame
 
     private void jbDepositActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbDepositActionPerformed
     {//GEN-HEADEREND:event_jbDepositActionPerformed
-
         callMovmentWindow("Deposit");
-
     }//GEN-LAST:event_jbDepositActionPerformed
 
     private void jbWithdrawalActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbWithdrawalActionPerformed
     {//GEN-HEADEREND:event_jbWithdrawalActionPerformed
 
         callMovmentWindow("Withdrawal");
-
     }//GEN-LAST:event_jbWithdrawalActionPerformed
 
     private void jbCheckMoneyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckMoneyActionPerformed
@@ -483,13 +496,34 @@ public class GUI_Main extends javax.swing.JFrame
 
     private void jbCheckClientAccountsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckClientAccountsActionPerformed
     {//GEN-HEADEREND:event_jbCheckClientAccountsActionPerformed
+        // Limpar o Ledger
+        jtaLedger.setText("");
 
-
+        // Percorrer a blockChain
+        for ( Block b : blockChain.chain )
+        {
+            // Caso se trate dos dados da conta
+            if ( b.content instanceof AccountInformation )
+            {
+                jtaLedger.append(b.toString() + "\n\n");
+            }
+        }
     }//GEN-LAST:event_jbCheckClientAccountsActionPerformed
 
     private void jbCheckLoansActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckLoansActionPerformed
     {//GEN-HEADEREND:event_jbCheckLoansActionPerformed
+        // Limpar o Ledger
+        jtaLedger.setText("");
 
+        // Percorrer a blockChain
+        for ( Block b : blockChain.chain )
+        {
+            // Caso se trate dos dados do emprestimo
+            if ( b.content instanceof LoanInformation )
+            {
+                jtaLedger.append(b.toString() + "\n\n");
+            }
+        }
     }//GEN-LAST:event_jbCheckLoansActionPerformed
 
     private void jbRequestLoanActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbRequestLoanActionPerformed
@@ -538,6 +572,11 @@ public class GUI_Main extends javax.swing.JFrame
         callMovmentWindow("Loan Payment");
     }//GEN-LAST:event_jbLoanPaymentActionPerformed
 
+    private void jbPrintBlockChainActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbPrintBlockChainActionPerformed
+    {//GEN-HEADEREND:event_jbPrintBlockChainActionPerformed
+        jtaLedger.setText(blockChain.toString());
+    }//GEN-LAST:event_jbPrintBlockChainActionPerformed
+
     /**
      * Cria e adiciona o novo bloco à BlockChain.
      *
@@ -585,7 +624,7 @@ public class GUI_Main extends javax.swing.JFrame
                     if ( info.authenticateLogin(passwordHash) )
                     {
                         // Imprime o bloco de informação
-                        jtaLedger.setText(info.toString());
+                        jtaLedger.setText(b.toString());
 
                         return true;
                     }
@@ -621,26 +660,26 @@ public class GUI_Main extends javax.swing.JFrame
             if ( b.content instanceof AccountMovment && b.content.comparePublicKeys(publicKey) )
             {
                 // Imprime bloco
-                jtaLedger.append(b.toString());
-
-                // Imprime o dinheiro total do cliente
-                jtaLedger.append("{\n Total money: " + AccountMovment.getMyMoney(blockChain, publicKey) + "€\n}");
+                jtaLedger.append("\n\n" + b.toString());
             }
         }
+
+        // Imprime o dinheiro total do cliente
+        jtaLedger.append("\n\n{\n Total money: " + AccountMovment.getMyMoney(blockChain, publicKey) + "€\n}");
     }
 
     /**
      * Abre uma nova janela onde o cliente consegue preencher as informações da
      * movimentação na sua conta.
      *
-     * @param movType Tipo de movimentação ( 'Deposit' ou 'Withdrawal )
+     * @param movType Tipo de movimentação ( 'Deposit', 'Withdrawal' ou 'Loan Payment' )
      */
     public void callMovmentWindow(String movType)
     {
         GUI_AccountMovment movWindow = new GUI_AccountMovment();
 
         // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
-        //movWindow.loadMainAndBlockChain(this, accounts, loans, movType);
+        movWindow.loadMainAndBlockChain(this, movType, blockChain);
         movWindow.setVisible(true);
         movWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
@@ -689,7 +728,7 @@ public class GUI_Main extends javax.swing.JFrame
     public void createNewClientAccount()
     {
         GUI_NewAccount newAccountWindow = new GUI_NewAccount();
-        //newAccountWindow.loadMainAndAccounts(this, accounts);
+        newAccountWindow.loadMain(this);
         newAccountWindow.setVisible(true);
     }
 
@@ -771,6 +810,7 @@ public class GUI_Main extends javax.swing.JFrame
         jbWithdrawal.setEnabled(false);
         jbRequestLoan.setEnabled(false);
         jbLoanPayment.setEnabled(false);
+        jbCreateNewAccount.setEnabled(false);
     }
 
     /**
@@ -783,6 +823,7 @@ public class GUI_Main extends javax.swing.JFrame
         jbWithdrawal.setEnabled(true);
         jbRequestLoan.setEnabled(true);
         jbLoanPayment.setEnabled(true);
+        jbCreateNewAccount.setEnabled(true);
     }
 
     /**
@@ -866,6 +907,7 @@ public class GUI_Main extends javax.swing.JFrame
     private javax.swing.JButton jbExit;
     private javax.swing.JButton jbGenerateRSAKeys;
     private javax.swing.JButton jbLoanPayment;
+    private javax.swing.JButton jbPrintBlockChain;
     private javax.swing.JButton jbRequestLoan;
     private javax.swing.JButton jbWithdrawal;
     private javax.swing.JLabel jlFeedback;

@@ -132,6 +132,6 @@ public class AccountMovment extends Service
     @Override
     public String toString()
     {
-        return " Type: " + type + "\n Amount: " + amount;
+        return " Type: " + type + "\n Amount: " + amount + "€";
     }
 }

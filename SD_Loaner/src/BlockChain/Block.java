@@ -7,6 +7,7 @@ package BlockChain;
 
 import AccountManager.AccountManager;
 import GUI.GUI_Main;
+import GUI.GUI_NewLoan;
 import Miner.Miner;
 import java.security.Key;
 import java.security.MessageDigest;
@@ -14,8 +15,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 /**
- *  Bloco que será inserido na BlockChain.
- * 
+ * Bloco que será inserido na BlockChain.
+ *
  * @author Telmo
  */
 public class Block
@@ -23,25 +24,18 @@ public class Block
     public AccountManager content;
     // previousHash é o hash do bloco anterior. hash é o hash do bloco
     public String previousHash, hashCode;
-    public int nounce = 0;
-    private final MessageDigest messageDigest;
+    public int difficulty = 0;
+    public String nonce;
 
     public Block(Block last, AccountManager message) throws NoSuchAlgorithmException
     {
         this.content = message;
         this.previousHash = last == null ? "0" : last.hashCode;
-
-        // Definir o algoritmo para o hashCode
-        messageDigest = MessageDigest.getInstance("SHA-512");
-        
-        // Cria a hash provisória
-        hashCode = Base64.getEncoder().encodeToString(messageDigest.digest((previousHash + message + nounce).getBytes())
-        );
     }
 
     /**
      * Retorna os conteúdos do bloco em forma de String.
-     * 
+     *
      * @return content + previousHash + hashCode
      */
     @Override
@@ -58,38 +52,82 @@ public class Block
      */
     public boolean checkBlock() throws NoSuchAlgorithmException
     {
-        String msg = content.toString() + previousHash;
+        String msg = content.toString() + previousHash + difficulty;
         MessageDigest sha = MessageDigest
-                    .getInstance("SHA-512");
+                .getInstance("SHA-512");
 
-            sha.update(msg.getBytes());
-            sha.update(("" + nounce).getBytes());
+        sha.update(msg.getBytes());
+        sha.update(("" + nonce).getBytes());
 
-            String newCalculatedHash = Base64.getEncoder().encodeToString(sha.digest());
-            
-            byte[] digest = sha.digest();
-        
+        String newCalculatedHash = Base64.getEncoder().encodeToString(sha.digest());
+
+        byte[] digest = sha.digest();
+
         return hashCode.equals(newCalculatedHash);
     }
-    
+
     /**
-     * Cria o objeto Miner que por sua vez irá criar e gerir as Threads de mineração.
+     * Cria o objeto Miner que por sua vez irá criar e gerir as Threads de
+     * mineração.
      *
+     * @param blockChain
      * @param main
      * @throws java.lang.InterruptedException
      */
-    public void mine(GUI_Main main) throws InterruptedException 
+    public void mine(BlockChain blockChain, GUI_Main main) throws InterruptedException
     {
-        String msg = content.toString() + previousHash;
-        Miner miner = new Miner(msg, main, this);
+        Miner miner = new Miner(this, blockChain, main);
         miner.execute();
-        nounce = miner.getNounce();
     }
     
     /**
-     * Retorna a public key do movimento que se encontra dentro do bloco.
+     * Mina o bloco de informação do emprestimo. Depois é criado um segundo bloco com o movimento de conta
+     * que diz respeito ao dinheiro entrar na conta do cliente.
+     *
+     * @param blockChain
+     * @param guiMain
+     * @throws java.lang.InterruptedException
+     */
+    public void mineLoanInformation_WithAccountMovment(BlockChain blockChain, AccountManager secondContent, GUI_Main guiMain, GUI_NewLoan guiLoan) throws InterruptedException
+    {
+        Miner miner = new Miner(this, secondContent, blockChain, guiMain, guiLoan);
+        miner.execute();
+    }
+
+    /**
+     * Define o nonce.
+     *
+     * @param nonce Valor do nonce
+     */
+    public void setNonce(String nonce)
+    {
+        this.nonce = nonce;
+    }
+
+    /**
+     * Define o hashCode
+     *
+     * @param hashCode Hash Code minado
+     */
+    public void setHashCode(String hashCode)
+    {
+        this.hashCode = hashCode;
+    }
+
+    /**
+     * Define a dificuldade com que o bloco foi minado.
      * 
-     * @return 
+     * @param difficulty 
+     */
+    public void setDifficulty(int difficulty)
+    {
+        this.difficulty = difficulty;
+    }
+
+    /**
+     * Retorna a public key do movimento que se encontra dentro do bloco.
+     *
+     * @return
      */
     public Key getPublicKey()
     {

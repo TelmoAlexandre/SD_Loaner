@@ -244,7 +244,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
      * @param main
      * @param accounts
      */
-    public void loadMainAndAccounts(GUI_Main main)
+    public void loadMain(GUI_Main main)
     {
         this.main = main;
     }
