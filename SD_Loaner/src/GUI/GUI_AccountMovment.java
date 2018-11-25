@@ -8,9 +8,8 @@ package GUI;
 import Information.AccountInformation;
 import Information.LoanInformation;
 import BankServices.AccountMovment;
-import AccountsAndLoans.Accounts;
+import BlockChain.Block;
 import BlockChain.BlockChain;
-import AccountsAndLoans.Loans;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.io.File;
@@ -31,9 +30,8 @@ import javax.swing.JFileChooser;
 public class GUI_AccountMovment extends javax.swing.JFrame
 {
     private Key publicKey;
+    private BlockChain blockChain;
     private GUI_Main main;
-    private Accounts accounts;
-    private Loans loans;
     private String passwordHash, movType;
 
     /**
@@ -195,12 +193,12 @@ public class GUI_AccountMovment extends javax.swing.JFrame
 
                     // Cria o hash da password e guarda o mesmo no atributo passwordHash
                     setPasswordHash(new String(jpfPassword.getPassword()));
-                    
+
                     try
                     {
                         performAccountMovment(
-                            movType, // Informa o tipo de movimento ( 'Deposit' ou 'Withdawal' )
-                            askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada
+                                movType, // Informa o tipo de movimento ( 'Deposit' ou 'Withdawal' )
+                                askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada
                         );
 
                         // Fornece feedback ao utilizador
@@ -257,34 +255,11 @@ public class GUI_AccountMovment extends javax.swing.JFrame
      * @param loans
      * @param movType
      */
-    public void loadMainAndChains(GUI_Main main, Accounts accounts, Loans loans, String movType)
+    public void loadMainAndBlockChain(GUI_Main main, String movType, BlockChain blockChain)
     {
         this.main = main;
-        this.accounts = accounts;
-        this.loans = loans;
         this.movType = movType;
-    }
-
-    /**
-     * Atualiza o pagamento do emprestimo na blockchain de emprestimos.
-     *
-     * @return
-     */
-    private BlockChain findLoanBlockChain()
-    {
-        for ( BlockChain bc : loans.loans )
-        {
-            // Recuperar o bloco com informações do emprestimo
-            LoanInformation loanInfo = (LoanInformation) bc.chain.get(0).message;
-
-            // Encontra o emprestimo do cliente
-            if ( loanInfo.comparePublicKeys(publicKey) && loans.isThisLoanActive(bc) )
-            {
-                // Retorna a blockchain que contém o emprestimo
-                return bc;
-            }
-        }
-        return null;
+        this.blockChain = blockChain;
     }
 
     /**
@@ -298,21 +273,21 @@ public class GUI_AccountMovment extends javax.swing.JFrame
      */
     private void performAccountMovment(String type, PrivateKey pvK) throws NoSuchAlgorithmException
     {
-        
+
         boolean found = false;
-        
-        for ( BlockChain bc : accounts.accounts )
+
+        for ( Block b : blockChain.chain )
         {
 
-            // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
-            AccountInformation info = (AccountInformation) bc.chain.get(0).message;
-
-            // Verifica se se trata da block chain do cliente em questão
-            if ( info.comparePublicKeys(publicKey) )
+            // Quando encontrar a conta do cliente
+            if ( b.content instanceof AccountInformation && b.content.comparePublicKeys(publicKey) )
             {
                 // Assinala que encontrou a conta do cliente
                 found = true;
 
+                // Individualizar a instancia de informação do cliente
+                AccountInformation info = (AccountInformation) b.content;
+                
                 // Verifica a password do cliente
                 if ( info.authenticateLogin(passwordHash) )
                 {
@@ -327,47 +302,33 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                             publicKey,
                             amount,
                             type);
-                    
+
                     try
                     {
                         // Assina o movimento
                         mov.sign(pvK);
 
-                        
-                        
-                        if ( movType.equals("Loan Payment") )
-                        {
-                            BlockChain loanBC = findLoanBlockChain();
-                            
-                            loanBC.addLoanPayment(mov, main, bc);
-                        }
-                        
                         // Adiciona o movimento de conta à block chain do cliente
-                        bc.add(mov, main);
+                        blockChain.add(mov, main);
                     }
                     catch ( Exception ex )
                     {
                         giveAlertFeedback(ex.getMessage());
                     }
 
-                    // Verifica o dineiro do cliente.
-                    // O método estático getWhatsLeftToPay atualiza o primeiro bloco da chain, bloco esse que contém
-                    // as informações do cliente, com o dinheiro total da conta do cliente.
-                    AccountMovment.getMyMoney(bc);
-
                     // Dá feedback ao cliente
                     giveNormalFeedback(type + " completed with success.");
-                    
+
                 }
                 else
                 {
                     giveAlertFeedback("Wrong passoword provided.");
                 }
-                
+
                 break;
             }
         }
-        
+
         if ( !found )
         {
             giveAlertFeedback("Account not found.");
@@ -445,7 +406,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         {
             giveAlertFeedback(ex.getMessage());
         }
-        
+
         return null;
     }
 
@@ -457,40 +418,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
      */
     private boolean clienteHasLoan()
     {
-        if ( publicKey != null )
-        {
-            for ( BlockChain bc : loans.loans )
-            {
-                // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
-                LoanInformation info = (LoanInformation) bc.chain.get(0).message;
-
-                // Verifica se se trata da block chain do cliente em questão
-                if ( info.comparePublicKeys(publicKey)  && loans.isThisLoanActive(bc) )
-                {
-                    // Transformar o conteudo do spinner num double
-                    String value = jsAmount.getValue() + "";
-                    double amount = Double.parseDouble(value);
-                    
-                    if ( loans.loanValidate(bc, amount) )
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        giveAlertFeedback("Loan payment is bigger than what's left to pay.");
-                        return false;
-                    }
-                    
-                }
-            }
-            
-            return false;
-        }
-        else
-        {
-            throw new RuntimeException("A public key is required to be loaded.");
-        }
-        
+        return false;
     }
 
     /**

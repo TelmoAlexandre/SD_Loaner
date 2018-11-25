@@ -5,11 +5,11 @@
  */
 package GUI;
 
+import AccountManager.AccountManager;
 import Information.AccountInformation;
 import BankServices.AccountMovment;
-import AccountsAndLoans.Accounts;
 import BlockChain.BlockChain;
-import AccountsAndLoans.Loans;
+import BlockChain.Block;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.awt.event.WindowEvent;
@@ -22,6 +22,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -466,7 +468,12 @@ public class GUI_Main extends javax.swing.JFrame
             {
                 if ( !windowWasCancelled )
                 {
-                    showClientAccountMovments();
+                    // Caso o cliente tenha conta
+                    if ( clientHasAccount() )
+                    {
+                        // Mostra os seus movimentos
+                        showClientMovments();
+                    }
                 }
             }
         });
@@ -476,19 +483,19 @@ public class GUI_Main extends javax.swing.JFrame
 
     private void jbCheckClientAccountsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckClientAccountsActionPerformed
     {//GEN-HEADEREND:event_jbCheckClientAccountsActionPerformed
-        jtaLedger.setText(accounts.toString());
-        
+
+
     }//GEN-LAST:event_jbCheckClientAccountsActionPerformed
 
     private void jbCheckLoansActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckLoansActionPerformed
     {//GEN-HEADEREND:event_jbCheckLoansActionPerformed
-        jtaLedger.setText(loans.toString());
+
     }//GEN-LAST:event_jbCheckLoansActionPerformed
 
     private void jbRequestLoanActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbRequestLoanActionPerformed
     {//GEN-HEADEREND:event_jbRequestLoanActionPerformed
         GUI_NewLoan newLoan = new GUI_NewLoan();
-        newLoan.loadMainAndChains(this, accounts, loans);
+        newLoan.loadMainAndBlockChain(this, blockChain);
         newLoan.setVisible(true);
         newLoan.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }//GEN-LAST:event_jbRequestLoanActionPerformed
@@ -514,7 +521,7 @@ public class GUI_Main extends javax.swing.JFrame
                 {
                     if ( !windowWasCancelled )
                     {
-                        jtaLedger.setText(loans.toString(publicKey));
+
                     }
                 }
                 catch ( Exception ex )
@@ -532,37 +539,60 @@ public class GUI_Main extends javax.swing.JFrame
     }//GEN-LAST:event_jbLoanPaymentActionPerformed
 
     /**
-     * Apresenta a conta do cliente juntamente com os movimentos de conta.
+     * Cria e adiciona o novo bloco à BlockChain.
+     *
+     * @param blockContent
+     */
+    public void addToBlockChain(AccountManager blockContent)
+    {
+        try
+        {
+            blockChain.add(blockContent, this);
+        }
+        catch ( Exception ex )
+        {
+            giveAlertFeedback(ex.getMessage());
+        }
+
+    }
+
+    /**
+     * Verifica se o cliente tem conta criada no banco.
      *
      */
-    public void showClientAccountMovments()
+    private boolean clientHasAccount()
     {
         // Booleano para verificar se foi encontrada a conta do cliente.
         boolean found = false;
 
-        for ( BlockChain bc : accounts.accounts )
+        for ( Block b : blockChain.chain )
         {
-            // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
-            AccountInformation info = (AccountInformation) bc.chain.get(0).message;
+            // Individualiza o conteudo do bloco
+            AccountManager blockContent = b.content;
 
-            if ( info.comparePublicKeys(publicKey) )
+            // Caso o conteudo do bloco seja uma informação de conta e esta pertença ao cliente
+            if ( blockContent instanceof AccountInformation && blockContent.comparePublicKeys(publicKey) )
             {
                 // Se entrar aqui, então encontrou a conta do cliente
                 found = true;
 
+                // Transforma o blockContent na sua verdadeira instancia
+                AccountInformation info = (AccountInformation) blockContent;
+
                 try
                 {
+                    // Trata da autenticação
                     if ( info.authenticateLogin(passwordHash) )
                     {
-                        // Verifica o dineiro do cliente.
-                        // O método estático getWhatsLeftToPay atualiza o primeiro bloco da chain, bloco esse que contém
-                        // as informações do cliente, com o dinheiro total da conta do cliente.
-                        jtaLedger.setText(accounts.toString(publicKey, passwordHash));
-                        jtaLedger.append("{\n Total money: " + AccountMovment.getMyMoney(bc)+ "€\n}");
+                        // Imprime o bloco de informação
+                        jtaLedger.setText(info.toString());
+
+                        return true;
                     }
                     else
                     {
                         giveAlertFeedback("Wrong password provided.");
+                        return false;
                     }
                 }
                 catch ( NoSuchAlgorithmException ex )
@@ -574,11 +604,29 @@ public class GUI_Main extends javax.swing.JFrame
             }
         }
 
-        if ( !found )
-        {
-            giveAlertFeedback("Account not found.");
-        }
+        giveAlertFeedback("Account not found.");
+        return false;
 
+    }
+
+    /**
+     * Mostra os movimentos de conta do cliente.
+     *
+     */
+    private void showClientMovments()
+    {
+        for ( Block b : blockChain.chain )
+        {
+            // Caso se trate de um movimento de conta do cliente em questão
+            if ( b.content instanceof AccountMovment && b.content.comparePublicKeys(publicKey) )
+            {
+                // Imprime bloco
+                jtaLedger.append(b.toString());
+
+                // Imprime o dinheiro total do cliente
+                jtaLedger.append("{\n Total money: " + AccountMovment.getMyMoney(blockChain, publicKey) + "€\n}");
+            }
+        }
     }
 
     /**
@@ -592,8 +640,7 @@ public class GUI_Main extends javax.swing.JFrame
         GUI_AccountMovment movWindow = new GUI_AccountMovment();
 
         // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
-        movWindow.loadMainAndChains(this, accounts, loans, movType);
-
+        //movWindow.loadMainAndBlockChain(this, accounts, loans, movType);
         movWindow.setVisible(true);
         movWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
@@ -642,7 +689,7 @@ public class GUI_Main extends javax.swing.JFrame
     public void createNewClientAccount()
     {
         GUI_NewAccount newAccountWindow = new GUI_NewAccount();
-        newAccountWindow.loadMainAndAccounts(this, accounts);
+        //newAccountWindow.loadMainAndAccounts(this, accounts);
         newAccountWindow.setVisible(true);
     }
 

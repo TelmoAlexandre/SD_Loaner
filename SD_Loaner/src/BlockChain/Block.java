@@ -20,7 +20,7 @@ import java.util.Base64;
  */
 public class Block
 {
-    public AccountManager message;
+    public AccountManager content;
     // previousHash é o hash do bloco anterior. hash é o hash do bloco
     public String previousHash, hashCode;
     public int nounce = 0;
@@ -28,7 +28,7 @@ public class Block
 
     public Block(Block last, AccountManager message) throws NoSuchAlgorithmException
     {
-        this.message = message;
+        this.content = message;
         this.previousHash = last == null ? "0" : last.hashCode;
 
         // Definir o algoritmo para o hashCode
@@ -42,12 +42,12 @@ public class Block
     /**
      * Retorna os conteúdos do bloco em forma de String.
      * 
-     * @return message + previousHash + hashCode
+     * @return content + previousHash + hashCode
      */
     @Override
     public String toString()
     {
-        return "{\n" + message.toString() + "\n    Previous Hash: " + previousHash + "\n    HashCode: " + hashCode + "\n}";
+        return "{\n" + content.toString() + "\n    Previous Hash: " + previousHash + "\n    HashCode: " + hashCode + "\n}";
     }
 
     /**
@@ -58,7 +58,7 @@ public class Block
      */
     public boolean checkBlock() throws NoSuchAlgorithmException
     {
-        String msg = message.toString() + previousHash;
+        String msg = content.toString() + previousHash;
         MessageDigest sha = MessageDigest
                     .getInstance("SHA-512");
 
@@ -80,7 +80,7 @@ public class Block
      */
     public void mine(GUI_Main main) throws InterruptedException 
     {
-        String msg = message.toString() + previousHash;
+        String msg = content.toString() + previousHash;
         Miner miner = new Miner(msg, main, this);
         miner.execute();
         nounce = miner.getNounce();
@@ -93,6 +93,6 @@ public class Block
      */
     public Key getPublicKey()
     {
-        return message.getPublicKey();
+        return content.getPublicKey();
     }
 }

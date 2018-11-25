@@ -5,11 +5,12 @@
  */
 package GUI;
 
+import AccountManager.AccountManager;
 import Information.AccountInformation;
 import BankServices.AccountMovment;
-import AccountsAndLoans.Accounts;
+import BlockChain.Block;
 import BlockChain.BlockChain;
-import AccountsAndLoans.Loans;
+import Information.LoanInformation;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.io.File;
@@ -33,10 +34,10 @@ public class GUI_NewLoan extends javax.swing.JFrame
 {
 
     private GUI_Main main;
-    private Accounts accounts;
-    private Loans loans;
+    private BlockChain blockChain;
     private Key publicKey;
     private String passwordHash;
+    private String clientName;
 
     /**
      * Creates new form GUI_NewLoan
@@ -165,10 +166,10 @@ public class GUI_NewLoan extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jbConfirmAndSignActionPerformed
 
         // Verifica se o campo password foi preenchido
-        if (!(new String(jpfPassword.getPassword()).equals("")))
+        if ( !(new String(jpfPassword.getPassword()).equals("")) )
         {
             // Por fim verifica se foi carregada uma publicKey
-            if (publicKey != null)
+            if ( publicKey != null )
             {
 
                 // Cria o hash da password e guarda o mesmo no atributo passwordHash
@@ -178,20 +179,31 @@ public class GUI_NewLoan extends javax.swing.JFrame
                 {
                     // Verifica se o cliente tem conta, e caso tenha chama um metodo para criar o emprestimo
                     // Caso tenha sido criado o emprestimo, fecha a janela
-                    if (createLoan())
+                    if ( clientHasAccount() )
                     {
+                        // Cria o emprestimo
+                        createLoan();
+
                         this.setVisible(false);
                         dispose();
                     }
-                } catch (InterruptedException | NoSuchAlgorithmException | ParseException ex)
+                    else
+                    {
+
+                        giveAlertFeedback("Account not found.");
+                    }
+                }
+                catch ( InterruptedException | NoSuchAlgorithmException | ParseException ex )
                 {
                     giveAlertFeedback(ex.getMessage());
                 }
-            } else
+            }
+            else
             {
                 giveAlertFeedback("A public key is required to be loaded.");
             }
-        } else
+        }
+        else
         {
             giveAlertFeedback("Passwords field is empty.");
         }
@@ -210,17 +222,67 @@ public class GUI_NewLoan extends javax.swing.JFrame
         JFileChooser file = new JFileChooser();
         file.setCurrentDirectory(new File("."));
         int i = file.showOpenDialog(null);
-        if (i == JFileChooser.APPROVE_OPTION)
+        if ( i == JFileChooser.APPROVE_OPTION )
         {
             try
             {
                 publicKey = SecurityUtils.loadKey(file.getSelectedFile().getAbsolutePath(), "RSA");
-            } catch (IOException ex)
+            }
+            catch ( IOException ex )
             {
                 giveAlertFeedback(ex.getMessage());
             }
         }
     }//GEN-LAST:event_jbLoadPublicKeyActionPerformed
+
+    /**
+     * Verifica se o cliente tem conta criada no banco.
+     *
+     */
+    private boolean clientHasAccount()
+    {
+        // Booleano para verificar se foi encontrada a conta do cliente.
+        boolean found = false;
+
+        for ( Block b : blockChain.chain )
+        {
+            // Individualiza o conteudo do bloco
+            AccountManager blockContent = b.content;
+
+            // Caso o conteudo do bloco seja uma informação de conta e esta pertença ao cliente
+            if ( blockContent instanceof AccountInformation && blockContent.comparePublicKeys(publicKey) )
+            {
+                // Se entrar aqui, então encontrou a conta do cliente
+                found = true;
+
+                // Transforma o blockContent na sua verdadeira instancia
+                AccountInformation info = (AccountInformation) blockContent;
+
+                try
+                {
+                    // Trata da autenticação
+                    if ( info.authenticateLogin(passwordHash) )
+                    {
+                        // Guarda o nome do cliente
+                        clientName = info.getName();
+                        return true;
+                    }
+                    else
+                    {
+                        giveAlertFeedback("Wrong password provided.");
+                        return false;
+                    }
+                }
+                catch ( NoSuchAlgorithmException ex )
+                {
+                    giveAlertFeedback(ex.getMessage());
+                }
+
+                break;
+            }
+        }
+        return false;
+    }
 
     /**
      * Verifica se o cliente tem conta, caso tenha e a password esteja correta,
@@ -231,87 +293,45 @@ public class GUI_NewLoan extends javax.swing.JFrame
      * @throws java.lang.InterruptedException
      * @throws java.text.ParseException
      */
-    private boolean createLoan() throws NoSuchAlgorithmException, InterruptedException, ParseException
+    private void createLoan() throws NoSuchAlgorithmException, InterruptedException, ParseException
     {
-        boolean found = false;
 
-        for (BlockChain bc : accounts.accounts)
+        // Verificar se os conteudos intruduzidos manualmente respeitam os limites do spinner
+        jsAmount.commitEdit();
+        // Transformar o conteudo do spinner num double
+        String value = jsAmount.getValue() + "";
+        double amount = Double.parseDouble(value);
+
+        // Criado o emprestimo
+        LoanInformation loanInfo = new LoanInformation(
+                publicKey,
+                clientName,
+                amount
+        );
+        
+        // É criado o movimento de conta
+        AccountMovment mov = new AccountMovment(
+                publicKey,
+                amount,
+                "Loan"
+        );
+
+        try
         {
+            // Assina o movimento
+            mov.sign(askForPrivateKey());
 
-            // Individualiza o primeiro bloco da chain. Este bloco apenas contem informação
-            AccountInformation info = (AccountInformation) bc.chain.get(0).message;
-
-            // Verifica se se trata da block chain do cliente em questão
-            if (info.comparePublicKeys(publicKey))
-            {
-                // Assinala que encontrou a conta do cliente
-                found = true;
-
-                // Verifica a password do cliente
-                if (info.authenticateLogin(passwordHash))
-                {
-                    // Chegando aqui, existe certeza que se trata do cliente em questão
-
-                    // Caso o cliente não tenha um emprestimo activo, cria um emprestimo
-                    if (!loans.hasActiveLoan(publicKey))
-                    {
-
-                        // Verificar se os conteudos intruduzidos manualmente respeitam os limites do spinner
-                        jsAmount.commitEdit();
-                        // Transformar o conteudo do spinner num double
-                        String value = jsAmount.getValue() + "";
-                        double amount = Double.parseDouble(value);
-
-                        // É criado o emprestimo
-                        loans.createLoan(
-                                publicKey,
-                                info.getName(),
-                                amount,
-                                main
-                        );
-
-                        // É criado o movimento de conta
-                        AccountMovment mov = new AccountMovment(
-                                publicKey,
-                                amount,
-                                "Loan");
-
-                        try
-                        {
-                            // Assina o movimento
-                            mov.sign(askForPrivateKey());
-
-                            // Adiciona o movimento de conta à block chain do cliente
-                            bc.add(mov, main);
-                        } catch (Exception ex)
-                        {
-                            giveAlertFeedback(ex.getMessage());
-                        }
-
-                        // Dá feedback ao cliente
-                        main.giveNormalFeedback("Loan created with success.");
-                        return true;
-                    } 
-                    else
-                    {
-                        giveNormalFeedback("You already have an active loan.");
-                    }
-
-                } else
-                {
-                    giveAlertFeedback("Wrong passoword provided.");
-                }
-
-                break;
-            }
+            // Adiciona o emprestimo e o movimento de conta à block chain
+            blockChain.add(loanInfo, main);
+            blockChain.add(mov, main);
+        }
+        catch ( Exception ex )
+        {
+            giveAlertFeedback(ex.getMessage());
         }
 
-        if (!found)
-        {
-            giveAlertFeedback("Account not found.");
-        }
-
-        return false;
+        // Dá feedback ao cliente
+        main.giveNormalFeedback("Loan created with success.");
     }
 
     /**
@@ -326,13 +346,14 @@ public class GUI_NewLoan extends javax.swing.JFrame
             JFileChooser file = new JFileChooser();
             file.setCurrentDirectory(new File("."));
             int i = file.showOpenDialog(null);
-            if (i == JFileChooser.APPROVE_OPTION)
+            if ( i == JFileChooser.APPROVE_OPTION )
             {
                 byte[] privateKeyBytes = Files.readAllBytes(Paths.get(file.getSelectedFile().getAbsolutePath()));
                 PrivateKey privateKey = (PrivateKey) SecurityUtils.getPrivateKey(privateKeyBytes);
                 return privateKey;
             }
-        } catch (Exception ex)
+        }
+        catch ( Exception ex )
         {
             giveAlertFeedback(ex.getMessage());
         }
@@ -359,7 +380,8 @@ public class GUI_NewLoan extends javax.swing.JFrame
 
             // Guarda o hash da password
             passwordHash = Base64.getEncoder().encodeToString(hash.digest());
-        } catch (NoSuchAlgorithmException ex)
+        }
+        catch ( NoSuchAlgorithmException ex )
         {
             giveAlertFeedback(ex.getMessage());
         }
@@ -372,11 +394,10 @@ public class GUI_NewLoan extends javax.swing.JFrame
      * @param accounts
      * @param loans
      */
-    public void loadMainAndChains(GUI_Main main, Accounts accounts, Loans loans)
+    public void loadMainAndBlockChain(GUI_Main main, BlockChain blockChain)
     {
         this.main = main;
-        this.accounts = accounts;
-        this.loans = loans;
+        this.blockChain = blockChain;
     }
 
     /**
@@ -413,24 +434,28 @@ public class GUI_NewLoan extends javax.swing.JFrame
          */
         try
         {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())
+            for ( javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels() )
             {
-                if ("Nimbus".equals(info.getName()))
+                if ( "Nimbus".equals(info.getName()) )
                 {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex)
+        }
+        catch ( ClassNotFoundException ex )
         {
             java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex)
+        }
+        catch ( InstantiationException ex )
         {
             java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex)
+        }
+        catch ( IllegalAccessException ex )
         {
             java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex)
+        }
+        catch ( javax.swing.UnsupportedLookAndFeelException ex )
         {
             java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }

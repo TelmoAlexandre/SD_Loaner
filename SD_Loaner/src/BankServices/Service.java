@@ -22,5 +22,5 @@ public abstract class Service extends AccountManager
         super(publicKey);
     }
     
-    public abstract boolean validate(BlockChain bc) throws Exception;
+    public abstract boolean validate(BlockChain bc, Key pbK) throws Exception;
 }

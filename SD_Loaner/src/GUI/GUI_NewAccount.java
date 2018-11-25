@@ -5,7 +5,7 @@
  */
 package GUI;
 
-import AccountsAndLoans.Accounts;
+import Information.AccountInformation;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.io.File;
@@ -21,7 +21,6 @@ import javax.swing.JFileChooser;
 public class GUI_NewAccount extends javax.swing.JFrame
 {
     private GUI_Main main;
-    private Accounts accounts;
     private Key publicKey;
 
     /**
@@ -174,7 +173,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
             // Verifica se as password estão iguais
             // Quero evitar guardar as password em variáveis por questões de segurança
             if ( new String(jpfPassword.getPassword()).equals(new String(jpfPasswordConfirm.getPassword())) // Garante que as passwords introduzidas são iguais
-                    && ( !(new String(jpfPassword.getPassword()).equals("")) || !(new String(jpfPasswordConfirm.getPassword()).equals("")))) // Garante que estão preenchidas
+                    && (!(new String(jpfPassword.getPassword()).equals("")) || !(new String(jpfPasswordConfirm.getPassword()).equals(""))) ) // Garante que estão preenchidas
             {
                 // Por fim verifica se foi carregada uma publicKey
                 if ( publicKey != null )
@@ -182,23 +181,23 @@ public class GUI_NewAccount extends javax.swing.JFrame
 
                     try
                     {
-                        // Cria a conta de cliente
-                        accounts.createAccount(name, publicKey, new String(jpfPassword.getPassword()), main);
-
-                        // Passa os dados da nova conta para mostrar a mesma no ledger
-                        main.setPublicKey(publicKey);
-                        main.setPasswordHash(
+                        // Cria as informações da conta
+                        AccountInformation info = new AccountInformation(
+                                name,
+                                publicKey,
                                 new String(jpfPassword.getPassword())
                         );
 
+                        // Cria e adiciona o bloco à blockChain
+                        main.addToBlockChain(info);
                         main.giveNormalFeedback("Account created with success.");
-                        
+
                         // Esconde a janela e dá dispose()
                         main.windowWasCancelled = false;
                         this.setVisible(false);
                         dispose();
                     }
-                    catch ( InterruptedException | NoSuchAlgorithmException ex )
+                    catch ( NoSuchAlgorithmException ex )
                     {
                         giveAlertFeedback(ex.getMessage());
                     }
@@ -245,10 +244,9 @@ public class GUI_NewAccount extends javax.swing.JFrame
      * @param main
      * @param accounts
      */
-    public void loadMainAndAccounts(GUI_Main main, Accounts accounts)
+    public void loadMainAndAccounts(GUI_Main main)
     {
         this.main = main;
-        this.accounts = accounts;
     }
 
     /**

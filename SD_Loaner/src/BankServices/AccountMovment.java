@@ -54,11 +54,11 @@ public class AccountMovment extends Service
      * @throws java.lang.Exception
      */
     @Override
-    public boolean validate(BlockChain bc) throws Exception
+    public boolean validate(BlockChain bc, Key pbK) throws Exception
     {
         if ( type.equals("Withdrawal") || type.equals("Loan Payment") )
         {
-            return (amount <= getMyMoney(bc) && verifySignature());
+            return (amount <= getMyMoney(bc, pbK) && verifySignature());
         }
         else
         {
@@ -67,36 +67,29 @@ public class AccountMovment extends Service
     }
 
     /**
-     * Corre a Block Chain e calcula o montante de dinheiro do cliente.
-     * <p>
-     * Atualiza o bloco de informação do cliente para conter o total de
-     * dinheiro.
-     *
-     * @param bc
-     * @return
+     * Percorre a blockchain para contar o dinheiro em movimentos de conta da public key passada por paramatero.
+     * 
+     * @param bc BlockChain a ser percorrida.
+     * @param pbK Chave publica do cliente.
+     * @return O montante atual que se encontra na conta.
      */
-    public static double getMyMoney(BlockChain bc)
+    public static double getMyMoney(BlockChain bc, Key pbK)
     {
         double money = 0.0;
-        boolean isFirst = true;
 
         for ( Block b : bc.chain )
         {
-            // Salta o primeiro bloco da chain pois este é apenas informação do cliente.
-            if ( isFirst )
+            // Garante que o conteudo do bloco é um movimento de conta e que se trata de um bloco da public key em questão
+            if (b.content instanceof AccountMovment && b.content.comparePublicKeys(pbK))
             {
-                isFirst = !isFirst;
-            }
-            else
-            {
-                AccountMovment mov = (AccountMovment) b.message;
-
+                AccountMovment mov = (AccountMovment) b.content;
                 money += mov.getMovmentValue();
             }
+                
 
         }
 
-        AccountInformation info = (AccountInformation) bc.chain.get(0).message;
+        AccountInformation info = (AccountInformation) bc.chain.get(0).content;
         return money;
     }
 
