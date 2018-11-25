@@ -26,7 +26,7 @@ public class Miner extends SwingWorker<String, Integer>
     private final Block block;    
     private AccountManager secondContent;
     private final BlockChain blockChain;
-    private int difficulty = 4;
+    private int difficulty = 3;
     private String nonce;
     private String hashCode;
 

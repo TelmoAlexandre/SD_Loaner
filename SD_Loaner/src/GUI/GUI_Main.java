@@ -8,6 +8,7 @@ package GUI;
 import AccountManager.AccountManager;
 import Information.AccountInformation;
 import BankServices.AccountMovment;
+import BankServices.LoanPayment;
 import BlockChain.BlockChain;
 import BlockChain.Block;
 import Information.LoanInformation;
@@ -656,8 +657,9 @@ public class GUI_Main extends javax.swing.JFrame
     {
         for ( Block b : blockChain.chain )
         {
-            // Caso se trate de um movimento de conta do cliente em questão
-            if ( b.content instanceof AccountMovment && b.content.comparePublicKeys(publicKey) )
+            // Caso se trate de um movimento de conta ou pagamento de emprestimo do cliente em questão 
+            if ( (b.content instanceof AccountMovment || b.content instanceof LoanPayment)
+                    && b.content.comparePublicKeys(publicKey) )
             {
                 // Imprime bloco
                 jtaLedger.append("\n\n" + b.toString());
@@ -672,7 +674,8 @@ public class GUI_Main extends javax.swing.JFrame
      * Abre uma nova janela onde o cliente consegue preencher as informações da
      * movimentação na sua conta.
      *
-     * @param movType Tipo de movimentação ( 'Deposit', 'Withdrawal' ou 'Loan Payment' )
+     * @param movType Tipo de movimentação ( 'Deposit', 'Withdrawal' ou 'Loan
+     * Payment' )
      */
     public void callMovmentWindow(String movType)
     {

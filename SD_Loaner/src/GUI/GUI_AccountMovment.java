@@ -8,6 +8,7 @@ package GUI;
 import Information.AccountInformation;
 import Information.LoanInformation;
 import BankServices.AccountMovment;
+import BankServices.LoanPayment;
 import BlockChain.Block;
 import BlockChain.BlockChain;
 import SecureUtils.SecurityUtils;
@@ -31,6 +32,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
 {
     private Key publicKey;
     private BlockChain blockChain;
+    private String loanBlockHash;
     private GUI_Main main;
     private String passwordHash, movType;
 
@@ -196,10 +198,20 @@ public class GUI_AccountMovment extends javax.swing.JFrame
 
                     try
                     {
-                        performAccountMovment(
-                                movType, // Informa o tipo de movimento ( 'Deposit' ou 'Withdawal' )
-                                askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada
-                        );
+                        // Se não for pagamento de emprestimo, cria um movimento de conta
+                        if ( !movType.equals("Loan Payment") )
+                        {
+                            performAccountMovment(
+                                    movType, // Informa o tipo de movimento ( 'Deposit' ou 'Withdawal' )
+                                    askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada
+                            );
+                        }
+                        else // Senão, cria um pagamento de emprestimo
+                        {
+                            performLoanPayment(
+                                    askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada 
+                            );
+                        }
 
                         // Fornece feedback ao utilizador
                         main.giveNormalFeedback(movType + " has been successful");
@@ -287,7 +299,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
 
                 // Individualizar a instancia de informação do cliente
                 AccountInformation info = (AccountInformation) b.content;
-                
+
                 // Verifica a password do cliente
                 if ( info.authenticateLogin(passwordHash) )
                 {
@@ -301,7 +313,8 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                     AccountMovment mov = new AccountMovment(
                             publicKey,
                             amount,
-                            type);
+                            type
+                    );
 
                     try
                     {
@@ -318,6 +331,81 @@ public class GUI_AccountMovment extends javax.swing.JFrame
 
                     // Dá feedback ao cliente
                     giveNormalFeedback(type + " completed with success.");
+
+                }
+                else
+                {
+                    giveAlertFeedback("Wrong passoword provided.");
+                }
+
+                break;
+            }
+        }
+
+        if ( !found )
+        {
+            giveAlertFeedback("Account not found.");
+        }
+    }
+
+    /**
+     * Cria um pagamento sobre o emprestimo.
+     *
+     */
+    private void performLoanPayment(PrivateKey pvK) throws NoSuchAlgorithmException
+    {
+        boolean found = false;
+
+        for ( Block b : blockChain.chain )
+        {
+
+            // Quando encontrar a conta do cliente
+            if ( b.content instanceof AccountInformation && b.content.comparePublicKeys(publicKey) )
+            {
+                // Assinala que encontrou a conta do cliente
+                found = true;
+
+                // Individualizar a instancia de informação do cliente
+                AccountInformation info = (AccountInformation) b.content;
+
+                // Verifica a password do cliente
+                if ( info.authenticateLogin(passwordHash) )
+                {
+                    // Chegando aqui, existe certeza que se trata do cliente em questão
+
+                    // Transformar o conteudo do spinner num double
+                    String value = jsAmount.getValue() + "";
+                    double amount = Double.parseDouble(value);
+                    
+                    // Recolhe o montante restante a pagar no emprestimo
+                    double whatsLeftToPay = LoanPayment.whatsLeftToPayInThisLoan(loanBlockHash, blockChain, amount);
+                    
+                    // Caso o cliente tente pagar um motante maior do que falta pagar no emprestimo, 
+                    // reduz esse motante para o total que falta pagar
+                    amount = (amount > whatsLeftToPay)? whatsLeftToPay : amount;
+
+                    // É criado o movimento de conta
+                    LoanPayment payment = new LoanPayment(
+                            publicKey, 
+                            amount, 
+                            loanBlockHash
+                    );
+
+                    try
+                    {
+                        // Assina o movimento
+                        payment.sign(pvK);
+
+                        // Adiciona o movimento de conta à block chain do cliente
+                        blockChain.add(payment, main);
+                    }
+                    catch ( Exception ex )
+                    {
+                        giveAlertFeedback(ex.getMessage());
+                    }
+
+                    // Dá feedback ao cliente
+                    giveNormalFeedback("Loan Payment completed with success.");
 
                 }
                 else
@@ -418,7 +506,38 @@ public class GUI_AccountMovment extends javax.swing.JFrame
      */
     private boolean clienteHasLoan()
     {
-        return false;
+
+        boolean hasLoan = false;
+
+        for ( Block b : blockChain.chain )
+        {
+            // Caso se trate de um emprestimo
+            if ( b.content instanceof LoanInformation )
+            {
+                // Individualizar a instancia do LoanInformation
+                LoanInformation loanInfo = (LoanInformation) b.content;
+
+                // Se se tratar de um empretimo do cliente
+                if ( loanInfo.comparePublicKeys(publicKey) )
+                {
+                    // Guarda o hash do ultimo bloco de emprestimo encontra do cliente
+                    loanBlockHash = b.hashCode;
+                    
+                    // Recolhe o que falta pagar do emprestimo
+                    double whatsLeftToPay = LoanPayment.whatsLeftToPayInThisLoan(
+                            b.hashCode, // O Hash do bloco de emprestimo porque existe referencia a ele em todos os pagamentos do emprestimo
+                            blockChain,
+                            loanInfo.getAmountWithInterest() // Total a pagar do emprestimo
+                    );
+
+                    // Caso ainda não tenha pago tudo, coloca como activo (TRUE)
+                    // Seão coloca como FALSE
+                    hasLoan = (whatsLeftToPay != 0.0);
+                }
+            }
+        }
+
+        return hasLoan;
     }
 
     /**

@@ -76,7 +76,7 @@ public class MinerThread extends Thread
             sha.update((nonce).getBytes());
 
             byte[] digest = sha.digest();
-            
+
             return Base64.getEncoder()
                     .encodeToString(digest);
 
@@ -98,19 +98,19 @@ public class MinerThread extends Thread
 
         while ( !isSolved.get() )
         {
-            String nonce = new String();
-            
-            // Adiciona mais lixo ao nonce
-            nonce = nonce.concat((Math.random() * 1_000_000) + "");
-            nonce = nonce.concat((Math.random() * 1_000_000) + "");
-                        
-            //System.out.println(nonce);
+            StringBuilder nonce = new StringBuilder();
 
-            String hash = this.calculateHash(this.toMine, nonce);
-            
+            // Adiciona mais lixo ao nonce
+            nonce.append((int) (Math.random() * 1_000_000));
+            nonce.append((int) (Math.random() * 1_000_000));
+            // Duplica o seu tamanho
+            nonce.append(nonce.toString());
+
+            String hash = this.calculateHash(this.toMine, nonce.toString());
+
             if ( hash.startsWith(test) )
             {
-                this.solution = nonce;
+                this.solution = nonce.toString();
                 this.calculatedHash = hash;
                 isSolved.set(true);
                 solvedByMe = true;
