@@ -199,8 +199,8 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                     try
                     {
                         performAccountMovment(
-                                movType, // Informa o tipo de movimento ( 'Deposit' ou 'Withdawal' )
-                                askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada
+                            movType, // Informa o tipo de movimento ( 'Deposit' ou 'Withdawal' )
+                            askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada
                         );
 
                         // Fornece feedback ao utilizador

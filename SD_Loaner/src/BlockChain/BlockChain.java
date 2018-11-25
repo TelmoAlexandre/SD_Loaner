@@ -22,14 +22,9 @@ public class BlockChain
 {
     public List<Block> chain;
 
-    public BlockChain(AccountManager message, GUI_Main main) throws NoSuchAlgorithmException, InterruptedException
+    public BlockChain()
     {
         chain = new ArrayList<>();
-        
-        // Cria o primeiro bloco assim que um objeto BlockChain for criado.
-        Block block = new Block(null, message);
-        block.mine(main);
-        chain.add(block);
     }
     
     /**

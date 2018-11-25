@@ -32,8 +32,7 @@ import javax.swing.JOptionPane;
  */
 public class GUI_Main extends javax.swing.JFrame
 {
-    private Accounts accounts;
-    private Loans loans;
+    public BlockChain blockChain;
     public double amount;
     public Key publicKey;
     public String passwordHash;
@@ -51,16 +50,7 @@ public class GUI_Main extends javax.swing.JFrame
         windowWasCancelled = false;
 
         jtaLedger.setEditable(false);
-        
-        try
-        {
-            accounts = new Accounts();
-            loans = new Loans();
-        }
-        catch ( Exception ex )
-        {
-            jlFeedback.setText(ex.getMessage());
-        }
+        blockChain = new BlockChain();
     }
 
     /**
