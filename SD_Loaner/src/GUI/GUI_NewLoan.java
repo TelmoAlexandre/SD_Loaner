@@ -8,6 +8,7 @@ package GUI;
 import AccountManager.AccountManager;
 import Information.AccountInformation;
 import BankServices.AccountMovment;
+import BankServices.LoanPayment;
 import BlockChain.Block;
 import BlockChain.BlockChain;
 import Information.LoanInformation;
@@ -183,10 +184,18 @@ public class GUI_NewLoan extends javax.swing.JFrame
                     // Caso tenha sido criado o emprestimo, fecha a janela
                     if ( clientHasAccount() )
                     {
-                        // Cria o emprestimo
-                        createLoan();
 
-                        this.setVisible(false);
+                        if ( !clienteHasLoan() )
+                        {
+                            // Cria o emprestimo
+                            createLoan();
+                            this.setVisible(false);
+                        }
+                        else
+                        {
+                            giveAlertFeedback("You already have an active loan.");
+                        }
+
                     }
                     else
                     {
@@ -404,6 +413,46 @@ public class GUI_NewLoan extends javax.swing.JFrame
         {
             giveAlertFeedback(ex.getMessage());
         }
+    }
+
+    /**
+     * Verifica se o cliente tem um emprestimo activo. Caso tenha, faz o
+     * pagamento do mesmo.
+     *
+     * @return
+     */
+    private boolean clienteHasLoan()
+    {
+
+        boolean hasLoan = false;
+
+        for ( Block b : blockChain.chain )
+        {
+            // Caso se trate de um emprestimo
+            if ( b.content instanceof LoanInformation )
+            {
+                // Individualizar a instancia do LoanInformation
+                LoanInformation loanInfo = (LoanInformation) b.content;
+
+                // Se se tratar de um empretimo do cliente
+                if ( loanInfo.comparePublicKeys(publicKey) )
+                {
+
+                    // Recolhe o que falta pagar do emprestimo
+                    double whatsLeftToPay = LoanPayment.whatsLeftToPayInThisLoan(
+                            b.hashCode, // O Hash do bloco de emprestimo porque existe referencia a ele em todos os pagamentos do emprestimo
+                            blockChain,
+                            loanInfo.getAmountWithInterest() // Total a pagar do emprestimo
+                    );
+
+                    // Caso ainda não tenha pago tudo, coloca como activo (TRUE)
+                    // Seão coloca como FALSE
+                    hasLoan = (whatsLeftToPay != 0.0);
+                }
+            }
+        }
+
+        return hasLoan;
     }
 
     /**
