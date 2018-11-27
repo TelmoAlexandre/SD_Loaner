@@ -5,6 +5,7 @@
  */
 package AccountManager;
 
+import java.io.Serializable;
 import java.security.Key;
 import java.util.Base64;
 
@@ -13,7 +14,7 @@ import java.util.Base64;
  * 
  * @author Telmo
  */
-public abstract class AccountManager
+public abstract class AccountManager implements Serializable
 {
 
     /**

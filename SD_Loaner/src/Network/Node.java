@@ -16,6 +16,9 @@
 package Network;
 
 import BlockChain.Block;
+import Network.MiningNetwork.MiningNetwork;
+import Network.Servers.LocalNetWorkListener;
+import Network.Servers.MiningServerListener;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +32,9 @@ import java.util.TreeSet;
  */
 public class Node
 {
-    List<NodeEventListener> listeners = new ArrayList<>();
-
     NodeAddress myAdress;
-
     TreeSet<NodeAddress> links = new TreeSet<>();
+    List<NodeEventListener> listeners = new ArrayList<>();
 
     public void startServer(int port, int service) throws Exception
     {
@@ -43,8 +44,8 @@ public class Node
         // lancar o servico de escuta do grupo multicaste
         links = new TreeSet<>();
 
-        //new LocalNetWorkListener(links,myAdress,listeners).start();
-        //new MiningServerListener(service).start();
+        new LocalNetWorkListener(links,myAdress,listeners).start();
+        new MiningServerListener(service).start();
     }
 
     public void addNodeListener(NodeEventListener l)
@@ -75,15 +76,16 @@ public class Node
         // enviar um pedido de coneção para o endereço   
     }
 
-    public void mineMessage(Block blk) throws Exception
+    public Block mineMessage(Block block) throws Exception
     {
-        //::::::::::::::::::: T O   P R O G R A M M I N G:::::::::::::::::::::::: 
         //Executar a mineração na rede            
-        //MiningNetWork mn = new MiningNetWork(
-        // new ArrayList<>(links)
-        //);
+        MiningNetwork mn = new MiningNetwork(
+         new ArrayList<>(links)
+        );
 
-        // blk = mn.mine(blk);
+        block = mn.mine(block);
+        
+        return block;
     }
 
 }

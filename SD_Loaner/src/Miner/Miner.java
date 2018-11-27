@@ -10,6 +10,7 @@ import BlockChain.Block;
 import BlockChain.BlockChain;
 import GUI.GUI_Main;
 import GUI.GUI_NewLoan;
+import Network.NodeAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.SwingWorker;
 
@@ -28,6 +29,8 @@ public class Miner extends SwingWorker<String, Integer>
     private int difficulty = 3;
     private String nonce;
     private String hashCode;
+    
+    private NodeAddress solicitorNode;
 
     /**
      * Mina um bloco e adiciona-o à chain.
@@ -36,7 +39,10 @@ public class Miner extends SwingWorker<String, Integer>
      * @param blockChain BlockChain à qual o bloco será adicionado
      * @param main GUI_Main
      */
-    public Miner(Block block, BlockChain blockChain, GUI_Main main)
+    public Miner(
+            Block block, 
+            BlockChain blockChain, 
+            GUI_Main main)
     {
         this.guiMain = main;
         this.block = block;
@@ -47,10 +53,17 @@ public class Miner extends SwingWorker<String, Integer>
      * Mina um bloco e adiciona-o à chain. Recebe um segundo AccountManager para ser inserido na blockChain.
      *
      * @param block Bloco a ser minado
+     * @param secondContent
      * @param blockChain BlockChain à qual o bloco será adicionado
      * @param gui_Main GUI_Main
+     * @param guiLoan
      */
-    public Miner(Block block, AccountManager secondContent, BlockChain blockChain, GUI_Main gui_Main, GUI_NewLoan guiLoan)
+    public Miner(
+            Block block, 
+            AccountManager secondContent, 
+            BlockChain blockChain, 
+            GUI_Main gui_Main, 
+            GUI_NewLoan guiLoan)
     {
         this.guiMain = gui_Main;
         this.block = block;

@@ -16,7 +16,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ *  Fica à escuta de alguem que se junte à rede. Quando recebe uma nova ligação, retorna o seu endereço.
+ * 
+ * 
  * @author dell
  */
 public class LocalNetWorkListener extends Thread
@@ -33,16 +35,15 @@ public class LocalNetWorkListener extends Thread
     // Lista dos listeners do nó
     List<NodeEventListener> listeners;
 
-    public LocalNetWorkListener(TreeSet<NodeAddress> links, NodeAddress myAddress, List<NodeEventListener> source
-    ) throws Exception
+    public LocalNetWorkListener(TreeSet<NodeAddress> links, NodeAddress myAddress, List<NodeEventListener> listeners) throws Exception
     {
-        this.listeners = source;
+        this.listeners = listeners;
         this.myAdress = myAddress;
         this.links = links;
 
         listener = new MulticastSocket(MULTICAST_PORT);
         listener.joinGroup(InetAddress.getByName(MULTICAST_IP));
-        
+
         //::::::::::::::::::: T O   P R O G R A M M I N G:::::::::::::::::::::::: 
         // enviar uma mensagem para o grupo a pedir conexão
         Message msg = new Message(Message.CONNECT, myAdress);
@@ -52,25 +53,31 @@ public class LocalNetWorkListener extends Thread
     @Override
     public void run()
     {
-        while (true)
+        while ( true )
         {
-
             try
             {
                 //::::::::::::::::::: T O   P R O G R A M M I N G::::::::::::::::::::::::
                 //receber um pacote
                 Message msg = Message.receiveUDP(listener);
-                NodeAddress node = (NodeAddress) msg.getContent();
-                if (!links.contains(node))
-                {
-                    links.add(node);
-                    msg.setContent(myAdress);
 
-                    msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
-                    NodeEventListener.notifyConnect(listeners, node);
+                if ( msg.getContent() instanceof NodeAddress )
+                {
+                    NodeAddress node = (NodeAddress) msg.getContent();
+                    
+                    if ( !links.contains(node) )
+                    {
+                        links.add(node);
+                        
+                        msg.setContent(myAdress);
+                        msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
+                        
+                        NodeEventListener.notifyConnect(listeners, node);
+                    }
+                    //tratar o pacote
                 }
-                //tratar o pacote
-            } catch (Exception ex)
+            }
+            catch ( Exception ex )
             {
                 Logger.getLogger(LocalNetWorkListener.class.getName()).log(Level.SEVERE, null, ex);
             }

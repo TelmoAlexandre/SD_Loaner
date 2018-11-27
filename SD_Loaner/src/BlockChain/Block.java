@@ -9,6 +9,7 @@ import AccountManager.AccountManager;
 import GUI.GUI_Main;
 import GUI.GUI_NewLoan;
 import Miner.Miner;
+import java.io.Serializable;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -19,7 +20,7 @@ import java.util.Base64;
  *
  * @author Telmo
  */
-public class Block
+public class Block implements Serializable
 {
     public AccountManager content;
     // previousHash é o hash do bloco anterior. hash é o hash do bloco

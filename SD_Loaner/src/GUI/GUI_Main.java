@@ -13,6 +13,7 @@ import BlockChain.BlockChain;
 import BlockChain.Block;
 import Information.LoanInformation;
 import Network.Node;
+import Network.NodeEventListener;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.awt.event.WindowEvent;
@@ -24,17 +25,26 @@ import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
 /**
  *
  * @author Telmo
  */
-public class GUI_Main extends javax.swing.JFrame
+public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 {
 
     public BlockChain blockChain;
@@ -102,6 +112,9 @@ public class GUI_Main extends javax.swing.JFrame
         jScrollPane2 = new javax.swing.JScrollPane();
         txtLog = new javax.swing.JTextPane();
         jlFeedbackNetwork = new javax.swing.JLabel();
+        Mine = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jtaBlockReader = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -459,6 +472,19 @@ public class GUI_Main extends javax.swing.JFrame
 
         jlFeedbackNetwork.setText("All is good.");
 
+        Mine.setText("Mine");
+        Mine.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                MineActionPerformed(evt);
+            }
+        });
+
+        jtaBlockReader.setColumns(20);
+        jtaBlockReader.setRows(5);
+        jScrollPane3.setViewportView(jtaBlockReader);
+
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
@@ -467,7 +493,9 @@ public class GUI_Main extends javax.swing.JFrame
                 .addContainerGap()
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(pnNode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jlFeedbackNetwork))
+                    .addComponent(jlFeedbackNetwork)
+                    .addComponent(Mine)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
                 .addContainerGap())
@@ -481,7 +509,11 @@ public class GUI_Main extends javax.swing.JFrame
                         .addComponent(pnNode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jlFeedbackNetwork)
-                        .addGap(0, 325, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Mine)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 198, Short.MAX_VALUE))
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jScrollPane2)))
@@ -745,7 +777,7 @@ public class GUI_Main extends javax.swing.JFrame
                 myNode.startServer(port, service);
 
                 //colocar a interface a escutar o nó
-                //myNode.addNodeListener(this);
+                myNode.addNodeListener(this);
             }
         } catch (Exception ex)
         {
@@ -756,6 +788,146 @@ public class GUI_Main extends javax.swing.JFrame
         }
     }//GEN-LAST:event_btStartActionPerformed
 
+    private void MineActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_MineActionPerformed
+    {//GEN-HEADEREND:event_MineActionPerformed
+        try
+        {
+            Block block = new Block(null, new AccountInformation("Telmo", null, "2"));
+            
+            Block minedBlock = myNode.mineMessage(block);
+            
+            jtaBlockReader.setText(minedBlock.hashCode);
+        }
+        catch ( Exception ex )
+        {
+            giveAlertFeedback(jlFeedbackNetwork, ex.getMessage());
+        }
+    }//GEN-LAST:event_MineActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[])
+    {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try
+        {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())
+            {
+                if ("Nimbus".equals(info.getName()))
+                {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+
+                }
+            }
+        } catch (ClassNotFoundException ex)
+        {
+            java.util.logging.Logger.getLogger(GUI_Main.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
+        } catch (InstantiationException ex)
+        {
+            java.util.logging.Logger.getLogger(GUI_Main.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
+        } catch (IllegalAccessException ex)
+        {
+            java.util.logging.Logger.getLogger(GUI_Main.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
+        } catch (javax.swing.UnsupportedLookAndFeelException ex)
+        {
+            java.util.logging.Logger.getLogger(GUI_Main.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                new GUI_Main().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton Mine;
+    private javax.swing.JButton btStart;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JButton jbCheckClientAccounts;
+    private javax.swing.JButton jbCheckLoan;
+    private javax.swing.JButton jbCheckLoans;
+    private javax.swing.JButton jbCheckMoney;
+    private javax.swing.JButton jbCreateNewAccount;
+    private javax.swing.JButton jbDeposit;
+    private javax.swing.JButton jbExit;
+    private javax.swing.JButton jbGenerateRSAKeys;
+    private javax.swing.JButton jbLoanPayment;
+    private javax.swing.JButton jbPrintBlockChain;
+    private javax.swing.JButton jbRequestLoan;
+    private javax.swing.JButton jbWithdrawal;
+    private javax.swing.JComboBox<String> jcbPort;
+    private javax.swing.JComboBox<String> jcbPortService;
+    private javax.swing.JLabel jlFeedback;
+    private javax.swing.JLabel jlFeedbackNetwork;
+    private javax.swing.JTextArea jtaBlockReader;
+    private javax.swing.JTextArea jtaLedger;
+    private javax.swing.JPanel pnNode;
+    private javax.swing.JTextPane txtLog;
+    // End of variables declaration//GEN-END:variables
+
+    private void printLog(String msg, Color color) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                StyleContext sc = StyleContext.getDefaultStyleContext();
+                AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, color);
+                // aset = sc.addAttribute(aset, StyleConstants.Background, Color.BLACK);
+                aset = sc.addAttribute(aset, StyleConstants.Bold, true);
+                txtLog.setCaretPosition(0);
+                txtLog.setCharacterAttributes(aset, false);
+                txtLog.replaceSelection(" " + msg);
+                txtLog.setCaretPosition(0);
+                aset = sc.addAttribute(aset, StyleConstants.Foreground, Color.BLACK);
+                txtLog.setCharacterAttributes(aset, false);
+                txtLog.replaceSelection("\n" + (new SimpleDateFormat("HH:mm:ss")).format(new Date()));
+            }
+        });
+
+    }
+
+    @Override
+    public void onConnectLink(Object obj) {
+        printLog(obj.toString(), Color.blue);
+    }
+    
     /**
      * Cria e adiciona o novo bloco à BlockChain.
      *
@@ -1103,100 +1275,4 @@ public class GUI_Main extends javax.swing.JFrame
         jbLoanPayment.setEnabled(true);
         jbCreateNewAccount.setEnabled(true);
     }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[])
-    {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try
-        {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())
-            {
-                if ("Nimbus".equals(info.getName()))
-                {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-
-                }
-            }
-        } catch (ClassNotFoundException ex)
-        {
-            java.util.logging.Logger.getLogger(GUI_Main.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
-        } catch (InstantiationException ex)
-        {
-            java.util.logging.Logger.getLogger(GUI_Main.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
-        } catch (IllegalAccessException ex)
-        {
-            java.util.logging.Logger.getLogger(GUI_Main.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
-        } catch (javax.swing.UnsupportedLookAndFeelException ex)
-        {
-            java.util.logging.Logger.getLogger(GUI_Main.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                new GUI_Main().setVisible(true);
-            }
-        });
-    }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btStart;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel6;
-    private javax.swing.JPanel jPanel7;
-    private javax.swing.JPanel jPanel8;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JButton jbCheckClientAccounts;
-    private javax.swing.JButton jbCheckLoan;
-    private javax.swing.JButton jbCheckLoans;
-    private javax.swing.JButton jbCheckMoney;
-    private javax.swing.JButton jbCreateNewAccount;
-    private javax.swing.JButton jbDeposit;
-    private javax.swing.JButton jbExit;
-    private javax.swing.JButton jbGenerateRSAKeys;
-    private javax.swing.JButton jbLoanPayment;
-    private javax.swing.JButton jbPrintBlockChain;
-    private javax.swing.JButton jbRequestLoan;
-    private javax.swing.JButton jbWithdrawal;
-    private javax.swing.JComboBox<String> jcbPort;
-    private javax.swing.JComboBox<String> jcbPortService;
-    private javax.swing.JLabel jlFeedback;
-    private javax.swing.JLabel jlFeedbackNetwork;
-    private javax.swing.JTextArea jtaLedger;
-    private javax.swing.JPanel pnNode;
-    private javax.swing.JTextPane txtLog;
-    // End of variables declaration//GEN-END:variables
 }

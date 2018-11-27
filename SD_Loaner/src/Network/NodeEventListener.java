@@ -36,6 +36,4 @@ public interface NodeEventListener extends EventListener {
             listener.onConnectLink(param);
         }
     }
-
-
 }
