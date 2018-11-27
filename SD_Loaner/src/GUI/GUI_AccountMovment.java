@@ -215,7 +215,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                         }
 
                         // Fornece feedback ao utilizador
-                        main.giveNormalFeedback(movType + " has been successful");
+                        main.giveNormalFeedback(null, movType + " has been successful");
 
                         // Caso consiga criar um movimento, sair da janela
                         this.setVisible(false);

@@ -1,0 +1,80 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Network.Servers;
+
+import Network.Message;
+import Network.NodeAddress;
+import Network.NodeEventListener;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.util.List;
+import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author dell
+ */
+public class LocalNetWorkListener extends Thread
+{
+
+    public static final String MULTICAST_IP = "230.0.0.0";
+    public static final int MULTICAST_PORT = 4321;
+
+    MulticastSocket listener;
+    NodeAddress myAdress;
+
+    TreeSet<NodeAddress> links;
+
+    // Lista dos listeners do nó
+    List<NodeEventListener> listeners;
+
+    public LocalNetWorkListener(TreeSet<NodeAddress> links, NodeAddress myAddress, List<NodeEventListener> source
+    ) throws Exception
+    {
+        this.listeners = source;
+        this.myAdress = myAddress;
+        this.links = links;
+
+        listener = new MulticastSocket(MULTICAST_PORT);
+        listener.joinGroup(InetAddress.getByName(MULTICAST_IP));
+        
+        //::::::::::::::::::: T O   P R O G R A M M I N G:::::::::::::::::::::::: 
+        // enviar uma mensagem para o grupo a pedir conexão
+        Message msg = new Message(Message.CONNECT, myAdress);
+        msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
+    }
+
+    @Override
+    public void run()
+    {
+        while (true)
+        {
+
+            try
+            {
+                //::::::::::::::::::: T O   P R O G R A M M I N G::::::::::::::::::::::::
+                //receber um pacote
+                Message msg = Message.receiveUDP(listener);
+                NodeAddress node = (NodeAddress) msg.getContent();
+                if (!links.contains(node))
+                {
+                    links.add(node);
+                    msg.setContent(myAdress);
+
+                    msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
+                    NodeEventListener.notifyConnect(listeners, node);
+                }
+                //tratar o pacote
+            } catch (Exception ex)
+            {
+                Logger.getLogger(LocalNetWorkListener.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+}//server UDP

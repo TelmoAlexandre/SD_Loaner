@@ -190,7 +190,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
 
                         // Cria e adiciona o bloco à blockChain
                         main.addToBlockChain(info);
-                        main.giveNormalFeedback("Account created with success.");
+                        main.giveNormalFeedback(null, "Account created with success.");
 
                         // Esconde a janela e dá dispose()
                         main.windowWasCancelled = false;

@@ -354,7 +354,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
             blockChain.addLoanBlocks(loanInfo, mov, main, this);
 
             // Dá feedback ao cliente
-            main.giveNormalFeedback("Loan created with success.");
+            main.giveNormalFeedback(null, "Loan created with success.");
         }
         catch ( Exception ex )
         {

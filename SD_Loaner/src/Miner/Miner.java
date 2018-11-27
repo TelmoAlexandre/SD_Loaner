@@ -11,7 +11,6 @@ import BlockChain.BlockChain;
 import GUI.GUI_Main;
 import GUI.GUI_NewLoan;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.SwingWorker;
 
 /**
@@ -143,7 +142,7 @@ public class Miner extends SwingWorker<String, Integer>
         blockChain.addMinedBlock(block);
         
         guiMain.enableButtons();
-        guiMain.giveNormalFeedback("Mining has finished.");
+        guiMain.giveNormalFeedback(null, "Mining has finished.");
 
         if (guiLoan != null)
         {

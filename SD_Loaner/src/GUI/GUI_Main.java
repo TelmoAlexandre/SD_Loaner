@@ -12,6 +12,7 @@ import BankServices.LoanPayment;
 import BlockChain.BlockChain;
 import BlockChain.Block;
 import Information.LoanInformation;
+import Network.Node;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.awt.event.WindowEvent;
@@ -26,6 +27,7 @@ import java.security.PrivateKey;
 import java.util.Base64;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 /**
@@ -34,11 +36,13 @@ import javax.swing.JOptionPane;
  */
 public class GUI_Main extends javax.swing.JFrame
 {
+
     public BlockChain blockChain;
     public double amount;
     public Key publicKey;
     public String passwordHash;
     public boolean windowWasCancelled;
+    Node myNode;
 
     /**
      * Creates new form GUI
@@ -65,6 +69,10 @@ public class GUI_Main extends javax.swing.JFrame
     private void initComponents()
     {
 
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel6 = new javax.swing.JPanel();
+        jbExit = new javax.swing.JButton();
+        jlFeedback = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jtaLedger = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
@@ -84,10 +92,29 @@ public class GUI_Main extends javax.swing.JFrame
         jPanel7 = new javax.swing.JPanel();
         jbGenerateRSAKeys = new javax.swing.JButton();
         jbCreateNewAccount = new javax.swing.JButton();
-        jbExit = new javax.swing.JButton();
-        jlFeedback = new javax.swing.JLabel();
+        jPanel8 = new javax.swing.JPanel();
+        pnNode = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        btStart = new javax.swing.JButton();
+        jcbPort = new javax.swing.JComboBox<>();
+        jLabel4 = new javax.swing.JLabel();
+        jcbPortService = new javax.swing.JComboBox<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        txtLog = new javax.swing.JTextPane();
+        jlFeedbackNetwork = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jbExit.setText("Exit");
+        jbExit.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbExitActionPerformed(evt);
+            }
+        });
+
+        jlFeedback.setText("Choose your option");
 
         jtaLedger.setColumns(20);
         jtaLedger.setRows(5);
@@ -135,7 +162,7 @@ public class GUI_Main extends javax.swing.JFrame
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addComponent(jbCheckLoans, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbPrintBlockChain, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jbPrintBlockChain, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
@@ -334,40 +361,29 @@ public class GUI_Main extends javax.swing.JFrame
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jbExit.setText("Exit");
-        jbExit.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jbExitActionPerformed(evt);
-            }
-        });
-
-        jlFeedback.setText("Choose your option");
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jlFeedback, javax.swing.GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jlFeedback, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(jbExit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(18, 18, 18)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap())
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane1)
-                    .addGroup(layout.createSequentialGroup()
+                    .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(jlFeedback, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -377,6 +393,121 @@ public class GUI_Main extends javax.swing.JFrame
                         .addComponent(jbExit, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        jTabbedPane1.addTab("BlockChain", jPanel6);
+
+        pnNode.setBorder(javax.swing.BorderFactory.createTitledBorder("Node"));
+
+        jLabel3.setText("Port");
+
+        btStart.setText("Start");
+        btStart.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btStart.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btStart.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                btStartActionPerformed(evt);
+            }
+        });
+
+        jcbPort.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "10010", "10012", "10014", "10016", "10018", "10020", "10022", " " }));
+
+        jLabel4.setText("Service");
+
+        jcbPortService.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "10011", "10013", "10015", "10017", "10019", "10021", "10023" }));
+
+        javax.swing.GroupLayout pnNodeLayout = new javax.swing.GroupLayout(pnNode);
+        pnNode.setLayout(pnNodeLayout);
+        pnNodeLayout.setHorizontalGroup(
+            pnNodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnNodeLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnNodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(pnNodeLayout.createSequentialGroup()
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jcbPort, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnNodeLayout.createSequentialGroup()
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jcbPortService, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btStart, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE))
+        );
+        pnNodeLayout.setVerticalGroup(
+            pnNodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnNodeLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnNodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jcbPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnNodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(jcbPortService, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnNodeLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(btStart, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        txtLog.setBorder(javax.swing.BorderFactory.createTitledBorder("Network Log"));
+        txtLog.setFont(new java.awt.Font("Courier New", 1, 12)); // NOI18N
+        txtLog.setPreferredSize(new java.awt.Dimension(400, 43));
+        jScrollPane2.setViewportView(txtLog);
+
+        jlFeedbackNetwork.setText("All is good.");
+
+        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pnNode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jlFeedbackNetwork))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addComponent(pnNode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jlFeedbackNetwork)
+                        .addGap(0, 325, Short.MAX_VALUE))
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane2)))
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab("Network", jPanel8);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane1)
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane1)
+                .addContainerGap())
+        );
+
+        jTabbedPane1.getAccessibleContext().setAccessibleName("BlockChain");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -413,7 +544,7 @@ public class GUI_Main extends javax.swing.JFrame
             // Pede uma localização para guardar a chave pública. Guarda a opção escolhida pelo utilizador na variável i
             int i = file.showSaveDialog(null);
 
-            if ( i == JFileChooser.APPROVE_OPTION )
+            if (i == JFileChooser.APPROVE_OPTION)
             {
 
                 // Caso seja clicado no butao save da janela, guardar a chave publica na localização escolhida
@@ -427,7 +558,7 @@ public class GUI_Main extends javax.swing.JFrame
 
                 i = file.showSaveDialog(null);
 
-                if ( i == JFileChooser.APPROVE_OPTION )
+                if (i == JFileChooser.APPROVE_OPTION)
                 {
                     // Caso seja clicado no butao save da janela, guardar a chave privada na localização escolhida
                     SecurityUtils.saveKey(
@@ -437,10 +568,10 @@ public class GUI_Main extends javax.swing.JFrame
                 }
             }
 
-        }
-        catch ( Exception e )
+        } catch (Exception e)
         {
             giveAlertFeedback(
+                    jlFeedback,
                     e.getMessage()
             );
         }
@@ -480,10 +611,10 @@ public class GUI_Main extends javax.swing.JFrame
             @Override
             public void windowClosed(WindowEvent e)
             {
-                if ( !windowWasCancelled )
+                if (!windowWasCancelled)
                 {
                     // Caso o cliente tenha conta
-                    if ( clientHasAccount() )
+                    if (clientHasAccount())
                     {
                         // Mostra os seus movimentos
                         showClientMovments();
@@ -501,10 +632,10 @@ public class GUI_Main extends javax.swing.JFrame
         jtaLedger.setText("");
 
         // Percorrer a blockChain
-        for ( Block b : blockChain.chain )
+        for (Block b : blockChain.chain)
         {
             // Caso se trate dos dados da conta
-            if ( b.content instanceof AccountInformation )
+            if (b.content instanceof AccountInformation)
             {
                 jtaLedger.append(b.toString() + "\n\n");
             }
@@ -517,10 +648,10 @@ public class GUI_Main extends javax.swing.JFrame
         jtaLedger.setText("");
 
         // Percorrer a blockChain
-        for ( Block b : blockChain.chain )
+        for (Block b : blockChain.chain)
         {
             // Caso se trate dos dados do emprestimo
-            if ( b.content instanceof LoanInformation )
+            if (b.content instanceof LoanInformation)
             {
                 jtaLedger.append(b.toString() + "\n\n");
             }
@@ -554,31 +685,34 @@ public class GUI_Main extends javax.swing.JFrame
             {
                 try
                 {
-                    if ( !windowWasCancelled )
+                    if (!windowWasCancelled)
                     {
                         // Caso o cliente tenha conta
-                        if ( clientHasAccount() )
+                        if (clientHasAccount())
                         {
                             Block loanActive = getActiveLoanHash();
 
-                            if ( loanActive != null )
+                            if (loanActive != null)
                             {
                                 showLoan(loanActive);
-                            }
-                            else
+                            } else
                             {
                                 jtaLedger.setText("{\n You have no active loans.\n}");
                             }
-                        }
-                        else
+                        } else
                         {
-                            giveAlertFeedback("Account does not exist.");
+                            giveAlertFeedback(
+                                    jlFeedback,
+                                    "Account does not exist."
+                            );
                         }
                     }
-                }
-                catch ( Exception ex )
+                } catch (Exception ex)
                 {
-                    giveAlertFeedback(ex.getMessage());
+                    giveAlertFeedback(
+                            jlFeedback,
+                            ex.getMessage()
+                    );
                 }
             }
         });
@@ -595,6 +729,33 @@ public class GUI_Main extends javax.swing.JFrame
         jtaLedger.setText(blockChain.toString());
     }//GEN-LAST:event_jbPrintBlockChainActionPerformed
 
+    private void btStartActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btStartActionPerformed
+    {//GEN-HEADEREND:event_btStartActionPerformed
+        try
+        {
+            // Caso o nodo não esteja inicializado
+            if (myNode == null)
+            {
+                // Recolhe o porto e o serviço a serem utilizados
+                int port = Integer.valueOf(jcbPort.getSelectedItem().toString());
+                int service = Integer.valueOf(jcbPortService.getSelectedItem().toString());
+
+                // Cria um nodo e inicia o servidor
+                myNode = new Node();
+                myNode.startServer(port, service);
+
+                //colocar a interface a escutar o nó
+                //myNode.addNodeListener(this);
+            }
+        } catch (Exception ex)
+        {
+            giveAlertFeedback(
+                    jlFeedbackNetwork,
+                    ex.getMessage()
+            );
+        }
+    }//GEN-LAST:event_btStartActionPerformed
+
     /**
      * Cria e adiciona o novo bloco à BlockChain.
      *
@@ -605,10 +766,12 @@ public class GUI_Main extends javax.swing.JFrame
         try
         {
             blockChain.add(blockContent, this);
-        }
-        catch ( Exception ex )
+        } catch (Exception ex)
         {
-            giveAlertFeedback(ex.getMessage());
+            giveAlertFeedback(
+                    jlFeedback,
+                    ex.getMessage()
+            );
         }
 
     }
@@ -619,16 +782,16 @@ public class GUI_Main extends javax.swing.JFrame
      */
     private Block getActiveLoanHash()
     {
-        for ( Block b : blockChain.chain )
+        for (Block b : blockChain.chain)
         {
             // Caso se trate de um emprestimo
-            if ( b.content instanceof LoanInformation )
+            if (b.content instanceof LoanInformation)
             {
                 // Individualizar a instancia do LoanInformation
                 LoanInformation loanInfo = (LoanInformation) b.content;
 
                 // Se se tratar de um empretimo do cliente
-                if ( loanInfo.comparePublicKeys(publicKey) )
+                if (loanInfo.comparePublicKeys(publicKey))
                 {
 
                     // Recolhe o que falta pagar do emprestimo
@@ -640,7 +803,7 @@ public class GUI_Main extends javax.swing.JFrame
 
                     // Caso ainda não tenha pago tudo, coloca como activo (TRUE)
                     // Seão coloca como FALSE
-                    if ( whatsLeftToPay != 0.0 )
+                    if (whatsLeftToPay != 0.0)
                     {
                         return b;
                     }
@@ -661,25 +824,24 @@ public class GUI_Main extends javax.swing.JFrame
     {
         jtaLedger.setText("");
 
-        for ( Block b : blockChain.chain )
+        for (Block b : blockChain.chain)
         {
             // Caso seja um emprestimo
-            if ( b.content instanceof LoanInformation )
+            if (b.content instanceof LoanInformation)
             {
                 // Caso esse emprestimo seja o emprestimo em questão
-                if ( b.hashCode.equals(loanBlock.hashCode) )
+                if (b.hashCode.equals(loanBlock.hashCode))
                 {
                     // Imprime o bloco de pagamento
                     jtaLedger.append(b.toString() + "\n\n");
                 }
-            }
-            else if ( b.content instanceof LoanPayment ) // Caso seja um pagamento de emprestimo
+            } else if (b.content instanceof LoanPayment) // Caso seja um pagamento de emprestimo
             {
                 // Individualizar esse pagamento
                 LoanPayment payment = (LoanPayment) b.content;
 
                 // Caso esse pagamento pertença ao emprestimo a ser imprimido
-                if ( payment.belongsToThisLoan(loanBlock.hashCode) )
+                if (payment.belongsToThisLoan(loanBlock.hashCode))
                 {
 
                     // Imprime o bloco de pagamento
@@ -701,13 +863,13 @@ public class GUI_Main extends javax.swing.JFrame
     private boolean clientHasAccount()
     {
 
-        for ( Block b : blockChain.chain )
+        for (Block b : blockChain.chain)
         {
             // Individualiza o conteudo do bloco
             AccountManager blockContent = b.content;
 
             // Caso o conteudo do bloco seja uma informação de conta e esta pertença ao cliente
-            if ( blockContent instanceof AccountInformation && blockContent.comparePublicKeys(publicKey) )
+            if (blockContent instanceof AccountInformation && blockContent.comparePublicKeys(publicKey))
             {
                 // Transforma o blockContent na sua verdadeira instancia
                 AccountInformation info = (AccountInformation) blockContent;
@@ -715,29 +877,37 @@ public class GUI_Main extends javax.swing.JFrame
                 try
                 {
                     // Trata da autenticação
-                    if ( info.authenticateLogin(passwordHash) )
+                    if (info.authenticateLogin(passwordHash))
                     {
                         // Imprime o bloco de informação
                         jtaLedger.setText(b.toString());
 
                         return true;
-                    }
-                    else
+                    } else
                     {
-                        giveAlertFeedback("Wrong password provided.");
+                        giveAlertFeedback(
+                                jlFeedback,
+                                "Wrong password provided."
+                        );
                         return false;
                     }
-                }
-                catch ( NoSuchAlgorithmException ex )
+                } catch (NoSuchAlgorithmException ex)
                 {
-                    giveAlertFeedback(ex.getMessage());
+                    giveAlertFeedback(
+                            jlFeedback,
+                            ex.getMessage()
+                    );
                 }
 
                 break;
             }
         }
 
-        giveAlertFeedback("Account not found.");
+        giveAlertFeedback(
+                jlFeedback,
+                "Account not found."
+        );
+
         return false;
     }
 
@@ -747,11 +917,11 @@ public class GUI_Main extends javax.swing.JFrame
      */
     private void showClientMovments()
     {
-        for ( Block b : blockChain.chain )
+        for (Block b : blockChain.chain)
         {
             // Caso se trate de um movimento de conta ou pagamento de emprestimo do cliente em questão 
-            if ( (b.content instanceof AccountMovment || b.content instanceof LoanPayment)
-                    && b.content.comparePublicKeys(publicKey) )
+            if ((b.content instanceof AccountMovment || b.content instanceof LoanPayment)
+                    && b.content.comparePublicKeys(publicKey))
             {
                 // Imprime bloco
                 jtaLedger.append("\n\n" + b.toString());
@@ -801,16 +971,18 @@ public class GUI_Main extends javax.swing.JFrame
             JFileChooser file = new JFileChooser();
             file.setCurrentDirectory(new File("."));
             int i = file.showOpenDialog(null);
-            if ( i == JFileChooser.APPROVE_OPTION )
+            if (i == JFileChooser.APPROVE_OPTION)
             {
                 byte[] privateKeyBytes = Files.readAllBytes(Paths.get(file.getSelectedFile().getAbsolutePath()));
                 PrivateKey privateKey = (PrivateKey) SecurityUtils.getPrivateKey(privateKeyBytes);
                 return privateKey;
             }
-        }
-        catch ( Exception ex )
+        } catch (Exception ex)
         {
-            giveAlertFeedback(ex.getMessage());
+            giveAlertFeedback(
+                    jlFeedback,
+                    ex.getMessage()
+            );
         }
 
         return null;
@@ -830,23 +1002,35 @@ public class GUI_Main extends javax.swing.JFrame
     /**
      * Fornece feedback ao utilizador.
      *
+     * @param label
      * @param feedback
      */
-    public void giveNormalFeedback(String feedback)
+    public void giveNormalFeedback(JLabel label, String feedback)
     {
-        jlFeedback.setText(feedback);
-        jlFeedback.setForeground(Color.black);
+        if (label == null)
+        {
+            label = jlFeedback;
+        }
+
+        label.setText(feedback);
+        label.setForeground(Color.black);
     }
 
     /**
      * Fornece feedback de alertas ao utilizador.
      *
+     * @param label
      * @param feedback
      */
-    public void giveAlertFeedback(String feedback)
+    public void giveAlertFeedback(JLabel label, String feedback)
     {
-        jlFeedback.setText(feedback);
-        jlFeedback.setForeground(Color.red);
+        if (label == null)
+        {
+            label = jlFeedback;
+        }
+
+        label.setText(feedback);
+        label.setForeground(Color.red);
     }
 
     /**
@@ -868,8 +1052,7 @@ public class GUI_Main extends javax.swing.JFrame
 
             // Guarda o hash da password
             passwordHash = Base64.getEncoder().encodeToString(hash.digest());
-        }
-        catch ( NoSuchAlgorithmException ex )
+        } catch (NoSuchAlgorithmException ex)
         {
             jlFeedback.setText(ex.getMessage());
         }
@@ -933,35 +1116,31 @@ public class GUI_Main extends javax.swing.JFrame
          */
         try
         {
-            for ( javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels() )
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())
             {
-                if ( "Nimbus".equals(info.getName()) )
+                if ("Nimbus".equals(info.getName()))
                 {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
 
                 }
             }
-        }
-        catch ( ClassNotFoundException ex )
+        } catch (ClassNotFoundException ex)
         {
             java.util.logging.Logger.getLogger(GUI_Main.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
-        }
-        catch ( InstantiationException ex )
+        } catch (InstantiationException ex)
         {
             java.util.logging.Logger.getLogger(GUI_Main.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
-        }
-        catch ( IllegalAccessException ex )
+        } catch (IllegalAccessException ex)
         {
             java.util.logging.Logger.getLogger(GUI_Main.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
-        }
-        catch ( javax.swing.UnsupportedLookAndFeelException ex )
+        } catch (javax.swing.UnsupportedLookAndFeelException ex)
         {
             java.util.logging.Logger.getLogger(GUI_Main.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
@@ -986,13 +1165,20 @@ public class GUI_Main extends javax.swing.JFrame
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btStart;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JButton jbCheckClientAccounts;
     private javax.swing.JButton jbCheckLoan;
     private javax.swing.JButton jbCheckLoans;
@@ -1005,7 +1191,12 @@ public class GUI_Main extends javax.swing.JFrame
     private javax.swing.JButton jbPrintBlockChain;
     private javax.swing.JButton jbRequestLoan;
     private javax.swing.JButton jbWithdrawal;
+    private javax.swing.JComboBox<String> jcbPort;
+    private javax.swing.JComboBox<String> jcbPortService;
     private javax.swing.JLabel jlFeedback;
+    private javax.swing.JLabel jlFeedbackNetwork;
     private javax.swing.JTextArea jtaLedger;
+    private javax.swing.JPanel pnNode;
+    private javax.swing.JTextPane txtLog;
     // End of variables declaration//GEN-END:variables
 }
