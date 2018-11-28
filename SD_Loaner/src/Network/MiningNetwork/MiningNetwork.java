@@ -24,7 +24,7 @@ public class MiningNetwork
         this.network = network;
     }
 
-    public Block mine(Block block) throws Exception
+    public Block mine(Block block, NodeAddress me) throws Exception
     {
         this.block = block;
 
@@ -38,7 +38,7 @@ public class MiningNetwork
                     network.get(i).getServicePort(),
                     block
             );
-
+            
             threads[i].start();
         }
 

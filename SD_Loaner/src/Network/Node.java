@@ -83,7 +83,7 @@ public class Node
          new ArrayList<>(links)
         );
 
-        block = mn.mine(block);
+        block = mn.mine(block, myAdress);
         
         return block;
     }
