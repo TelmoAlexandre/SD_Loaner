@@ -5,7 +5,7 @@
  */
 package Network.Servers;
 
-import Network.Message;
+import Network.Message.MessageUDP;
 import Network.NodeAddress;
 import Network.NodeEventListener;
 import java.net.InetAddress;
@@ -46,7 +46,7 @@ public class LocalNetWorkListener extends Thread
 
         //::::::::::::::::::: T O   P R O G R A M M I N G:::::::::::::::::::::::: 
         // enviar uma mensagem para o grupo a pedir conexão
-        Message msg = new Message(Message.CONNECT, myAdress);
+        MessageUDP msg = new MessageUDP(MessageUDP.CONNECT, myAdress);
         msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
     }
 
@@ -59,7 +59,7 @@ public class LocalNetWorkListener extends Thread
             {
                 //::::::::::::::::::: T O   P R O G R A M M I N G::::::::::::::::::::::::
                 //receber um pacote
-                Message msg = Message.receiveUDP(listener);
+                MessageUDP msg = MessageUDP.receiveUDP(listener);
 
                 if ( msg.getContent() instanceof NodeAddress )
                 {

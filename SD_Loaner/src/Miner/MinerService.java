@@ -6,13 +6,9 @@
 package Miner;
 
 import BlockChain.Block;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
+import GUI.GUI_Main;
+import Network.SocketManager;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 
 /**
@@ -21,28 +17,22 @@ import javax.swing.SwingWorker;
  */
 public class MinerService extends SwingWorker<String, Integer>
 {
+
     // Ligação ao clioente
-    Socket socket;
-    ObjectInputStream in;
-    ObjectOutputStream out;
+    SocketManager socketManager;
 
     // Necessário para minar 
-    private Block block;
-    private int difficulty = 3;
+    public Block block;
+    private final int difficulty = 3;
     private String nonce;
     private String hashCode;
 
-    public MinerService(Socket socket) throws Exception
+    public MinerService(SocketManager socketManager, Block block, GUI_Main main) throws Exception
     {
-        this.socket = socket;
-
-        // open streams
-        // server IN - OUT
-        this.in = new ObjectInputStream(socket.getInputStream());
-        this.out = new ObjectOutputStream(socket.getOutputStream());
-
-        // Ler o bloco para minerar
-        this.block = (Block) in.readObject();
+        this.socketManager = socketManager;
+        this.block = block;
+        
+        main.displayReceivedBlock(block.toString());
     }
 
     @Override
@@ -60,24 +50,23 @@ public class MinerService extends SwingWorker<String, Integer>
         // Constroi a String a ser minada
         String toMine = block.content.toString() + block.previousHash + block.difficulty;
 
-        for ( int i = 0; i < threads.length; i++ )
+        for (int i = 0; i < threads.length; i++)
         {
-            MinerThread thr = new MinerThread(
+            threads[i] = new MinerThread(
                     toMine,
                     difficulty,
-                    isSolved
+                    isSolved,
+                    socketManager
             );
 
-            threads[i] = thr;
-
-            thr.start();
+            threads[i].start();
         }
 
-        for ( MinerThread thread : threads )
+        for (MinerThread thread : threads)
         {
             thread.join();
 
-            if ( thread.isSolvedByMe() )
+            if (thread.isSolvedByMe())
             {
                 nonce = thread.getSolution();
                 hashCode = thread.getHash();
@@ -90,11 +79,7 @@ public class MinerService extends SwingWorker<String, Integer>
         block.setNonce(nonce);
 
         // Envia o bloco para o nodo que pediu a mineração
-        out.writeObject(block);
-        out.flush();
-
-        // Fecha a conecção
-        socket.close();
+        socketManager.sendObject(block);
 
         return "";
     }

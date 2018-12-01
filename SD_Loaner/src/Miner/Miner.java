@@ -117,15 +117,14 @@ public class Miner extends SwingWorker<String, Integer>
 
         for ( int i = 0; i < threads.length; i++ )
         {
-            MinerThread thr = new MinerThread(
-                    toMine,
-                    difficulty,
-                    isSolved
-            );
-
-            threads[i] = thr;
-
-            thr.start();
+//            MinerThread thr = new MinerThread(
+//                    toMine,
+//                    difficulty,
+//                    isSolved
+//            );
+//            threads[i] = thr;
+//
+//            thr.start();
         }
 
         for ( MinerThread thread : threads )

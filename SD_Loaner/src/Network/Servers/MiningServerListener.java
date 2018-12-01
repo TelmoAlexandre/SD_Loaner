@@ -6,7 +6,13 @@
 package Network.Servers;
 
 // import classroom.blockChain.MinerService;
+import BlockChain.Block;
+import GUI.GUI_Main;
 import Miner.MinerService;
+import Network.Message.Message;
+import Network.SocketManager;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -18,12 +24,14 @@ import java.util.logging.Logger;
  */
 public class MiningServerListener extends Thread
 {
-
     ServerSocket server;
+    SocketManager socketManager;
+    GUI_Main main;
 
-    public MiningServerListener(int port) throws Exception
+    public MiningServerListener(int port, GUI_Main main) throws Exception
     {
         server = new ServerSocket(port);
+        this.main = main;
     }
 
     @Override
@@ -36,13 +44,25 @@ public class MiningServerListener extends Thread
         {
             try
             {
-                Socket client = server.accept();
-                
-                // MinerSerive vai receber o bloco a ser minerado
-                // e vai criar Threads que o irao minar
-                // Assim que a mineração for concluida, o bloco será enviado
-                // novamente para o solicitador da mineração
-                new MinerService(client).execute();
+                socketManager = new SocketManager(server.accept());
+
+                Message msg = (Message) socketManager.readObject();
+                Block block = (Block) msg.getContent();
+
+                if ( msg.getType().equals(Message.TOMINE) )
+                {
+                    // MinerSerive vai receber o bloco a ser minerado
+                    // e vai criar Threads que o irao minar
+                    // Assim que a mineração for concluida, o bloco será enviado
+                    // novamente para o solicitador da mineração
+                    new MinerService(socketManager, block, main).execute();
+                }
+                else if ( msg.getType().equals(Message.MINEDBLOCK) )
+                {
+
+                    main.writeMinedBlock(block.hashCode);
+                }
+
             }
             catch ( Exception ex )
             {

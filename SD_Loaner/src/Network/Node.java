@@ -16,6 +16,7 @@
 package Network;
 
 import BlockChain.Block;
+import GUI.GUI_Main;
 import Network.MiningNetwork.MiningNetwork;
 import Network.Servers.LocalNetWorkListener;
 import Network.Servers.MiningServerListener;
@@ -36,7 +37,7 @@ public class Node
     TreeSet<NodeAddress> links = new TreeSet<>();
     List<NodeEventListener> listeners = new ArrayList<>();
 
-    public void startServer(int port, int service) throws Exception
+    public void startServer(int port, int service, GUI.GUI_Main main) throws Exception
     {
         this.myAdress = new NodeAddress(InetAddress.getLocalHost().getHostAddress(),
                 port, service);
@@ -45,7 +46,7 @@ public class Node
         links = new TreeSet<>();
 
         new LocalNetWorkListener(links,myAdress,listeners).start();
-        new MiningServerListener(service).start();
+        new MiningServerListener(service, main).start();
     }
 
     public void addNodeListener(NodeEventListener l)
@@ -79,11 +80,11 @@ public class Node
     public Block mineMessage(Block block) throws Exception
     {
         //Executar a mineração na rede            
-        MiningNetwork mn = new MiningNetwork(
+        MiningNetwork miningNetwork = new MiningNetwork(
          new ArrayList<>(links)
         );
 
-        block = mn.mine(block, myAdress);
+        block = miningNetwork.mine(block);
         
         return block;
     }

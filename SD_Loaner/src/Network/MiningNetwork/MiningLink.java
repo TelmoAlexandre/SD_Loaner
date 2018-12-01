@@ -6,13 +6,13 @@
 package Network.MiningNetwork;
 
 import BlockChain.Block;
+import Network.Message.Message;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -22,12 +22,15 @@ public class MiningLink extends Thread
 {
 
     Block block;
+    List<MiningLink> miningLinks = new ArrayList<>();
+    boolean isSolvedByMe;
+    
+    // Network
+    Socket socket;
     ObjectInputStream in;
     ObjectOutputStream out;
-    Socket socket;
-    boolean isSolvedByMe;
-
-    public MiningLink(String ip, int port, Block block) throws Exception
+    
+    public MiningLink(String ip, int port, Block block, List<MiningLink> miningLinks) throws Exception
     {
         // Cria o socket
         socket = new Socket(ip, port);
@@ -38,17 +41,34 @@ public class MiningLink extends Thread
 
         // Recolhe os restantes parâmetros
         this.block = block;
+        this.miningLinks = miningLinks;
 
-        //Escrever o bloco do socket
+        Message msg = new Message(Message.TOMINE, block);
+        
+        // Enviar o bloco a ser minado
+        out.writeObject(msg);
+        out.flush();
+    }
+
+    /**
+     * Envia o bloco minado pela ligação TCP.
+     * 
+     * @throws IOException 
+     */
+    public void sendMinedBlock() throws IOException
+    {
         out.writeObject(block);
         out.flush();
     }
 
-    public void close()
+    /**
+     * Fecha o socket TCP.
+     * 
+     * @throws IOException 
+     */
+    public void close() throws IOException
     {
-        //::::::::::::::::::: T O   P R O G R A M M I N G:::::::::::::::::::::::: 
-        //fechar o socket
-
+        socket.close();
     }
 
     @Override
@@ -56,32 +76,30 @@ public class MiningLink extends Thread
     {
         try
         {
-                //Ler o bloco do servidor
-                Block minedBlock = (Block) in.readObject();
-                
-                // Constroi a String de teste com o numero de zeros no inicio
-                char[] difficultyChars = new char[minedBlock.difficulty];
-                Arrays.fill(difficultyChars, '0');
-                String test = new String(difficultyChars);
+            //Ler o bloco do servidor
+            block = (Block) in.readObject();
 
-                if ( minedBlock.hashCode.startsWith(test) )
-                {
-                    isSolvedByMe = true;
-                    this.block = minedBlock;
-                }
-        }
-        catch ( IOException | ClassNotFoundException ex )
+            isSolvedByMe = true;
+            
+            // Enviar o bloco minado e fechar a ligação com os restantes nodos
+            for (MiningLink link : miningLinks)
+            {
+//                link.sendMinedBlock();
+                link.close();
+            }
+            
+        } catch (IOException | ClassNotFoundException ex)
         {
-            Logger.getLogger(MiningLink.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(MiningLink.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
-    
+
     public boolean isSolvedByMe()
     {
         return isSolvedByMe;
     }
-
+    
     public Block getBlock()
     {
         return this.block;

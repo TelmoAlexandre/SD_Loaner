@@ -115,6 +115,10 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         Mine = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         jtaBlockReader = new javax.swing.JTextArea();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jtaDisplayReceivedBlock = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -425,10 +429,24 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         });
 
         jcbPort.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "10010", "10012", "10014", "10016", "10018", "10020", "10022", " " }));
+        jcbPort.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jcbPortActionPerformed(evt);
+            }
+        });
 
         jLabel4.setText("Service");
 
         jcbPortService.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "10011", "10013", "10015", "10017", "10019", "10021", "10023" }));
+        jcbPortService.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jcbPortServiceActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pnNodeLayout = new javax.swing.GroupLayout(pnNode);
         pnNode.setLayout(pnNodeLayout);
@@ -485,17 +503,28 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jtaBlockReader.setRows(5);
         jScrollPane3.setViewportView(jtaBlockReader);
 
+        jLabel1.setText("Mined Block's Hash:");
+
+        jLabel2.setText("Block that was received to mine:");
+
+        jtaDisplayReceivedBlock.setColumns(20);
+        jtaDisplayReceivedBlock.setRows(5);
+        jScrollPane4.setViewportView(jtaDisplayReceivedBlock);
+
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pnNode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(pnNode, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jlFeedbackNetwork)
                     .addComponent(Mine)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane3)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(jScrollPane4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
                 .addContainerGap())
@@ -511,9 +540,14 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                         .addComponent(jlFeedbackNetwork)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(Mine)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
+                        .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 198, Short.MAX_VALUE))
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel8Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jScrollPane2)))
@@ -576,7 +610,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             // Pede uma localização para guardar a chave pública. Guarda a opção escolhida pelo utilizador na variável i
             int i = file.showSaveDialog(null);
 
-            if (i == JFileChooser.APPROVE_OPTION)
+            if ( i == JFileChooser.APPROVE_OPTION )
             {
 
                 // Caso seja clicado no butao save da janela, guardar a chave publica na localização escolhida
@@ -590,7 +624,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
                 i = file.showSaveDialog(null);
 
-                if (i == JFileChooser.APPROVE_OPTION)
+                if ( i == JFileChooser.APPROVE_OPTION )
                 {
                     // Caso seja clicado no butao save da janela, guardar a chave privada na localização escolhida
                     SecurityUtils.saveKey(
@@ -600,7 +634,8 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                 }
             }
 
-        } catch (Exception e)
+        }
+        catch ( Exception e )
         {
             giveAlertFeedback(
                     jlFeedback,
@@ -643,10 +678,10 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             @Override
             public void windowClosed(WindowEvent e)
             {
-                if (!windowWasCancelled)
+                if ( !windowWasCancelled )
                 {
                     // Caso o cliente tenha conta
-                    if (clientHasAccount())
+                    if ( clientHasAccount() )
                     {
                         // Mostra os seus movimentos
                         showClientMovments();
@@ -664,10 +699,10 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jtaLedger.setText("");
 
         // Percorrer a blockChain
-        for (Block b : blockChain.chain)
+        for ( Block b : blockChain.chain )
         {
             // Caso se trate dos dados da conta
-            if (b.content instanceof AccountInformation)
+            if ( b.content instanceof AccountInformation )
             {
                 jtaLedger.append(b.toString() + "\n\n");
             }
@@ -680,10 +715,10 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jtaLedger.setText("");
 
         // Percorrer a blockChain
-        for (Block b : blockChain.chain)
+        for ( Block b : blockChain.chain )
         {
             // Caso se trate dos dados do emprestimo
-            if (b.content instanceof LoanInformation)
+            if ( b.content instanceof LoanInformation )
             {
                 jtaLedger.append(b.toString() + "\n\n");
             }
@@ -717,21 +752,23 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             {
                 try
                 {
-                    if (!windowWasCancelled)
+                    if ( !windowWasCancelled )
                     {
                         // Caso o cliente tenha conta
-                        if (clientHasAccount())
+                        if ( clientHasAccount() )
                         {
                             Block loanActive = getActiveLoanHash();
 
-                            if (loanActive != null)
+                            if ( loanActive != null )
                             {
                                 showLoan(loanActive);
-                            } else
+                            }
+                            else
                             {
                                 jtaLedger.setText("{\n You have no active loans.\n}");
                             }
-                        } else
+                        }
+                        else
                         {
                             giveAlertFeedback(
                                     jlFeedback,
@@ -739,7 +776,8 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                             );
                         }
                     }
-                } catch (Exception ex)
+                }
+                catch ( Exception ex )
                 {
                     giveAlertFeedback(
                             jlFeedback,
@@ -761,41 +799,14 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jtaLedger.setText(blockChain.toString());
     }//GEN-LAST:event_jbPrintBlockChainActionPerformed
 
-    private void btStartActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btStartActionPerformed
-    {//GEN-HEADEREND:event_btStartActionPerformed
-        try
-        {
-            // Caso o nodo não esteja inicializado
-            if (myNode == null)
-            {
-                // Recolhe o porto e o serviço a serem utilizados
-                int port = Integer.valueOf(jcbPort.getSelectedItem().toString());
-                int service = Integer.valueOf(jcbPortService.getSelectedItem().toString());
-
-                // Cria um nodo e inicia o servidor
-                myNode = new Node();
-                myNode.startServer(port, service);
-
-                //colocar a interface a escutar o nó
-                myNode.addNodeListener(this);
-            }
-        } catch (Exception ex)
-        {
-            giveAlertFeedback(
-                    jlFeedbackNetwork,
-                    ex.getMessage()
-            );
-        }
-    }//GEN-LAST:event_btStartActionPerformed
-
     private void MineActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_MineActionPerformed
     {//GEN-HEADEREND:event_MineActionPerformed
         try
         {
             Block block = new Block(null, new AccountInformation("Telmo", null, "2"));
-            
+
             Block minedBlock = myNode.mineMessage(block);
-            
+
             jtaBlockReader.setText(minedBlock.hashCode);
         }
         catch ( Exception ex )
@@ -803,6 +814,40 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             giveAlertFeedback(jlFeedbackNetwork, ex.getMessage());
         }
     }//GEN-LAST:event_MineActionPerformed
+
+    private void jcbPortActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jcbPortActionPerformed
+    {//GEN-HEADEREND:event_jcbPortActionPerformed
+        jcbPortService.setSelectedIndex(jcbPort.getSelectedIndex());
+    }//GEN-LAST:event_jcbPortActionPerformed
+
+    private void jcbPortServiceActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jcbPortServiceActionPerformed
+    {//GEN-HEADEREND:event_jcbPortServiceActionPerformed
+        jcbPort.setSelectedIndex(jcbPortService.getSelectedIndex());
+    }//GEN-LAST:event_jcbPortServiceActionPerformed
+
+    private void btStartActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btStartActionPerformed
+    {//GEN-HEADEREND:event_btStartActionPerformed
+        try
+        {
+            // Recolhe o porto e o serviço a serem utilizados
+            int port = Integer.valueOf(jcbPort.getSelectedItem().toString());
+            int service = Integer.valueOf(jcbPortService.getSelectedItem().toString());
+
+            // Cria um nodo e inicia o servidor
+            myNode = new Node();
+            myNode.startServer(port, service, this);
+
+            //colocar a interface a escutar o nó
+            myNode.addNodeListener(this);
+        }
+        catch ( Exception ex )
+        {
+            giveAlertFeedback(
+                    jlFeedbackNetwork,
+                    ex.getMessage()
+            );
+        }
+    }//GEN-LAST:event_btStartActionPerformed
 
     /**
      * @param args the command line arguments
@@ -816,31 +861,35 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
          */
         try
         {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())
+            for ( javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels() )
             {
-                if ("Nimbus".equals(info.getName()))
+                if ( "Nimbus".equals(info.getName()) )
                 {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
 
                 }
             }
-        } catch (ClassNotFoundException ex)
+        }
+        catch ( ClassNotFoundException ex )
         {
             java.util.logging.Logger.getLogger(GUI_Main.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
-        } catch (InstantiationException ex)
+        }
+        catch ( InstantiationException ex )
         {
             java.util.logging.Logger.getLogger(GUI_Main.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
-        } catch (IllegalAccessException ex)
+        }
+        catch ( IllegalAccessException ex )
         {
             java.util.logging.Logger.getLogger(GUI_Main.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
-        } catch (javax.swing.UnsupportedLookAndFeelException ex)
+        }
+        catch ( javax.swing.UnsupportedLookAndFeelException ex )
         {
             java.util.logging.Logger.getLogger(GUI_Main.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
@@ -867,6 +916,8 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Mine;
     private javax.swing.JButton btStart;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
@@ -880,6 +931,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JButton jbCheckClientAccounts;
     private javax.swing.JButton jbCheckLoan;
@@ -898,15 +950,19 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private javax.swing.JLabel jlFeedback;
     private javax.swing.JLabel jlFeedbackNetwork;
     private javax.swing.JTextArea jtaBlockReader;
+    private javax.swing.JTextArea jtaDisplayReceivedBlock;
     private javax.swing.JTextArea jtaLedger;
     private javax.swing.JPanel pnNode;
     private javax.swing.JTextPane txtLog;
     // End of variables declaration//GEN-END:variables
 
-    private void printLog(String msg, Color color) {
-        SwingUtilities.invokeLater(new Runnable() {
+    private void printLog(String msg, Color color)
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 StyleContext sc = StyleContext.getDefaultStyleContext();
                 AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, color);
                 // aset = sc.addAttribute(aset, StyleConstants.Background, Color.BLACK);
@@ -924,10 +980,11 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     }
 
     @Override
-    public void onConnectLink(Object obj) {
+    public void onConnectLink(Object obj)
+    {
         printLog(obj.toString(), Color.blue);
     }
-    
+
     /**
      * Cria e adiciona o novo bloco à BlockChain.
      *
@@ -938,7 +995,8 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         try
         {
             blockChain.add(blockContent, this);
-        } catch (Exception ex)
+        }
+        catch ( Exception ex )
         {
             giveAlertFeedback(
                     jlFeedback,
@@ -954,16 +1012,16 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
      */
     private Block getActiveLoanHash()
     {
-        for (Block b : blockChain.chain)
+        for ( Block b : blockChain.chain )
         {
             // Caso se trate de um emprestimo
-            if (b.content instanceof LoanInformation)
+            if ( b.content instanceof LoanInformation )
             {
                 // Individualizar a instancia do LoanInformation
                 LoanInformation loanInfo = (LoanInformation) b.content;
 
                 // Se se tratar de um empretimo do cliente
-                if (loanInfo.comparePublicKeys(publicKey))
+                if ( loanInfo.comparePublicKeys(publicKey) )
                 {
 
                     // Recolhe o que falta pagar do emprestimo
@@ -975,7 +1033,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
                     // Caso ainda não tenha pago tudo, coloca como activo (TRUE)
                     // Seão coloca como FALSE
-                    if (whatsLeftToPay != 0.0)
+                    if ( whatsLeftToPay != 0.0 )
                     {
                         return b;
                     }
@@ -996,24 +1054,25 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     {
         jtaLedger.setText("");
 
-        for (Block b : blockChain.chain)
+        for ( Block b : blockChain.chain )
         {
             // Caso seja um emprestimo
-            if (b.content instanceof LoanInformation)
+            if ( b.content instanceof LoanInformation )
             {
                 // Caso esse emprestimo seja o emprestimo em questão
-                if (b.hashCode.equals(loanBlock.hashCode))
+                if ( b.hashCode.equals(loanBlock.hashCode) )
                 {
                     // Imprime o bloco de pagamento
                     jtaLedger.append(b.toString() + "\n\n");
                 }
-            } else if (b.content instanceof LoanPayment) // Caso seja um pagamento de emprestimo
+            }
+            else if ( b.content instanceof LoanPayment ) // Caso seja um pagamento de emprestimo
             {
                 // Individualizar esse pagamento
                 LoanPayment payment = (LoanPayment) b.content;
 
                 // Caso esse pagamento pertença ao emprestimo a ser imprimido
-                if (payment.belongsToThisLoan(loanBlock.hashCode))
+                if ( payment.belongsToThisLoan(loanBlock.hashCode) )
                 {
 
                     // Imprime o bloco de pagamento
@@ -1035,13 +1094,13 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private boolean clientHasAccount()
     {
 
-        for (Block b : blockChain.chain)
+        for ( Block b : blockChain.chain )
         {
             // Individualiza o conteudo do bloco
             AccountManager blockContent = b.content;
 
             // Caso o conteudo do bloco seja uma informação de conta e esta pertença ao cliente
-            if (blockContent instanceof AccountInformation && blockContent.comparePublicKeys(publicKey))
+            if ( blockContent instanceof AccountInformation && blockContent.comparePublicKeys(publicKey) )
             {
                 // Transforma o blockContent na sua verdadeira instancia
                 AccountInformation info = (AccountInformation) blockContent;
@@ -1049,13 +1108,14 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                 try
                 {
                     // Trata da autenticação
-                    if (info.authenticateLogin(passwordHash))
+                    if ( info.authenticateLogin(passwordHash) )
                     {
                         // Imprime o bloco de informação
                         jtaLedger.setText(b.toString());
 
                         return true;
-                    } else
+                    }
+                    else
                     {
                         giveAlertFeedback(
                                 jlFeedback,
@@ -1063,7 +1123,8 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                         );
                         return false;
                     }
-                } catch (NoSuchAlgorithmException ex)
+                }
+                catch ( NoSuchAlgorithmException ex )
                 {
                     giveAlertFeedback(
                             jlFeedback,
@@ -1089,11 +1150,11 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
      */
     private void showClientMovments()
     {
-        for (Block b : blockChain.chain)
+        for ( Block b : blockChain.chain )
         {
             // Caso se trate de um movimento de conta ou pagamento de emprestimo do cliente em questão 
-            if ((b.content instanceof AccountMovment || b.content instanceof LoanPayment)
-                    && b.content.comparePublicKeys(publicKey))
+            if ( (b.content instanceof AccountMovment || b.content instanceof LoanPayment)
+                    && b.content.comparePublicKeys(publicKey) )
             {
                 // Imprime bloco
                 jtaLedger.append("\n\n" + b.toString());
@@ -1143,13 +1204,14 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             JFileChooser file = new JFileChooser();
             file.setCurrentDirectory(new File("."));
             int i = file.showOpenDialog(null);
-            if (i == JFileChooser.APPROVE_OPTION)
+            if ( i == JFileChooser.APPROVE_OPTION )
             {
                 byte[] privateKeyBytes = Files.readAllBytes(Paths.get(file.getSelectedFile().getAbsolutePath()));
                 PrivateKey privateKey = (PrivateKey) SecurityUtils.getPrivateKey(privateKeyBytes);
                 return privateKey;
             }
-        } catch (Exception ex)
+        }
+        catch ( Exception ex )
         {
             giveAlertFeedback(
                     jlFeedback,
@@ -1179,7 +1241,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
      */
     public void giveNormalFeedback(JLabel label, String feedback)
     {
-        if (label == null)
+        if ( label == null )
         {
             label = jlFeedback;
         }
@@ -1196,7 +1258,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
      */
     public void giveAlertFeedback(JLabel label, String feedback)
     {
-        if (label == null)
+        if ( label == null )
         {
             label = jlFeedback;
         }
@@ -1224,7 +1286,8 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
             // Guarda o hash da password
             passwordHash = Base64.getEncoder().encodeToString(hash.digest());
-        } catch (NoSuchAlgorithmException ex)
+        }
+        catch ( NoSuchAlgorithmException ex )
         {
             jlFeedback.setText(ex.getMessage());
         }
@@ -1274,5 +1337,15 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jbRequestLoan.setEnabled(true);
         jbLoanPayment.setEnabled(true);
         jbCreateNewAccount.setEnabled(true);
+    }
+
+    public void displayReceivedBlock(String txt)
+    {
+        jtaDisplayReceivedBlock.setText(txt);
+    }
+
+    public void writeMinedBlock(String txt)
+    {
+        jtaBlockReader.setText(txt);
     }
 }

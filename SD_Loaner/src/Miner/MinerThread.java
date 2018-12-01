@@ -5,6 +5,8 @@
  */
 package Miner;
 
+import Network.SocketManager;
+import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -25,14 +27,14 @@ public class MinerThread extends Thread
     private boolean solvedByMe;
     private String calculatedHash;
 
-    public MinerThread(
-            String toMine, int difficulty,
-            AtomicBoolean isSolved
-    )
+    SocketManager socketManager;
+
+    public MinerThread(String toMine, int difficulty, AtomicBoolean isSolved, SocketManager socketManager)
     {
         this.toMine = toMine;
         this.difficulty = difficulty;
         this.isSolved = isSolved;
+        this.socketManager = socketManager;
     }
 
     /**
@@ -80,8 +82,7 @@ public class MinerThread extends Thread
             return Base64.getEncoder()
                     .encodeToString(digest);
 
-        }
-        catch ( NoSuchAlgorithmException e )
+        } catch (NoSuchAlgorithmException e)
         {
             throw new RuntimeException(e);
         }
@@ -91,12 +92,10 @@ public class MinerThread extends Thread
     public void run()
     {
         char[] difficultyChars = new char[this.difficulty];
-
         Arrays.fill(difficultyChars, '0');
-
         String test = new String(difficultyChars);
 
-        while ( !isSolved.get() )
+        while (!isSolved.get() && socketManager.isConnected())
         {
             StringBuilder nonce = new StringBuilder();
 
@@ -108,7 +107,7 @@ public class MinerThread extends Thread
 
             String hash = this.calculateHash(this.toMine, nonce.toString());
 
-            if ( hash.startsWith(test) )
+            if (hash.startsWith(test))
             {
                 this.solution = nonce.toString();
                 this.calculatedHash = hash;
@@ -116,7 +115,5 @@ public class MinerThread extends Thread
                 solvedByMe = true;
             }
         }
-
     }
-
 }

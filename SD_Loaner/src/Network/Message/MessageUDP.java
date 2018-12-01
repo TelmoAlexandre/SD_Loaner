@@ -13,13 +13,12 @@
 //::                                                               (c)2018   ::
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //////////////////////////////////////////////////////////////////////////////
-package Network;
+package Network.Message;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -28,62 +27,18 @@ import java.net.InetAddress;
  * Classe que representa uma mensagem a ser trocada na rede.
  *
  */
-public class Message implements Serializable
+public class MessageUDP extends Message
 {
     public static final String CONNECT = "CONNECT";
     public static final String DISCONNECT = "DISCONNECT";
 
-    String comand; // CONNECT/DISCONNECT
-    Object content; // Conteudo da Message
-
-    public Message(String comand, Object content)
+    public MessageUDP(String type, Object content)
     {
-        this.comand = comand;
-        this.content = content;
+        super(type, content);
     }
 
     /**
-     * Retorna o tipo de comando presente na mensagem.
-     *
-     * @return Comando da mensagem
-     */
-    public String getComand()
-    {
-        return comand;
-    }
-
-    /**
-     * Define o tipo de comando da mensagem.
-     *
-     * @param comand Comando a ser definido.
-     */
-    public void setComand(String comand)
-    {
-        this.comand = comand;
-    }
-
-    /**
-     * Retorna o conteudo da mensagem.
-     *
-     * @return Conteudo da mensagem.
-     */
-    public Object getContent()
-    {
-        return content;
-    }
-
-    /**
-     * Define o conteudo da mensagem.
-     *
-     * @param content Conteudo da mensagem.
-     */
-    public void setContent(Object content)
-    {
-        this.content = content;
-    }
-
-    /**
-     * Envia a própria instância do Message por UDP para o IP:PORT.
+     * Envia a própria instância do MessageUDP por UDP para o IP:PORT.
      *
      * @param ip IP de destino.
      * @param port Porto de destino.
@@ -112,13 +67,13 @@ public class Message implements Serializable
     }
 
     /**
-     * Recebe uma instância do Message por UDP.
+     * Recebe uma instância do MessageUDP por UDP.
      *
      * @param socket UDP socket
-     * @return Message
+     * @return MessageUDP
      * @throws Exception
      */
-    public static Message receiveUDP(DatagramSocket socket) throws Exception
+    public static MessageUDP receiveUDP(DatagramSocket socket) throws Exception
     {
         // Criação do array de bytes para se poder definir o tipo de packet a ser recebido
         byte[] data = new byte[512];
@@ -129,22 +84,11 @@ public class Message implements Serializable
         // Pede ao socket para receber o pacote
         socket.receive(pak);
         
-        // Retira o objeto do pacote e retorna o mesmo como Message
+        // Retira o objeto do pacote e retorna o mesmo como MessageUDP
         ByteArrayInputStream bis = new ByteArrayInputStream(pak.getData());
         ObjectInputStream in = new ObjectInputStream(bis);
         
-        return (Message) in.readObject();
-    }
-
-    /**
-     * String com os conteudos da Message.
-     * 
-     * @return 
-     */
-    @Override
-    public String toString()
-    {
-        return comand + " " + content.toString();
+        return (MessageUDP) in.readObject();
     }
 
     //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
