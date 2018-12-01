@@ -16,9 +16,9 @@
 package Network;
 
 import BlockChain.Block;
-import GUI.GUI_Main;
+import Network.Message.MessageUDP;
 import Network.MiningNetwork.MiningNetwork;
-import Network.Servers.LocalNetWorkListener;
+import Network.Servers.LocalNetworkListener;
 import Network.Servers.MiningServerListener;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -36,6 +36,7 @@ public class Node
     NodeAddress myAdress;
     TreeSet<NodeAddress> network = new TreeSet<>();
     List<NodeEventListener> listeners = new ArrayList<>();
+    LocalNetworkListener lnl;
 
     /**
      * Avisa a rede da sua entrada na mesma. Inicia o servidor de escuta de blocos a serem minados.
@@ -57,7 +58,9 @@ public class Node
         );
 
         // Cria os listeners da rede e do Mineiro
-        new LocalNetWorkListener(network, myAdress, listeners).start();
+        lnl = new LocalNetworkListener(network, myAdress, listeners);
+        lnl.start();
+        
         new MiningServerListener(service, main).start();
     }
 
@@ -95,11 +98,14 @@ public class Node
      * Disconecta o nodo da rede.
      * 
      */
-    void disconnect()
+    public void disconnect() throws Exception
     {
-        //::::::::::::::::::: T O   P R O G R A M M I N G:::::::::::::::::::::::: 
-        //desconectar o no
-
+        // Envia uma mensagem multicast para avisar que o nó se irá desconectar
+        MessageUDP msg = new MessageUDP(MessageUDP.DISCONNECT, myAdress);
+        msg.sendUDP(LocalNetworkListener.MULTICAST_IP, LocalNetworkListener.MULTICAST_PORT);
+        
+        // Força a Thread de escuta da rede a parar
+        lnl.disconnect();
     }
 
     public void linkTo(String host, int port) throws Exception

@@ -117,6 +117,13 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jtaDisplayReceivedBlock = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter()
+        {
+            public void windowClosing(java.awt.event.WindowEvent evt)
+            {
+                formWindowClosing(evt);
+            }
+        });
 
         jbExit.setText("Exit");
         jbExit.addActionListener(new java.awt.event.ActionListener()
@@ -846,6 +853,18 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         }
     }//GEN-LAST:event_btStartActionPerformed
 
+    private void formWindowClosing(java.awt.event.WindowEvent evt)//GEN-FIRST:event_formWindowClosing
+    {//GEN-HEADEREND:event_formWindowClosing
+        try
+        {
+            myNode.disconnect();
+        }
+        catch ( Exception ex )
+        {
+            giveAlertFeedback(null, ex.getMessage());
+        }
+    }//GEN-LAST:event_formWindowClosing
+
     /**
      * @param args the command line arguments
      */
@@ -952,35 +971,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private javax.swing.JPanel pnNode;
     private javax.swing.JTextPane txtLog;
     // End of variables declaration//GEN-END:variables
-
-    private void printLog(String msg, Color color)
-    {
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                StyleContext sc = StyleContext.getDefaultStyleContext();
-                AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, color);
-                // aset = sc.addAttribute(aset, StyleConstants.Background, Color.BLACK);
-                aset = sc.addAttribute(aset, StyleConstants.Bold, true);
-                txtLog.setCaretPosition(0);
-                txtLog.setCharacterAttributes(aset, false);
-                txtLog.replaceSelection(" " + msg);
-                txtLog.setCaretPosition(0);
-                aset = sc.addAttribute(aset, StyleConstants.Foreground, Color.BLACK);
-                txtLog.setCharacterAttributes(aset, false);
-                txtLog.replaceSelection("\n" + (new SimpleDateFormat("HH:mm:ss")).format(new Date()));
-            }
-        });
-
-    }
-
-    @Override
-    public void onConnectLink(Object obj)
-    {
-        printLog(obj.toString(), Color.blue);
-    }
 
     public void addMinedBlockToBlockChain(Block block)
     {
@@ -1338,5 +1328,40 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     public void writeMinedBlock(String txt)
     {
         jtaBlockReader.setText(txt);
+    }
+
+    private void printLog(String msg, Color color)
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                StyleContext sc = StyleContext.getDefaultStyleContext();
+                AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, color);
+                // aset = sc.addAttribute(aset, StyleConstants.Background, Color.BLACK);
+                aset = sc.addAttribute(aset, StyleConstants.Bold, true);
+                txtLog.setCaretPosition(0);
+                txtLog.setCharacterAttributes(aset, false);
+                txtLog.replaceSelection(" " + msg);
+                txtLog.setCaretPosition(0);
+                aset = sc.addAttribute(aset, StyleConstants.Foreground, Color.BLACK);
+                txtLog.setCharacterAttributes(aset, false);
+                txtLog.replaceSelection("\n" + (new SimpleDateFormat("HH:mm:ss")).format(new Date()));
+            }
+        });
+
+    }
+
+    @Override
+    public void onConnectLink(Object obj)
+    {
+        printLog(obj.toString()+ " -> CONNECTED", Color.blue);
+    }
+    
+    @Override
+    public void onDisconnectLink(Object obj)
+    {
+        printLog(obj.toString() + " -> DISCONNECTED", Color.red);
     }
 }

@@ -31,7 +31,7 @@ public class MessageUDP extends Message
 {
     public static final String CONNECT = "CONNECT";
     public static final String DISCONNECT = "DISCONNECT";
-
+    
     public MessageUDP(String type, Object content)
     {
         super(type, content);

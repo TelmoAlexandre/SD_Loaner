@@ -27,6 +27,7 @@ import java.util.List;
 public interface NodeEventListener extends EventListener {
 
     public void onConnectLink(Object obj);
+    public void onDisconnectLink(Object obj);
 
     //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     //::::::         N O T I F Y     L I S T E N E R S         ::::::::::::::::: 
@@ -34,6 +35,12 @@ public interface NodeEventListener extends EventListener {
     public static void notifyConnect(List<NodeEventListener> listeners, Object param) {
         for (NodeEventListener listener : listeners) {
             listener.onConnectLink(param);
+        }
+    }
+    
+    public static void notifyDisconnect(List<NodeEventListener> listeners, Object param) {
+        for (NodeEventListener listener : listeners) {
+            listener.onDisconnectLink(param);
         }
     }
 }
