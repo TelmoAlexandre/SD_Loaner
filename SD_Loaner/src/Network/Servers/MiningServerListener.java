@@ -44,7 +44,11 @@ public class MiningServerListener extends Thread
         {
             try
             {
-                socketManager = new SocketManager(server.accept());
+                socketManager = new SocketManager(
+                        
+                        server.accept() // Aguarda uma ligação (Bloqueante)
+                        
+                );
 
                 Message msg = (Message) socketManager.readObject();
                 Block block = (Block) msg.getContent();
@@ -59,7 +63,6 @@ public class MiningServerListener extends Thread
                 }
                 else if ( msg.getType().equals(Message.MINEDBLOCK) )
                 {
-
                     main.writeMinedBlock(block.hashCode);
                 }
 

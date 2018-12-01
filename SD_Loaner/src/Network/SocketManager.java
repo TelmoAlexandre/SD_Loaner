@@ -12,7 +12,7 @@ import java.net.Socket;
 
 /**
  * Faz a gestão de um socket TCP.
- * 
+ *
  * @author Telmo
  */
 public class SocketManager
@@ -21,51 +21,68 @@ public class SocketManager
     ObjectInputStream in;
     ObjectOutputStream out;
 
+    public SocketManager(String ip, int tcpPort) throws IOException
+    {
+        this.socket = new Socket(ip, tcpPort);
+
+        createObjectStreams();
+    }
+
     public SocketManager(Socket socket) throws IOException
     {
         this.socket = socket;
-        
-        this.in = new ObjectInputStream(socket.getInputStream());
-        this.out = new ObjectOutputStream(socket.getOutputStream());
+
+        createObjectStreams();
     }
-    
+
+    /**
+     * Inicializa o in e o out.
+     *
+     */
+    private void createObjectStreams() throws IOException
+    {
+        this.out = new ObjectOutputStream(socket.getOutputStream());
+        this.in = new ObjectInputStream(socket.getInputStream());
+
+    }
+
     /**
      * Faz a leitura de um objecto que chegue pelo socket. Bloqueante.
-     * 
+     *
      * @return Objecto recebido
      * @throws IOException
-     * @throws ClassNotFoundException 
+     * @throws ClassNotFoundException
      */
     public Object readObject() throws IOException, ClassNotFoundException
     {
         return in.readObject();
     }
-    
+
     /**
      * Envia o objecto recebido por parametro.
-     * 
+     *
      * @param obj Objecto a ser enviado
-     * @throws IOException 
+     * @throws IOException
      */
-    public void sendObject (Object obj) throws IOException
+    public void sendObject(Object obj) throws IOException
     {
         out.writeObject(obj);
         out.flush();
     }
-    
+
     /**
      * Fecha a conexão.
-     * 
-     * @throws IOException 
+     *
+     * @throws IOException
      */
     public void close() throws IOException
     {
         socket.close();
     }
-    
+
     /**
      * Indica o estado da conecção.
-     * 
+     *
      * @return Se existe conecção.
      */
     public boolean isConnected()

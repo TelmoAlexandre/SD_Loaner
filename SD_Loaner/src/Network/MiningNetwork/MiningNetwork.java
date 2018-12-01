@@ -6,7 +6,9 @@
 package Network.MiningNetwork;
 
 import BlockChain.Block;
+import Network.Message.Message;
 import Network.NodeAddress;
+import Network.SocketManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +52,7 @@ public class MiningNetwork
             threads[i].start();
         }
 
+        // Aguarda o fim de todas as Threads
         for ( MiningLink thread : threads )
         {
             thread.join();
@@ -58,6 +61,26 @@ public class MiningNetwork
             {
                 this.block = thread.getBlock();
             }
+        }
+        
+        // Pepara uma Message com o bloco minado para ser espalhado pela rede.
+        Message msg = new Message(
+                Message.MINEDBLOCK, 
+                this.block
+        );
+        
+        // Espalha o bloco minado pela rede
+        for ( NodeAddress address : network )
+        {
+            // Cria a conecção
+            SocketManager socketManager = new SocketManager(
+                    address.getIP(), 
+                    address.getServicePort()
+            );
+            
+            // Envia o bloco minado e fecha a conexão
+            socketManager.sendObject(msg);
+            socketManager.close();
         }
         
         return this.block;
