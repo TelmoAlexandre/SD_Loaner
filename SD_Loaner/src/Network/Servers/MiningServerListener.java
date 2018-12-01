@@ -11,16 +11,16 @@ import GUI.GUI_Main;
 import Miner.MinerService;
 import Network.Message.Message;
 import Network.SocketManager;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author dell
+ * Escuta a rede por uma ligação TCP. Assim que estabelcer a ligação, recebe um bloco.
+ * <p>Caso esse bloco necessite mineração, inicia o processo de mineração por Threads.
+ * <p>Caso esse bloco já esteja minado, adiciona-o à BlockChain deste nó.
+ * 
+ * @author Telmo
  */
 public class MiningServerListener extends Thread
 {
@@ -63,6 +63,7 @@ public class MiningServerListener extends Thread
                 }
                 else if ( msg.getType().equals(Message.MINEDBLOCK) )
                 {
+                    main.addMinedBlockToBlockChain(block);
                     main.writeMinedBlock(block.hashCode);
                 }
 

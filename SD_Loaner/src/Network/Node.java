@@ -34,36 +34,67 @@ import java.util.TreeSet;
 public class Node
 {
     NodeAddress myAdress;
-    TreeSet<NodeAddress> links = new TreeSet<>();
+    TreeSet<NodeAddress> network = new TreeSet<>();
     List<NodeEventListener> listeners = new ArrayList<>();
 
+    /**
+     * Avisa a rede da sua entrada na mesma. Inicia o servidor de escuta de blocos a serem minados.
+     * 
+     * @param port
+     * @param service
+     * @param main
+     * @throws Exception 
+     */
     public void startServer(int port, int service, GUI.GUI_Main main) throws Exception
     {
-        this.myAdress = new NodeAddress(InetAddress.getLocalHost().getHostAddress(),
-                port, service);
+        network = new TreeSet<>();
+        
+        // Cria um endereço para o nodo
+        this.myAdress = new NodeAddress(
+                InetAddress.getLocalHost().getHostAddress(),
+                port, 
+                service
+        );
 
-        // lancar o servico de escuta do grupo multicaste
-        links = new TreeSet<>();
-
-        new LocalNetWorkListener(links,myAdress,listeners).start();
+        // Cria os listeners da rede e do Mineiro
+        new LocalNetWorkListener(network, myAdress, listeners).start();
         new MiningServerListener(service, main).start();
     }
 
+    /**
+     * Adiciona um event listener para a lista de listeners.
+     * 
+     * @param l 
+     */
     public void addNodeListener(NodeEventListener l)
     {
         listeners.add(l);
     }
 
+    /**
+     * Retorna o objeto de endereço do nodo.
+     * 
+     * @return NodeAddress
+     */
     public NodeAddress getMyAdress()
     {
         return myAdress;
     }
 
-    public Set<NodeAddress> getLinks()
+    /**
+     * Retorna a lista de nodos na rede.
+     * 
+     * @return 
+     */
+    public Set<NodeAddress> getNetwork()
     {
-        return links;
+        return network;
     }
 
+    /**
+     * Disconecta o nodo da rede.
+     * 
+     */
     void disconnect()
     {
         //::::::::::::::::::: T O   P R O G R A M M I N G:::::::::::::::::::::::: 
@@ -77,16 +108,20 @@ public class Node
         // enviar um pedido de coneção para o endereço   
     }
 
-    public Block mineMessage(Block block) throws Exception
+    /**
+     * Faz a mineração de um bloco na rede. Em seguida faz a sua distribuição na rede.
+     * 
+     * @param block
+     * @throws Exception 
+     */
+    public void mineBlock(Block block) throws Exception
     {
         //Executar a mineração na rede            
         MiningNetwork miningNetwork = new MiningNetwork(
-         new ArrayList<>(links)
+                new ArrayList<>(network)
         );
 
-        block = miningNetwork.mine(block);
-        
-        return block;
+        miningNetwork.mine(block);
     }
 
 }

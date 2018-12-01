@@ -9,6 +9,7 @@ import AccountManager.AccountManager;
 import BankServices.Service;
 import GUI.GUI_Main;
 import GUI.GUI_NewLoan;
+import Network.Node;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,10 +26,12 @@ import java.util.List;
 public class BlockChain
 {
     public List<Block> chain;
+    Node node;
 
-    public BlockChain()
+    public BlockChain(Node node)
     {
         chain = new ArrayList<>();
+        this.node = node;
     }
 
     /**
@@ -42,19 +45,19 @@ public class BlockChain
     {
         // Cria o primeiro bloco assim que um objeto BlockChain for criado.
         Block last = getLast();
-        Block b = new Block(last, content);
+        Block block = new Block(last, content);
 
         // Caso seja um movimento de conta
         if ( content instanceof Service )
         {
             // Individualizar a instancia
-            Service msg = (Service) b.content;
+            Service msg = (Service) block.content;
 
             // Valida o movimento, garantindo que existe dinheiro na conta e que a assinatura é verdadeira
             if ( msg.validate(this, msg.getPublicKey()) )
             {
                 // Mina o bloco. Este será adicionado quando o miner terminar e chamar o metodo AddMinedBlock
-                b.mine(this, main);
+                node.mineBlock(block);
             }
             else
             {
@@ -64,7 +67,7 @@ public class BlockChain
         else
         {
             // Neste caso, será um bloco de informação, cujo qual não necessita de ser validado da mesma forma que o de movimento necessita
-            b.mine(this, main);
+            node.mineBlock(block);
         }
     }
 

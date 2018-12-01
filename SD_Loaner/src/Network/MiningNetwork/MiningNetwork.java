@@ -28,7 +28,7 @@ public class MiningNetwork
         this.network = network;
     }
 
-    public Block mine(Block block) throws Exception
+    public void mine(Block block) throws Exception
     {
         this.block = block;
 
@@ -42,7 +42,7 @@ public class MiningNetwork
         {
             threads[i] = new MiningLink(
                     network.get(i).getIP(),
-                    network.get(i).getServicePort(),
+                    network.get(i).getTCP_Port(),
                     block,
                     miningLinks
             );
@@ -75,15 +75,13 @@ public class MiningNetwork
             // Cria a conecção
             SocketManager socketManager = new SocketManager(
                     address.getIP(), 
-                    address.getServicePort()
+                    address.getTCP_Port()
             );
             
             // Envia o bloco minado e fecha a conexão
             socketManager.sendObject(msg);
             socketManager.close();
         }
-        
-        return this.block;
     }
 
 }

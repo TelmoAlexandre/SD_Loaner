@@ -66,20 +66,6 @@ public class Block implements Serializable
 
         return hashCode.equals(newCalculatedHash);
     }
-
-    /**
-     * Cria o objeto Miner que por sua vez irá criar e gerir as Threads de
-     * mineração.
-     *
-     * @param blockChain
-     * @param main
-     * @throws java.lang.InterruptedException
-     */
-    public void mine(BlockChain blockChain, GUI_Main main) throws InterruptedException
-    {
-        Miner miner = new Miner(this, blockChain, main);
-        miner.execute();
-    }
     
     /**
      * Mina o bloco de informação do emprestimo. Depois é criado um segundo bloco com o movimento de conta

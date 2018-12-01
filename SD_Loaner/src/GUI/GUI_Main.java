@@ -28,8 +28,6 @@ import java.security.PrivateKey;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -48,7 +46,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 {
 
     public BlockChain blockChain;
-    public double amount;
     public Key publicKey;
     public String passwordHash;
     public boolean windowWasCancelled;
@@ -66,7 +63,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         windowWasCancelled = false;
 
         jtaLedger.setEditable(false);
-        blockChain = new BlockChain();
     }
 
     /**
@@ -805,9 +801,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         {
             Block block = new Block(null, new AccountInformation("Telmo", null, "2"));
 
-            Block minedBlock = myNode.mineMessage(block);
-
-            jtaBlockReader.setText(minedBlock.hashCode);
+            myNode.mineBlock(block);
         }
         catch ( Exception ex )
         {
@@ -839,6 +833,9 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
             //colocar a interface a escutar o nó
             myNode.addNodeListener(this);
+            
+            
+            blockChain = new BlockChain(myNode);
         }
         catch ( Exception ex )
         {
@@ -985,6 +982,11 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         printLog(obj.toString(), Color.blue);
     }
 
+    public void addMinedBlockToBlockChain(Block block)
+    {
+        blockChain.addMinedBlock(block);
+    }
+    
     /**
      * Cria e adiciona o novo bloco à BlockChain.
      *
@@ -1003,7 +1005,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                     ex.getMessage()
             );
         }
-
     }
 
     /**
@@ -1301,16 +1302,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     public void setPublicKey(Key publicKey)
     {
         this.publicKey = publicKey;
-    }
-
-    /**
-     * Define o motante a ser transferido na movimentação.
-     *
-     * @param amount
-     */
-    public void setAmount(double amount)
-    {
-        this.amount = amount;
     }
 
     /**

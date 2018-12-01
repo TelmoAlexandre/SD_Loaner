@@ -24,15 +24,15 @@ import java.io.Serializable;
 public class NodeAddress implements Serializable, Comparable<NodeAddress>
 {
 
-    private String IP;
-    private int udpListenerPort;
-    private int tcpServerPort;
+    private String ip;
+    private int udpPort;
+    private int tcpPort;
 
-    public NodeAddress(String IP, int... port)
+    public NodeAddress(String ip, int... port)
     {
-        this.IP = IP;
-        this.udpListenerPort = port[0];
-        this.tcpServerPort = port[1];
+        this.ip = ip;
+        this.udpPort = port[0];
+        this.tcpPort = port[1];
     }
 
     /**
@@ -48,7 +48,7 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
         {
             NodeAddress adress = (NodeAddress) obj;
             
-            return adress.udpListenerPort == this.udpListenerPort && adress.IP.equalsIgnoreCase(this.IP);
+            return adress.udpPort == this.udpPort && adress.ip.equalsIgnoreCase(this.ip);
         }
         return false;
     }
@@ -69,23 +69,23 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
     }
 
     /**
-     * Retorna o IP.
+     * Retorna o ip.
      *
-     * @return IP
+     * @return ip
      */
     public String getIP()
     {
-        return IP;
+        return ip;
     }
 
     /**
-     * Define o IP
+     * Define o ip
      *
-     * @param IP IP
+     * @param IP ip
      */
     public void setIP(String IP)
     {
-        this.IP = IP;
+        this.ip = IP;
     }
 
     /**
@@ -93,9 +93,9 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
      *
      * @return Porto UDP
      */
-    public int getPort()
+    public int getUDP_Port()
     {
-        return udpListenerPort;
+        return udpPort;
     }
 
     /**
@@ -103,9 +103,9 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
      *
      * @return Porto TCP
      */
-    public int getServicePort()
+    public int getTCP_Port()
     {
-        return tcpServerPort;
+        return tcpPort;
     }
 
     /**
@@ -115,17 +115,17 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
      */
     public void setPort(int port)
     {
-        this.udpListenerPort = port;
+        this.udpPort = port;
     }
 
     /**
-     * Retorna [IP:PORT].
+     * Retorna [ip:PORT].
      *
-     * @return [IP:PORT]
+     * @return [ip:PORT]
      */
     @Override
     public String toString()
     {
-        return this.IP + ":" + this.udpListenerPort;
+        return this.ip + ":" + this.udpPort;
     }
 }
