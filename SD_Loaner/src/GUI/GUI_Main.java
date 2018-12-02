@@ -524,8 +524,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
         jtpWindow.addTab("Network", jpNetwork);
 
-        jtpWindow.setSelectedIndex(1);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -550,6 +548,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbExitActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbExitActionPerformed
     {//GEN-HEADEREND:event_jbExitActionPerformed
+        disconnectNode();
         System.exit(0);
     }//GEN-LAST:event_jbExitActionPerformed
 
@@ -627,7 +626,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbWithdrawalActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbWithdrawalActionPerformed
     {//GEN-HEADEREND:event_jbWithdrawalActionPerformed
-
         callMovmentWindow(AccountMovment.WITHDRAWAL);
     }//GEN-LAST:event_jbWithdrawalActionPerformed
 
@@ -766,19 +764,12 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbPrintBlockChainActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbPrintBlockChainActionPerformed
     {//GEN-HEADEREND:event_jbPrintBlockChainActionPerformed
-        jtaLedger.setText(blockChain.toString());
+        printBlockChain();
     }//GEN-LAST:event_jbPrintBlockChainActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt)//GEN-FIRST:event_formWindowClosing
     {//GEN-HEADEREND:event_formWindowClosing
-        try
-        {
-            myNode.disconnect();
-        }
-        catch ( Exception ex )
-        {
-            giveAlertFeedback(null, ex.getMessage());
-        }
+        disconnectNode();
     }//GEN-LAST:event_formWindowClosing
 
     private void jtbConnectActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jtbConnectActionPerformed
@@ -913,11 +904,36 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private javax.swing.JPanel pnNode;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Adiciona o bloco minado à blockChain.
+     * 
+     * @param block 
+     */
     public void addMinedBlockToBlockChain(Block block)
     {
         blockChain.addMinedBlock(block);
     }
 
+    /**
+     * Imprime a blockChain no ledger.
+     */
+    public void printBlockChain()
+    {
+        jtaLedger.setText(blockChain.toString());
+    }
+    
+    public void disconnectNode()
+    {
+        try
+        {
+            myNode.disconnect();
+        }
+        catch ( Exception ex )
+        {
+            giveAlertFeedback(null, ex.getMessage());
+        }
+    }
+    
     /**
      * Retorna o hash code do bloco do emprestimo activo
      *

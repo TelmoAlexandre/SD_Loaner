@@ -182,8 +182,6 @@ public class GUI_NewLoan extends javax.swing.JFrame
                     {
                         // Cria o emprestimo
                         createLoan();
-                        this.setVisible(false);
-
                     }
                     else
                     {
@@ -319,6 +317,8 @@ public class GUI_NewLoan extends javax.swing.JFrame
 
                 // Dá feedback ao cliente
                 main.giveNormalFeedback(null, "Loan created with success.");
+                this.setVisible(false);
+                this.dispose();
             }
             else
             {

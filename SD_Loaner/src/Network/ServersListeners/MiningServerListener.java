@@ -76,7 +76,8 @@ public class MiningServerListener extends Thread
                 {
                     main.addMinedBlockToBlockChain(block);
                     main.writeMinedBlock(block.hashCode);
-                    main.giveNormalFeedback(null, "A new block was added to the BlockChain");
+                    main.giveNormalFeedback(null, "A new block was added to the BlockChain.");
+                    main.printBlockChain();
                     main.enableButtons();
                 }
 
