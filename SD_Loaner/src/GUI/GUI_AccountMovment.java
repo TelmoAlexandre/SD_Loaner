@@ -14,7 +14,6 @@ import BlockChain.BlockChain;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Key;
@@ -34,7 +33,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
     private BlockChain blockChain;
     private double loanWithInterest;
     private String loanBlockHash;
-    private GUI_Main main;
+    private GUI_Main guiMain;
     private String passwordHash, movType;
 
     /**
@@ -48,6 +47,23 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         this.setLocationRelativeTo(null);
     }
 
+    public GUI_AccountMovment(GUI_Main guiMain, String movType)
+    {
+        initComponents();
+
+        // Centra a janela
+        this.setLocationRelativeTo(null);
+
+        // Recebe os parametros
+        this.guiMain = guiMain;
+        this.movType = movType;
+        
+        // Recolhe o necessário para a movimentação
+        this.blockChain = guiMain.blockChain;
+        this.publicKey = guiMain.publicKey;
+        this.passwordHash = guiMain.passwordHash;
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -59,32 +75,15 @@ public class GUI_AccountMovment extends javax.swing.JFrame
     {
 
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jbLoadPublicKey = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         jbConfirm = new javax.swing.JButton();
         jbCancel = new javax.swing.JButton();
         jlFeedback = new javax.swing.JLabel();
-        jpfPassword = new javax.swing.JPasswordField();
         jsAmount = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setText("Amount:");
-
-        jLabel2.setText("Public Key:");
-
-        jbLoadPublicKey.setText("Load");
-        jbLoadPublicKey.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jbLoadPublicKeyActionPerformed(evt);
-            }
-        });
-
-        jLabel3.setText("Password:");
 
         jbConfirm.setText("Confirm and Sign");
         jbConfirm.addActionListener(new java.awt.event.ActionListener()
@@ -112,28 +111,20 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jLabel2)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jbLoadPublicKey, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGroup(layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jlFeedback)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jSeparator1)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(jbConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jbCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addComponent(jLabel1)
-                                .addComponent(jLabel3))
-                            .addGap(0, 0, Short.MAX_VALUE)))
-                    .addComponent(jsAmount)
-                    .addComponent(jpfPassword))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jSeparator1)
+                    .addComponent(jsAmount, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jlFeedback)
+                            .addComponent(jLabel1))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jbConfirm, javax.swing.GroupLayout.DEFAULT_SIZE, 164, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jbCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -145,15 +136,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jsAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(4, 4, 4)
-                .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jpfPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jbLoadPublicKey))
-                .addGap(18, 18, 18)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -186,94 +169,40 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         // Verificar se o cliente tem um emprestimo activo ou se o tipo de movimento é diferente de pagamento de emprestimo
         if ( !movType.equals(AccountMovment.LOANPAYMENT) || activeLoan )
         {
-
-            // Verifica se o campo password foi preenchido
-            if ( !(new String(jpfPassword.getPassword()).equals("")) )
+            try
             {
-                // Por fim verifica se foi carregada uma publicKey
-                if ( publicKey != null )
+                // Se não for pagamento de emprestimo, cria um movimento de conta
+                if ( !movType.equals(AccountMovment.LOANPAYMENT) )
                 {
-
-                    // Cria o hash da password e guarda o mesmo no atributo passwordHash
-                    setPasswordHash(new String(jpfPassword.getPassword()));
-
-                    try
-                    {
-                        // Se não for pagamento de emprestimo, cria um movimento de conta
-                        if ( !movType.equals(AccountMovment.LOANPAYMENT) )
-                        {
-                            performAccountMovment(
-                                    movType, // Informa o tipo de movimento ( 'Deposit' ou 'Withdawal' )
-                                    askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada
-                            );
-                        }
-                        else // Senão, cria um pagamento de emprestimo
-                        {
-                            performLoanPayment(
-                                    askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada 
-                            );
-                        }
-
-                        // Fornece feedback ao utilizador
-                        main.giveNormalFeedback(null, movType + " has been successful");
-
-                        // Caso consiga criar um movimento, sair da janela
-                        this.setVisible(false);
-                        dispose();
-                    }
-                    catch ( NoSuchAlgorithmException ex )
-                    {
-                        // Caso ocorra algum erro, informa o utilizador via a label de feedback
-                        giveAlertFeedback(
-                                ex.getMessage()
-                        );
-                    }
+                    performAccountMovment(
+                            movType, // Informa o tipo de movimento ( 'Deposit' ou 'Withdawal' )
+                            askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada
+                    );
                 }
-                else
+                else // Senão, cria um pagamento de emprestimo
                 {
-                    giveAlertFeedback("A public key is required to be loaded.");
+                    performLoanPayment(
+                            askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada 
+                    );
                 }
+
+                // Fornece feedback ao utilizador
+                guiMain.giveNormalFeedback(null, movType + " has been successful");
+
+                // Caso consiga criar um movimento, sair da janela
+                this.setVisible(false);
+                dispose();
             }
-            else
+            catch ( NoSuchAlgorithmException ex )
             {
-                giveAlertFeedback("Passwords field is empty.");
+                // Caso ocorra algum erro, informa o utilizador via a label de feedback
+                giveAlertFeedback(
+                        ex.getMessage()
+                );
             }
         }
 
     }//GEN-LAST:event_jbConfirmActionPerformed
-
-    private void jbLoadPublicKeyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbLoadPublicKeyActionPerformed
-    {//GEN-HEADEREND:event_jbLoadPublicKeyActionPerformed
-        JFileChooser file = new JFileChooser();
-        file.setCurrentDirectory(new File("."));
-        int i = file.showOpenDialog(null);
-        if ( i == JFileChooser.APPROVE_OPTION )
-        {
-            try
-            {
-                publicKey = SecurityUtils.loadKey(file.getSelectedFile().getAbsolutePath(), "RSA");
-            }
-            catch ( IOException ex )
-            {
-                jlFeedback.setText(ex.getMessage());
-            }
-        }
-    }//GEN-LAST:event_jbLoadPublicKeyActionPerformed
-
-    /**
-     * Carrega os objetos necessários para completar o movimento de conta.
-     *
-     * @param main
-     * @param accounts
-     * @param loans
-     * @param movType
-     */
-    public void loadMain(GUI_Main main, String movType)
-    {
-        this.main = main;
-        this.movType = movType;
-        this.blockChain = main.blockChain;
-    }
 
     /**
      * Cria a movimentação pretendida pelo cliente
@@ -567,24 +496,32 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                 {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         }
         catch ( ClassNotFoundException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_AccountMovment.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_AccountMovment.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         }
         catch ( InstantiationException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_AccountMovment.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_AccountMovment.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         }
         catch ( IllegalAccessException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_AccountMovment.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_AccountMovment.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         }
         catch ( javax.swing.UnsupportedLookAndFeelException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_AccountMovment.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI_AccountMovment.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
         //</editor-fold>
@@ -601,14 +538,10 @@ public class GUI_AccountMovment extends javax.swing.JFrame
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton jbCancel;
     private javax.swing.JButton jbConfirm;
-    private javax.swing.JButton jbLoadPublicKey;
     private javax.swing.JLabel jlFeedback;
-    private javax.swing.JPasswordField jpfPassword;
     private javax.swing.JSpinner jsAmount;
     // End of variables declaration//GEN-END:variables
 }

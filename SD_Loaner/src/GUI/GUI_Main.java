@@ -17,12 +17,10 @@ import Network.Node;
 import Network.NodeEventListener;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Key;
-import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -32,7 +30,6 @@ import java.util.Date;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
@@ -45,12 +42,11 @@ import javax.swing.text.StyleContext;
  */
 public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 {
-
+    
     public BlockChain blockChain;
     private GUI_Login guiLogin;
     public Key publicKey;
     public String passwordHash;
-    public boolean windowWasCancelled;
     Node myNode;
 
     /**
@@ -60,19 +56,18 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     {
         initComponents();
     }
-
+    
     public GUI_Main(BlockChain blockChain, GUI_Login guiLogin, Node myNode)
     {
         initComponents();
-
+        
         this.blockChain = blockChain;
         this.guiLogin = guiLogin;
         this.myNode = myNode;
 
         // Centra a janela
         this.setLocationRelativeTo(null);
-        windowWasCancelled = false;
-
+        
         jtaLedger.setEditable(false);
         jtaBlockReader.setEditable(false);
         jtaDisplayReceivedBlock.setEditable(false);
@@ -511,7 +506,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     {//GEN-HEADEREND:event_jbLogOffActionPerformed
         // Limpa as informações do cliente
         clearClientData();
-        
+
         // Mostra o GUI login
         this.setVisible(false);
         guiLogin.setVisible(true);
@@ -529,34 +524,12 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbCheckMoneyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckMoneyActionPerformed
     {//GEN-HEADEREND:event_jbCheckMoneyActionPerformed
-
-        GUI_AskForClientInfo askForClientInfo = new GUI_AskForClientInfo();
-
-        // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
-        askForClientInfo.loadMain(this);
-
-        askForClientInfo.setVisible(true);
-        askForClientInfo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        // Aguarda que o jframe seja fechado
-        askForClientInfo.addWindowListener(new java.awt.event.WindowAdapter()
+        // Caso o cliente tenha conta
+        if ( clientHasAccount() )
         {
-            @Override
-            public void windowClosed(WindowEvent e)
-            {
-                if ( !windowWasCancelled )
-                {
-                    // Caso o cliente tenha conta
-                    if ( clientHasAccount() )
-                    {
-                        // Mostra os seus movimentos
-                        showClientMovments();
-                    }
-                }
-            }
-        });
-
-
+            // Mostra os seus movimentos
+            showClientMovments();
+        }
     }//GEN-LAST:event_jbCheckMoneyActionPerformed
 
     private void jbCheckClientAccountsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckClientAccountsActionPerformed
@@ -593,66 +566,44 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbRequestLoanActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbRequestLoanActionPerformed
     {//GEN-HEADEREND:event_jbRequestLoanActionPerformed
-        GUI_NewLoan newLoan = new GUI_NewLoan();
-        newLoan.loadMain(this);
+        GUI_NewLoan newLoan = new GUI_NewLoan(this);
         newLoan.setVisible(true);
         newLoan.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }//GEN-LAST:event_jbRequestLoanActionPerformed
 
     private void jbCheckLoanActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckLoanActionPerformed
     {//GEN-HEADEREND:event_jbCheckLoanActionPerformed
-
-        GUI_AskForClientInfo askForClientInfo = new GUI_AskForClientInfo();
-
-        // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
-        askForClientInfo.loadMain(this);
-
-        askForClientInfo.setVisible(true);
-        askForClientInfo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        // Aguarda que o jframe seja fechado
-        askForClientInfo.addWindowListener(new java.awt.event.WindowAdapter()
+        try
         {
-            @Override
-            public void windowClosed(WindowEvent e)
+            // Caso o cliente tenha conta
+            if ( clientHasAccount() )
             {
-                try
+                Block loanActive = getActiveLoanHash();
+                
+                if ( loanActive != null )
                 {
-                    if ( !windowWasCancelled )
-                    {
-                        // Caso o cliente tenha conta
-                        if ( clientHasAccount() )
-                        {
-                            Block loanActive = getActiveLoanHash();
-
-                            if ( loanActive != null )
-                            {
-                                showLoan(loanActive);
-                            }
-                            else
-                            {
-                                jtaLedger.setText("{\n You have no active loans.\n}");
-                            }
-                        }
-                        else
-                        {
-                            giveAlertFeedback(
-                                    jlFeedback,
-                                    "Account does not exist."
-                            );
-                        }
-                    }
+                    showLoan(loanActive);
                 }
-                catch ( Exception ex )
+                else
                 {
-                    giveAlertFeedback(
-                            jlFeedback,
-                            ex.getMessage()
-                    );
+                    jtaLedger.setText("{\n You have no active loans.\n}");
                 }
             }
-        });
-
+            else
+            {
+                giveAlertFeedback(
+                        jlFeedback,
+                        "Account does not exist."
+                );
+            }
+        }
+        catch ( Exception ex )
+        {
+            giveAlertFeedback(
+                    jlFeedback,
+                    ex.getMessage()
+            );
+        }
     }//GEN-LAST:event_jbCheckLoanActionPerformed
 
     private void jbLoanPaymentActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbLoanPaymentActionPerformed
@@ -682,7 +633,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
                 //colocar a interface a escutar o nó
                 myNode.addNodeListener(this);
-
+                
                 blockChain = new BlockChain(myNode);
             }
             else
@@ -724,7 +675,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                 {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
-
+                    
                 }
             }
         }
@@ -732,19 +683,19 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         {
             java.util.logging.Logger.getLogger(GUI_Main.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
+            
         }
         catch ( InstantiationException ex )
         {
             java.util.logging.Logger.getLogger(GUI_Main.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
+            
         }
         catch ( IllegalAccessException ex )
         {
             java.util.logging.Logger.getLogger(GUI_Main.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
+            
         }
         catch ( javax.swing.UnsupportedLookAndFeelException ex )
         {
@@ -826,7 +777,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     /**
      * Disconecta o nodo da rede.
-     * 
+     *
      */
     public void disconnectNode()
     {
@@ -887,7 +838,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private void showLoan(Block loanBlock)
     {
         jtaLedger.setText("");
-
+        
         for ( Block b : blockChain.chain )
         {
             // Caso seja um emprestimo
@@ -914,7 +865,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                 }
             }
         }
-
+        
         Loan loanInfo = (Loan) loanBlock.content;
         jtaLedger.append("{\n Left to pay: "
                 + LoanPayment.whatsLeftToPayInThisLoan(loanBlock.hashCode, blockChain, loanInfo.getAmountWithInterest()) + "€\n}"
@@ -927,7 +878,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
      */
     private boolean clientHasAccount()
     {
-
+        
         for ( Block b : blockChain.chain )
         {
             // Individualiza o conteudo do bloco
@@ -938,7 +889,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             {
                 // Transforma o blockContent na sua verdadeira instancia
                 AccountInformation info = (AccountInformation) blockContent;
-
+                
                 try
                 {
                     // Trata da autenticação
@@ -946,7 +897,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                     {
                         // Imprime o bloco de informação
                         jtaLedger.setText(b.toString());
-
+                        
                         return true;
                     }
                     else
@@ -965,16 +916,16 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                             ex.getMessage()
                     );
                 }
-
+                
                 break;
             }
         }
-
+        
         giveAlertFeedback(
                 jlFeedback,
                 "Account not found."
         );
-
+        
         return false;
     }
 
@@ -998,7 +949,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                     jtaLedger.append("\n\n" + b.toString());
                 }
             }
-
+            
         }
 
         // Imprime o dinheiro total do cliente
@@ -1014,10 +965,8 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
      */
     public void callMovmentWindow(String movType)
     {
-        GUI_AccountMovment movWindow = new GUI_AccountMovment();
-
-        // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
-        movWindow.loadMain(this, movType);
+        GUI_AccountMovment movWindow = new GUI_AccountMovment(this, movType);
+        
         movWindow.setVisible(true);
         movWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
@@ -1058,7 +1007,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                     ex.getMessage()
             );
         }
-
+        
         return null;
     }
 
@@ -1074,7 +1023,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         {
             label = jlFeedback;
         }
-
+        
         label.setText(feedback);
         label.setForeground(Color.black);
     }
@@ -1091,7 +1040,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         {
             label = jlFeedback;
         }
-
+        
         label.setText(feedback);
         label.setForeground(Color.red);
     }
@@ -1124,14 +1073,14 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     /**
      * Define o hash da password do cliente
-     * 
+     *
      * @param pass
      */
     public void setClientPasswordHash(String pass)
     {
         this.passwordHash = pass;
     }
-    
+
     /**
      * Define a chave pública do cliente.
      *
@@ -1165,12 +1114,12 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jbRequestLoan.setEnabled(true);
         jbLoanPayment.setEnabled(true);
     }
-
+    
     public void displayReceivedBlock(String txt)
     {
         jtaDisplayReceivedBlock.setText(txt);
     }
-
+    
     public void writeMinedBlock(String txt)
     {
         jtaBlockReader.setText(txt);
@@ -1206,15 +1155,15 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                 jtpLog.replaceSelection("\n" + (new SimpleDateFormat("HH:mm:ss")).format(new Date()));
             }
         });
-
+        
     }
-
+    
     @Override
     public void onConnectLink(Object obj)
     {
         printLog(obj.toString() + " -> CONNECTED", Color.blue);
     }
-
+    
     @Override
     public void onDisconnectLink(Object obj)
     {

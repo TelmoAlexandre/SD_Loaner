@@ -13,7 +13,6 @@ import BlockChain.BlockChain;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Key;
@@ -48,6 +47,21 @@ public class GUI_NewLoan extends javax.swing.JFrame
         this.setLocationRelativeTo(null);
     }
 
+    public GUI_NewLoan(GUI_Main main)
+    {
+        initComponents();
+
+        // Centra a janela
+        this.setLocationRelativeTo(null);
+        
+        this.main = main;
+        
+        // Recolhe a informação necessária
+        this.blockChain = main.blockChain;
+        this.publicKey = main.publicKey;
+        this.passwordHash = main.passwordHash;
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -61,11 +75,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
         jlFeedback = new javax.swing.JLabel();
         jbConfirmAndSign = new javax.swing.JButton();
         jbCancel = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
-        jpfPassword = new javax.swing.JPasswordField();
-        jLabel2 = new javax.swing.JLabel();
-        jbLoadPublicKey = new javax.swing.JButton();
         jsAmount = new javax.swing.JSpinner();
         jLabel1 = new javax.swing.JLabel();
 
@@ -91,19 +101,6 @@ public class GUI_NewLoan extends javax.swing.JFrame
             }
         });
 
-        jLabel4.setText("Password:");
-
-        jLabel2.setText("Public Key:");
-
-        jbLoadPublicKey.setText("Load");
-        jbLoadPublicKey.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jbLoadPublicKeyActionPerformed(evt);
-            }
-        });
-
         jsAmount.setModel(new javax.swing.SpinnerNumberModel(100, 1, 250000, 100));
 
         jLabel1.setText("Amount:");
@@ -115,15 +112,11 @@ public class GUI_NewLoan extends javax.swing.JFrame
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jbLoadPublicKey, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel2)
                             .addComponent(jLabel1)
                             .addComponent(jlFeedback))
                         .addGap(0, 83, Short.MAX_VALUE))
-                    .addComponent(jpfPassword)
                     .addComponent(jSeparator1)
                     .addComponent(jbConfirmAndSign, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jbCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -140,14 +133,6 @@ public class GUI_NewLoan extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jsAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jpfPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
-                .addGap(7, 7, 7)
-                .addComponent(jbLoadPublicKey)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jbConfirmAndSign, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -161,47 +146,24 @@ public class GUI_NewLoan extends javax.swing.JFrame
 
     private void jbConfirmAndSignActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbConfirmAndSignActionPerformed
     {//GEN-HEADEREND:event_jbConfirmAndSignActionPerformed
-
-        // Verifica se o campo password foi preenchido
-        if ( !(new String(jpfPassword.getPassword()).equals("")) )
+        try
         {
-            // Por fim verifica se foi carregada uma publicKey
-            if ( publicKey != null )
+            // Verifica se o cliente tem conta, e caso tenha chama um metodo para criar o emprestimo
+            // Caso tenha sido criado o emprestimo, fecha a janela
+            if ( clientHasAccount() )
             {
-
-                // Cria o hash da password e guarda o mesmo no atributo passwordHash
-                setPasswordHash(new String(jpfPassword.getPassword()));
-
-                try
-                {
-                    // Verifica se o cliente tem conta, e caso tenha chama um metodo para criar o emprestimo
-                    // Caso tenha sido criado o emprestimo, fecha a janela
-                    if ( clientHasAccount() )
-                    {
-                        // Cria o emprestimo
-                        createLoan();
-                    }
-                    else
-                    {
-
-                        giveAlertFeedback("Account not found.");
-                    }
-                }
-                catch ( InterruptedException | NoSuchAlgorithmException | ParseException ex )
-                {
-                    giveAlertFeedback(ex.getMessage());
-                }
+                // Cria o emprestimo
+                createLoan();
             }
             else
             {
-                giveAlertFeedback("A public key is required to be loaded.");
+                giveAlertFeedback("Account not found.");
             }
         }
-        else
+        catch ( InterruptedException | NoSuchAlgorithmException | ParseException ex )
         {
-            giveAlertFeedback("Passwords field is empty.");
+            giveAlertFeedback(ex.getMessage());
         }
-
     }//GEN-LAST:event_jbConfirmAndSignActionPerformed
 
     private void jbCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCancelActionPerformed
@@ -209,24 +171,6 @@ public class GUI_NewLoan extends javax.swing.JFrame
         this.setVisible(false);
         dispose();
     }//GEN-LAST:event_jbCancelActionPerformed
-
-    private void jbLoadPublicKeyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbLoadPublicKeyActionPerformed
-    {//GEN-HEADEREND:event_jbLoadPublicKeyActionPerformed
-        JFileChooser file = new JFileChooser();
-        file.setCurrentDirectory(new File("."));
-        int i = file.showOpenDialog(null);
-        if ( i == JFileChooser.APPROVE_OPTION )
-        {
-            try
-            {
-                publicKey = SecurityUtils.loadKey(file.getSelectedFile().getAbsolutePath(), "RSA");
-            }
-            catch ( IOException ex )
-            {
-                giveAlertFeedback(ex.getMessage());
-            }
-        }
-    }//GEN-LAST:event_jbLoadPublicKeyActionPerformed
 
     /**
      * @param args the command line arguments
@@ -280,14 +224,10 @@ public class GUI_NewLoan extends javax.swing.JFrame
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton jbCancel;
     private javax.swing.JButton jbConfirmAndSign;
-    private javax.swing.JButton jbLoadPublicKey;
     private javax.swing.JLabel jlFeedback;
-    private javax.swing.JPasswordField jpfPassword;
     private javax.swing.JSpinner jsAmount;
     // End of variables declaration//GEN-END:variables
 
@@ -442,17 +382,6 @@ public class GUI_NewLoan extends javax.swing.JFrame
         {
             giveAlertFeedback(ex.getMessage());
         }
-    }
-
-    /**
-     * Carrega os objetos necessários para completar o emprestimo.
-     *
-     * @param main
-     */
-    public void loadMain(GUI_Main main)
-    {
-        this.main = main;
-        this.blockChain = main.blockChain;
     }
 
     /**
