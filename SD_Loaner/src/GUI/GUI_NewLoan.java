@@ -6,12 +6,10 @@
 package GUI;
 
 import AccountManager.AccountManager;
-import Information.AccountInformation;
-import BankServices.AccountMovment;
-import BankServices.LoanPayment;
+import AccountManager.AccountInformation;
 import BlockChain.Block;
 import BlockChain.BlockChain;
-import Information.LoanInformation;
+import BankServices.Loan;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.io.File;
@@ -24,8 +22,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.text.ParseException;
 import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 
 /**
@@ -184,17 +180,9 @@ public class GUI_NewLoan extends javax.swing.JFrame
                     // Caso tenha sido criado o emprestimo, fecha a janela
                     if ( clientHasAccount() )
                     {
-
-                        if ( !clienteHasLoan() )
-                        {
-                            // Cria o emprestimo
-                            createLoan();
-                            this.setVisible(false);
-                        }
-                        else
-                        {
-                            giveAlertFeedback("You already have an active loan.");
-                        }
+                        // Cria o emprestimo
+                        createLoan();
+                        this.setVisible(false);
 
                     }
                     else
@@ -244,25 +232,6 @@ public class GUI_NewLoan extends javax.swing.JFrame
             }
         }
     }//GEN-LAST:event_jbLoadPublicKeyActionPerformed
-
-    /**
-     * Adiciona o movimento do emprestimo à conta do cliente.
-     *
-     * @param content
-     */
-    public void addLoanToClientAccount(AccountManager content)
-    {
-        try
-        {
-            blockChain.add(content, main);
-
-            dispose();
-        }
-        catch ( Exception ex )
-        {
-            giveAlertFeedback(ex.getMessage());
-        }
-    }
 
     /**
      * Verifica se o cliente tem conta criada no banco.
@@ -332,29 +301,29 @@ public class GUI_NewLoan extends javax.swing.JFrame
         double amount = Double.parseDouble(value);
 
         // Criado o emprestimo
-        LoanInformation loanInfo = new LoanInformation(
+        Loan loanInfo = new Loan(
                 publicKey,
                 clientName,
                 amount
         );
-
-        // É criado o movimento de conta
-        AccountMovment mov = new AccountMovment(
-                publicKey,
-                amount,
-                "Loan"
-        );
-
         try
         {
-            // Assina o movimento
-            mov.sign(askForPrivateKey());
+            // Caso o cliente não tenha um emprestimo activo
+            if ( loanInfo.validate(blockChain) )
+            {
+                // Assina o movimento
+                loanInfo.sign(askForPrivateKey());
 
-            // Adiciona o emprestimo e o movimento de conta à block chain
-            blockChain.addLoanBlocks(loanInfo, mov, main, this);
+                // Adiciona o emprestimo e o movimento de conta à block chain
+                blockChain.add(loanInfo);
 
-            // Dá feedback ao cliente
-            main.giveNormalFeedback(null, "Loan created with success.");
+                // Dá feedback ao cliente
+                main.giveNormalFeedback(null, "Loan created with success.");
+            }
+            else
+            {
+                giveAlertFeedback("You already have an active loan.");
+            }
         }
         catch ( Exception ex )
         {
@@ -416,67 +385,15 @@ public class GUI_NewLoan extends javax.swing.JFrame
     }
 
     /**
-     * Verifica se o cliente tem um emprestimo activo. Caso tenha, faz o
-     * pagamento do mesmo.
-     *
-     * @return
-     */
-    private boolean clienteHasLoan()
-    {
-
-        boolean hasLoan = false;
-
-        for ( Block b : blockChain.chain )
-        {
-            // Caso se trate de um emprestimo
-            if ( b.content instanceof LoanInformation )
-            {
-                // Individualizar a instancia do LoanInformation
-                LoanInformation loanInfo = (LoanInformation) b.content;
-
-                // Se se tratar de um empretimo do cliente
-                if ( loanInfo.comparePublicKeys(publicKey) )
-                {
-
-                    // Recolhe o que falta pagar do emprestimo
-                    double whatsLeftToPay = LoanPayment.whatsLeftToPayInThisLoan(
-                            b.hashCode, // O Hash do bloco de emprestimo porque existe referencia a ele em todos os pagamentos do emprestimo
-                            blockChain,
-                            loanInfo.getAmountWithInterest() // Total a pagar do emprestimo
-                    );
-
-                    // Caso ainda não tenha pago tudo, coloca como activo (TRUE)
-                    // Seão coloca como FALSE
-                    hasLoan = (whatsLeftToPay != 0.0);
-                }
-            }
-        }
-
-        return hasLoan;
-    }
-
-    /**
      * Carrega os objetos necessários para completar o emprestimo.
      *
      * @param main
-     * @param accounts
-     * @param loans
+     * @param blockChain
      */
-    public void loadMainAndBlockChain(GUI_Main main, BlockChain blockChain)
+    public void loadMain(GUI_Main main)
     {
         this.main = main;
-        this.blockChain = blockChain;
-    }
-
-    /**
-     * Fornece feedback ao utilizador.
-     *
-     * @param feedback
-     */
-    private void giveNormalFeedback(String feedback)
-    {
-        jlFeedback.setText(feedback);
-        jlFeedback.setForeground(Color.black);
+        this.blockChain = main.blockChain;
     }
 
     /**
@@ -532,6 +449,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable()
         {
+            @Override
             public void run()
             {
                 new GUI_NewLoan().setVisible(true);

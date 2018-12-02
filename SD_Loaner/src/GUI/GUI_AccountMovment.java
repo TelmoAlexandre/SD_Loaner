@@ -5,8 +5,8 @@
  */
 package GUI;
 
-import Information.AccountInformation;
-import Information.LoanInformation;
+import AccountManager.AccountInformation;
+import BankServices.Loan;
 import BankServices.AccountMovment;
 import BankServices.LoanPayment;
 import BlockChain.Block;
@@ -268,11 +268,11 @@ public class GUI_AccountMovment extends javax.swing.JFrame
      * @param loans
      * @param movType
      */
-    public void loadMainAndBlockChain(GUI_Main main, String movType, BlockChain blockChain)
+    public void loadMain(GUI_Main main, String movType)
     {
         this.main = main;
         this.movType = movType;
-        this.blockChain = blockChain;
+        this.blockChain = main.blockChain;
     }
 
     /**
@@ -323,7 +323,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                         mov.sign(pvK);
 
                         // Adiciona o movimento de conta à block chain do cliente
-                        blockChain.add(mov, main);
+                        blockChain.add(mov);
                     }
                     catch ( Exception ex )
                     {
@@ -398,7 +398,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                         payment.sign(pvK);
 
                         // Adiciona o movimento de conta à block chain do cliente
-                        blockChain.add(payment, main);
+                        blockChain.add(payment);
                     }
                     catch ( Exception ex )
                     {
@@ -513,10 +513,10 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         for ( Block b : blockChain.chain )
         {
             // Caso se trate de um emprestimo
-            if ( b.content instanceof LoanInformation )
+            if ( b.content instanceof Loan )
             {
-                // Individualizar a instancia do LoanInformation
-                LoanInformation loanInfo = (LoanInformation) b.content;
+                // Individualizar a instancia do Loan
+                Loan loanInfo = (Loan) b.content;
 
                 // Se se tratar de um empretimo do cliente
                 if ( loanInfo.comparePublicKeys(publicKey) )

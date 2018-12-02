@@ -6,9 +6,6 @@
 package BlockChain;
 
 import AccountManager.AccountManager;
-import GUI.GUI_Main;
-import GUI.GUI_NewLoan;
-import Miner.Miner;
 import java.io.Serializable;
 import java.security.Key;
 import java.security.MessageDigest;
@@ -65,20 +62,6 @@ public class Block implements Serializable
         byte[] digest = sha.digest();
 
         return hashCode.equals(newCalculatedHash);
-    }
-    
-    /**
-     * Mina o bloco de informação do emprestimo. Depois é criado um segundo bloco com o movimento de conta
-     * que diz respeito ao dinheiro entrar na conta do cliente.
-     *
-     * @param blockChain
-     * @param guiMain
-     * @throws java.lang.InterruptedException
-     */
-    public void mineLoanInformation_WithAccountMovment(BlockChain blockChain, AccountManager secondContent, GUI_Main guiMain, GUI_NewLoan guiLoan) throws InterruptedException
-    {
-        Miner miner = new Miner(this, secondContent, blockChain, guiMain, guiLoan);
-        miner.execute();
     }
 
     /**

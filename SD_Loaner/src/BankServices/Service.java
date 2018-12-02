@@ -8,7 +8,6 @@ package BankServices;
 import AccountManager.AccountManager;
 import BlockChain.Block;
 import BlockChain.BlockChain;
-import Information.AccountInformation;
 import SecureUtils.SecurityUtils;
 import java.security.Key;
 import java.security.PrivateKey;
@@ -31,7 +30,8 @@ public abstract class Service extends AccountManager
         this.amount = amount;
     }
 
-    public abstract boolean validate(BlockChain bc, Key pbK) throws Exception;
+    public abstract boolean validate(BlockChain bc) throws Exception;
+
     public abstract double getTrueAmount();
 
     /**
@@ -80,20 +80,25 @@ public abstract class Service extends AccountManager
     {
         double money = 0.0;
 
-        for ( Block b : bc.chain )
+        for ( Block block : bc.chain )
         {
-            // Garante que o conteudo do bloco é um movimento de conta e que se trata de um bloco da public key em questão
-            if ( (b.content instanceof AccountMovment || b.content instanceof LoanPayment)
-                    && b.content.comparePublicKeys(pbK) )
-            {
-                // Faz o cast para Service
-                Service serv = (Service) b.content;
-                
-                money += serv.getTrueAmount();
-            }
+            // Isola o conteudo do bloco
+            AccountManager content = block.content;
 
+            //Garante que se trata da conta do cliente em questão
+            if ( content.comparePublicKeys(pbK) )
+            {
+                // Trata como serviço
+                if ( content instanceof Service )
+                {
+                    // Cast para Service
+                    Service serv = (Service) content;
+
+                    money += serv.getTrueAmount();
+                }
+            }
         }
-        
+
         return money;
     }
 }

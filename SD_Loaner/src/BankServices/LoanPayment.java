@@ -33,9 +33,9 @@ public class LoanPayment extends Service
      * @throws java.lang.Exception
      */
     @Override
-    public boolean validate(BlockChain bc, Key pbK) throws Exception
+    public boolean validate(BlockChain bc) throws Exception
     {
-        return (amount <= getMyMoney(bc, pbK) && verifySignature());
+        return (amount <= getMyMoney(bc, publicKey) && verifySignature());
     }
 
     /**

@@ -14,6 +14,10 @@ import java.security.Key;
  */
 public class AccountMovment extends Service
 {
+    // Flags
+    public static String DEPOSIT = "DEPOSIT";
+    public static String WITHDRAWAL = "WITHDRAWAL";
+
     private final String type;
 
     public AccountMovment(Key publicKey, double amount, String type)
@@ -26,16 +30,15 @@ public class AccountMovment extends Service
      * Valida a integridade do movimento de conta.
      *
      * @param bc
-     * @param pbK
-     * @return
+     * @return 
      * @throws java.lang.Exception
      */
     @Override
-    public boolean validate(BlockChain bc, Key pbK) throws Exception
+    public boolean validate(BlockChain bc) throws Exception
     {
-        if ( type.equals("Withdrawal"))
+        if ( type.equals(AccountMovment.WITHDRAWAL) )
         {
-            return (amount <= getMyMoney(bc, pbK) && verifySignature());
+            return (amount <= getMyMoney(bc, publicKey) && verifySignature());
         }
         else
         {
@@ -52,7 +55,7 @@ public class AccountMovment extends Service
     @Override
     public double getTrueAmount()
     {
-        return (type.equals("Withdrawal")) ? amount * (-1.0) : amount;
+        return (type.equals(AccountMovment.WITHDRAWAL)) ? amount * (-1.0) : amount;
     }
 
     /**

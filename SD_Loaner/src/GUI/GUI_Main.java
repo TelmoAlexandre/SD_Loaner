@@ -6,12 +6,13 @@
 package GUI;
 
 import AccountManager.AccountManager;
-import Information.AccountInformation;
+import AccountManager.AccountInformation;
 import BankServices.AccountMovment;
 import BankServices.LoanPayment;
 import BlockChain.BlockChain;
 import BlockChain.Block;
-import Information.LoanInformation;
+import BankServices.Loan;
+import BankServices.Service;
 import Network.Node;
 import Network.NodeEventListener;
 import SecureUtils.SecurityUtils;
@@ -655,13 +656,13 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbDepositActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbDepositActionPerformed
     {//GEN-HEADEREND:event_jbDepositActionPerformed
-        callMovmentWindow("Deposit");
+        callMovmentWindow(AccountMovment.DEPOSIT);
     }//GEN-LAST:event_jbDepositActionPerformed
 
     private void jbWithdrawalActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbWithdrawalActionPerformed
     {//GEN-HEADEREND:event_jbWithdrawalActionPerformed
 
-        callMovmentWindow("Withdrawal");
+        callMovmentWindow(AccountMovment.WITHDRAWAL);
     }//GEN-LAST:event_jbWithdrawalActionPerformed
 
     private void jbCheckMoneyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckMoneyActionPerformed
@@ -721,7 +722,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         for ( Block b : blockChain.chain )
         {
             // Caso se trate dos dados do emprestimo
-            if ( b.content instanceof LoanInformation )
+            if ( b.content instanceof Loan )
             {
                 jtaLedger.append(b.toString() + "\n\n");
             }
@@ -731,7 +732,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private void jbRequestLoanActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbRequestLoanActionPerformed
     {//GEN-HEADEREND:event_jbRequestLoanActionPerformed
         GUI_NewLoan newLoan = new GUI_NewLoan();
-        newLoan.loadMainAndBlockChain(this, blockChain);
+        newLoan.loadMain(this);
         newLoan.setVisible(true);
         newLoan.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }//GEN-LAST:event_jbRequestLoanActionPerformed
@@ -840,8 +841,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
             //colocar a interface a escutar o nó
             myNode.addNodeListener(this);
-            
-            
+
             blockChain = new BlockChain(myNode);
         }
         catch ( Exception ex )
@@ -976,26 +976,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     {
         blockChain.addMinedBlock(block);
     }
-    
-    /**
-     * Cria e adiciona o novo bloco à BlockChain.
-     *
-     * @param blockContent
-     */
-    public void addToBlockChain(AccountManager blockContent)
-    {
-        try
-        {
-            blockChain.add(blockContent, this);
-        }
-        catch ( Exception ex )
-        {
-            giveAlertFeedback(
-                    jlFeedback,
-                    ex.getMessage()
-            );
-        }
-    }
 
     /**
      * Retorna o hash code do bloco do emprestimo activo
@@ -1006,10 +986,10 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         for ( Block b : blockChain.chain )
         {
             // Caso se trate de um emprestimo
-            if ( b.content instanceof LoanInformation )
+            if ( b.content instanceof Loan )
             {
-                // Individualizar a instancia do LoanInformation
-                LoanInformation loanInfo = (LoanInformation) b.content;
+                // Individualizar a instancia do Loan
+                Loan loanInfo = (Loan) b.content;
 
                 // Se se tratar de um empretimo do cliente
                 if ( loanInfo.comparePublicKeys(publicKey) )
@@ -1048,7 +1028,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         for ( Block b : blockChain.chain )
         {
             // Caso seja um emprestimo
-            if ( b.content instanceof LoanInformation )
+            if ( b.content instanceof Loan )
             {
                 // Caso esse emprestimo seja o emprestimo em questão
                 if ( b.hashCode.equals(loanBlock.hashCode) )
@@ -1072,7 +1052,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             }
         }
 
-        LoanInformation loanInfo = (LoanInformation) loanBlock.content;
+        Loan loanInfo = (Loan) loanBlock.content;
         jtaLedger.append("{\n Left to pay: "
                 + LoanPayment.whatsLeftToPayInThisLoan(loanBlock.hashCode, blockChain, loanInfo.getAmountWithInterest()) + "€\n}"
         );
@@ -1143,13 +1123,19 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     {
         for ( Block b : blockChain.chain )
         {
-            // Caso se trate de um movimento de conta ou pagamento de emprestimo do cliente em questão 
-            if ( (b.content instanceof AccountMovment || b.content instanceof LoanPayment)
-                    && b.content.comparePublicKeys(publicKey) )
+            AccountManager content = b.content;
+
+            // Caso o bloco seja do cliente
+            if ( content.comparePublicKeys(publicKey) )
             {
-                // Imprime bloco
-                jtaLedger.append("\n\n" + b.toString());
+                // Caso se trate de um movimento de conta ou pagamento de emprestimo do cliente em questão 
+                if ( content instanceof Service )
+                {
+                    // Imprime bloco
+                    jtaLedger.append("\n\n" + b.toString());
+                }
             }
+
         }
 
         // Imprime o dinheiro total do cliente
@@ -1160,15 +1146,15 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
      * Abre uma nova janela onde o cliente consegue preencher as informações da
      * movimentação na sua conta.
      *
-     * @param movType Tipo de movimentação ( 'Deposit', 'Withdrawal' ou 'Loan
-     * Payment' )
+     * @param movType Tipo de movimentação ( 'Deposit', 'Withdrawal' ou
+     * 'LoanPayment' )
      */
     public void callMovmentWindow(String movType)
     {
         GUI_AccountMovment movWindow = new GUI_AccountMovment();
 
         // Fornecer este objecto à nova janela para poder atualizar as informações do utilizador
-        movWindow.loadMainAndBlockChain(this, movType, blockChain);
+        movWindow.loadMain(this, movType);
         movWindow.setVisible(true);
         movWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
@@ -1356,9 +1342,9 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     @Override
     public void onConnectLink(Object obj)
     {
-        printLog(obj.toString()+ " -> CONNECTED", Color.blue);
+        printLog(obj.toString() + " -> CONNECTED", Color.blue);
     }
-    
+
     @Override
     public void onDisconnectLink(Object obj)
     {

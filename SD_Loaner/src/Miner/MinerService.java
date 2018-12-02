@@ -17,13 +17,14 @@ import javax.swing.SwingWorker;
  */
 public class MinerService extends SwingWorker<String, Integer>
 {
+    GUI_Main main;
 
     // Ligação ao clioente
     SocketManager socketManager;
 
     // Necessário para minar 
     public Block block;
-    private final int difficulty = 3;
+    private final int difficulty = 5;
     private String nonce;
     private String hashCode;
 
@@ -31,8 +32,10 @@ public class MinerService extends SwingWorker<String, Integer>
     {
         this.socketManager = socketManager;
         this.block = block;
-        
-        main.displayReceivedBlock(block.toString());
+        this.main = main;
+
+        this.main.disableButtons();
+        this.main.displayReceivedBlock(block.toString());
     }
 
     @Override
@@ -50,7 +53,7 @@ public class MinerService extends SwingWorker<String, Integer>
         // Constroi a String a ser minada
         String toMine = block.content.toString() + block.previousHash + block.difficulty;
 
-        for (int i = 0; i < threads.length; i++)
+        for ( int i = 0; i < threads.length; i++ )
         {
             threads[i] = new MinerThread(
                     toMine,
@@ -62,11 +65,11 @@ public class MinerService extends SwingWorker<String, Integer>
             threads[i].start();
         }
 
-        for (MinerThread thread : threads)
+        for ( MinerThread thread : threads )
         {
             thread.join();
 
-            if (thread.isSolvedByMe())
+            if ( thread.isSolvedByMe() )
             {
                 nonce = thread.getSolution();
                 hashCode = thread.getHash();
@@ -81,6 +84,8 @@ public class MinerService extends SwingWorker<String, Integer>
         // Envia o bloco para o nodo que pediu a mineração
         socketManager.sendObject(block);
 
+        main.enableButtons();
+        
         return "";
     }
 }

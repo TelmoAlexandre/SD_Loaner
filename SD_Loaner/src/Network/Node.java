@@ -97,6 +97,7 @@ public class Node
     /**
      * Disconecta o nodo da rede.
      * 
+     * @throws java.lang.Exception
      */
     public void disconnect() throws Exception
     {

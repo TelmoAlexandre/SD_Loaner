@@ -5,13 +5,13 @@
  */
 package GUI;
 
-import Information.AccountInformation;
+import AccountManager.AccountInformation;
+import BlockChain.BlockChain;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
 import javax.swing.JFileChooser;
 
 /**
@@ -21,6 +21,7 @@ import javax.swing.JFileChooser;
 public class GUI_NewAccount extends javax.swing.JFrame
 {
     private GUI_Main main;
+    private BlockChain blockChain;
     private Key publicKey;
 
     /**
@@ -189,7 +190,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
                         );
 
                         // Cria e adiciona o bloco à blockChain
-                        main.addToBlockChain(info);
+                        blockChain.add(info);
                         main.giveNormalFeedback(null, "Account created with success.");
 
                         // Esconde a janela e dá dispose()
@@ -197,7 +198,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
                         this.setVisible(false);
                         dispose();
                     }
-                    catch ( NoSuchAlgorithmException ex )
+                    catch ( Exception ex )
                     {
                         giveAlertFeedback(ex.getMessage());
                     }
@@ -247,6 +248,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
     public void loadMain(GUI_Main main)
     {
         this.main = main;
+        this.blockChain = main.blockChain;
     }
 
     /**
