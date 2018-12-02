@@ -6,12 +6,12 @@
 package Miner;
 
 import Network.SocketManager;
-import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -22,18 +22,22 @@ public class MinerThread extends Thread
 
     private final String toMine;
     private final int difficulty;
-    private final AtomicBoolean isSolved;
+    
+    private AtomicBoolean isSolved;
+    private AtomicInteger atomicNonce;
+    
     private String solution;
     private boolean solvedByMe;
     private String calculatedHash;
 
     SocketManager socketManager;
 
-    public MinerThread(String toMine, int difficulty, AtomicBoolean isSolved, SocketManager socketManager)
+    public MinerThread(String toMine, int difficulty, AtomicBoolean isSolved, AtomicInteger atomicNonce, SocketManager socketManager)
     {
         this.toMine = toMine;
         this.difficulty = difficulty;
         this.isSolved = isSolved;
+        this.atomicNonce = atomicNonce;
         this.socketManager = socketManager;
     }
 
@@ -102,6 +106,8 @@ public class MinerThread extends Thread
             // Adiciona mais lixo ao nonce
             nonce.append((int) (Math.random() * 1_000_000));
             nonce.append((int) (Math.random() * 1_000_000));
+            nonce.append(atomicNonce.getAndIncrement());
+            
             // Duplica o seu tamanho
             nonce.append(nonce.toString());
 

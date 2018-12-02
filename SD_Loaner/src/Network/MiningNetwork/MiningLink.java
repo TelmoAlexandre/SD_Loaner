@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *
@@ -84,13 +85,12 @@ public class MiningLink extends Thread
             // Enviar o bloco minado e fechar a ligação com os restantes nodos
             for (MiningLink link : miningLinks)
             {
-//                link.sendMinedBlock();
                 link.close();
             }
             
         } catch (IOException | ClassNotFoundException ex)
         {
-            //Logger.getLogger(MiningLink.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger("Mining has finished");
         }
 
     }

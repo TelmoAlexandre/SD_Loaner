@@ -15,6 +15,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package Network;
 
+import Network.ServersListeners.LocalNetworkListener;
 import java.io.Serializable;
 
 /**
@@ -28,11 +29,10 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
     private int udpPort;
     private int tcpPort;
 
-    public NodeAddress(String ip, int... port)
+    public NodeAddress(String ip)
     {
         this.ip = ip;
-        this.udpPort = port[0];
-        this.tcpPort = port[1];
+        this.udpPort = LocalNetworkListener.MULTICAST_PORT;
     }
 
     /**
@@ -113,9 +113,19 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
      *
      * @param port Porto UDP
      */
-    public void setPort(int port)
+    public void setUDP_Port(int port)
     {
         this.udpPort = port;
+    }
+    
+    /**
+     * Define o porto TCp.
+     *
+     * @param port Porto UDP
+     */
+    public void setTCP_Port(int port)
+    {
+        this.tcpPort = port;
     }
 
     /**
@@ -126,6 +136,6 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
     @Override
     public String toString()
     {
-        return this.ip + ":" + this.udpPort;
+        return this.ip + ":" + this.udpPort + " || TCP: " + this.tcpPort;
     }
 }

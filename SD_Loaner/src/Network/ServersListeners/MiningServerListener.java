@@ -3,16 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Network.Servers;
+package Network.ServersListeners;
 
 // import classroom.blockChain.MinerService;
 import BlockChain.Block;
 import GUI.GUI_Main;
 import Miner.MinerService;
 import Network.Message.Message;
+import Network.NodeAddress;
 import Network.SocketManager;
+import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -28,12 +29,22 @@ public class MiningServerListener extends Thread
     SocketManager socketManager;
     GUI_Main main;
 
-    public MiningServerListener(int port, GUI_Main main) throws Exception
+    public MiningServerListener(GUI_Main main, NodeAddress myAddress) throws Exception
     {
-        server = new ServerSocket(port);
         this.main = main;
+        
+        // Requesita um porto disponivel
+        server = new ServerSocket(0);
+        
+        // define esse porto no myAddress
+        myAddress.setTCP_Port(server.getLocalPort());
     }
 
+    public void disconnect() throws IOException
+    {
+        server.close();
+    }
+    
     @Override
     public void run()
     {
@@ -65,12 +76,14 @@ public class MiningServerListener extends Thread
                 {
                     main.addMinedBlockToBlockChain(block);
                     main.writeMinedBlock(block.hashCode);
+                    main.giveNormalFeedback(null, "A new block was added to the BlockChain");
+                    main.enableButtons();
                 }
 
             }
             catch ( Exception ex )
             {
-                Logger.getLogger(MiningServerListener.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger("Mining Listener terminado");
             }
         }
     }

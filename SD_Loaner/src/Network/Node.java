@@ -18,8 +18,8 @@ package Network;
 import BlockChain.Block;
 import Network.Message.MessageUDP;
 import Network.MiningNetwork.MiningNetwork;
-import Network.Servers.LocalNetworkListener;
-import Network.Servers.MiningServerListener;
+import Network.ServersListeners.LocalNetworkListener;
+import Network.ServersListeners.MiningServerListener;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,35 +33,35 @@ import java.util.TreeSet;
  */
 public class Node
 {
-    NodeAddress myAdress;
+    NodeAddress myAddress;
     TreeSet<NodeAddress> network = new TreeSet<>();
     List<NodeEventListener> listeners = new ArrayList<>();
-    LocalNetworkListener lnl;
+    
+    // Server Listeners
+    LocalNetworkListener localNetworkListener;
+    MiningServerListener miningServerListener;
 
     /**
      * Avisa a rede da sua entrada na mesma. Inicia o servidor de escuta de blocos a serem minados.
      * 
-     * @param port
-     * @param service
      * @param main
      * @throws Exception 
      */
-    public void startServer(int port, int service, GUI.GUI_Main main) throws Exception
+    public void startServer(GUI.GUI_Main main) throws Exception
     {
         network = new TreeSet<>();
         
         // Cria um endereço para o nodo
-        this.myAdress = new NodeAddress(
-                InetAddress.getLocalHost().getHostAddress(),
-                port, 
-                service
+        this.myAddress = new NodeAddress(
+                InetAddress.getLocalHost().getHostAddress()
         );
 
         // Cria os listeners da rede e do Mineiro
-        lnl = new LocalNetworkListener(network, myAdress, listeners);
-        lnl.start();
+        miningServerListener = new MiningServerListener(main, myAddress);
+        miningServerListener.start();
         
-        new MiningServerListener(service, main).start();
+        localNetworkListener = new LocalNetworkListener(network, myAddress, listeners);
+        localNetworkListener.start();
     }
 
     /**
@@ -81,7 +81,7 @@ public class Node
      */
     public NodeAddress getMyAdress()
     {
-        return myAdress;
+        return myAddress;
     }
 
     /**
@@ -102,11 +102,12 @@ public class Node
     public void disconnect() throws Exception
     {
         // Envia uma mensagem multicast para avisar que o nó se irá desconectar
-        MessageUDP msg = new MessageUDP(MessageUDP.DISCONNECT, myAdress);
+        MessageUDP msg = new MessageUDP(MessageUDP.DISCONNECT, myAddress);
         msg.sendUDP(LocalNetworkListener.MULTICAST_IP, LocalNetworkListener.MULTICAST_PORT);
         
-        // Força a Thread de escuta da rede a parar
-        lnl.disconnect();
+        // Termina os listeners
+        localNetworkListener.disconnect();
+        miningServerListener.disconnect();
     }
 
     public void linkTo(String host, int port) throws Exception

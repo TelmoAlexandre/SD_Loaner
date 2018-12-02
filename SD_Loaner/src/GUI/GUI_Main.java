@@ -29,6 +29,8 @@ import java.security.PrivateKey;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -57,6 +59,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
      */
     public GUI_Main()
     {
+
         initComponents();
 
         // Centra a janela
@@ -64,6 +67,26 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         windowWasCancelled = false;
 
         jtaLedger.setEditable(false);
+        jtaBlockReader.setEditable(false);
+        jtaDisplayReceivedBlock.setEditable(false);
+        jtbConnect.setSelected(true);
+
+        try
+        {
+            // Connectar à rede
+            // Cria um nodo e inicia o servidor
+            myNode = new Node();
+            myNode.startServer(this);
+
+            //colocar a interface a escutar o nó
+            myNode.addNodeListener(this);
+
+            blockChain = new BlockChain(myNode);
+        }
+        catch ( Exception ex )
+        {
+            Logger.getLogger(GUI_Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -76,8 +99,8 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private void initComponents()
     {
 
-        jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel6 = new javax.swing.JPanel();
+        jtpWindow = new javax.swing.JTabbedPane();
+        jpBlockChain = new javax.swing.JPanel();
         jbExit = new javax.swing.JButton();
         jlFeedback = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -99,17 +122,12 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jPanel7 = new javax.swing.JPanel();
         jbGenerateRSAKeys = new javax.swing.JButton();
         jbCreateNewAccount = new javax.swing.JButton();
-        jPanel8 = new javax.swing.JPanel();
+        jpNetwork = new javax.swing.JPanel();
         pnNode = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
-        btStart = new javax.swing.JButton();
-        jcbPort = new javax.swing.JComboBox<>();
-        jLabel4 = new javax.swing.JLabel();
-        jcbPortService = new javax.swing.JComboBox<>();
+        jtbConnect = new javax.swing.JToggleButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        txtLog = new javax.swing.JTextPane();
+        jtpLog = new javax.swing.JTextPane();
         jlFeedbackNetwork = new javax.swing.JLabel();
-        Mine = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         jtaBlockReader = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
@@ -382,15 +400,15 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
+        javax.swing.GroupLayout jpBlockChainLayout = new javax.swing.GroupLayout(jpBlockChain);
+        jpBlockChain.setLayout(jpBlockChainLayout);
+        jpBlockChainLayout.setHorizontalGroup(
+            jpBlockChainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpBlockChainLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jpBlockChainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jlFeedback, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(jpBlockChainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(jbExit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -398,13 +416,13 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
+        jpBlockChainLayout.setVerticalGroup(
+            jpBlockChainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpBlockChainLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jpBlockChainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane1)
-                    .addGroup(jPanel6Layout.createSequentialGroup()
+                    .addGroup(jpBlockChainLayout.createSequentialGroup()
                         .addComponent(jlFeedback, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -415,40 +433,16 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("BlockChain", jPanel6);
+        jtpWindow.addTab("BlockChain", jpBlockChain);
 
         pnNode.setBorder(javax.swing.BorderFactory.createTitledBorder("Node"));
 
-        jLabel3.setText("Port");
-
-        btStart.setText("Start");
-        btStart.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btStart.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btStart.addActionListener(new java.awt.event.ActionListener()
+        jtbConnect.setText("Connect");
+        jtbConnect.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                btStartActionPerformed(evt);
-            }
-        });
-
-        jcbPort.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "10010", "10012", "10014", "10016", "10018", "10020", "10022", " " }));
-        jcbPort.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jcbPortActionPerformed(evt);
-            }
-        });
-
-        jLabel4.setText("Service");
-
-        jcbPortService.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "10011", "10013", "10015", "10017", "10019", "10021", "10023" }));
-        jcbPortService.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jcbPortServiceActionPerformed(evt);
+                jtbConnectActionPerformed(evt);
             }
         });
 
@@ -458,50 +452,23 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             pnNodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnNodeLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(pnNodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(pnNodeLayout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jcbPort, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(pnNodeLayout.createSequentialGroup()
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jcbPortService, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btStart, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE))
+                .addComponent(jtbConnect, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         pnNodeLayout.setVerticalGroup(
             pnNodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnNodeLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(pnNodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jcbPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pnNodeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jcbPortService, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnNodeLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(btStart, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jtbConnect, javax.swing.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
-        txtLog.setBorder(javax.swing.BorderFactory.createTitledBorder("Network Log"));
-        txtLog.setFont(new java.awt.Font("Courier New", 1, 12)); // NOI18N
-        txtLog.setPreferredSize(new java.awt.Dimension(400, 43));
-        jScrollPane2.setViewportView(txtLog);
+        jtpLog.setBorder(javax.swing.BorderFactory.createTitledBorder("Network Log"));
+        jtpLog.setFont(new java.awt.Font("Courier New", 1, 12)); // NOI18N
+        jtpLog.setPreferredSize(new java.awt.Dimension(400, 43));
+        jScrollPane2.setViewportView(jtpLog);
 
         jlFeedbackNetwork.setText("All is good.");
-
-        Mine.setText("Mine");
-        Mine.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                MineActionPerformed(evt);
-            }
-        });
 
         jtaBlockReader.setColumns(20);
         jtaBlockReader.setRows(5);
@@ -515,17 +482,16 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jtaDisplayReceivedBlock.setRows(5);
         jScrollPane4.setViewportView(jtaDisplayReceivedBlock);
 
-        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
-        jPanel8.setLayout(jPanel8Layout);
-        jPanel8Layout.setHorizontalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
+        javax.swing.GroupLayout jpNetworkLayout = new javax.swing.GroupLayout(jpNetwork);
+        jpNetwork.setLayout(jpNetworkLayout);
+        jpNetworkLayout.setHorizontalGroup(
+            jpNetworkLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpNetworkLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jpNetworkLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(pnNode, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jlFeedbackNetwork)
-                    .addComponent(Mine)
-                    .addComponent(jScrollPane3)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
                     .addComponent(jScrollPane4))
@@ -533,18 +499,16 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
                 .addContainerGap())
         );
-        jPanel8Layout.setVerticalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel8Layout.createSequentialGroup()
+        jpNetworkLayout.setVerticalGroup(
+            jpNetworkLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpNetworkLayout.createSequentialGroup()
+                .addGroup(jpNetworkLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jpNetworkLayout.createSequentialGroup()
                         .addGap(9, 9, 9)
                         .addComponent(pnNode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jlFeedbackNetwork)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Mine)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 107, Short.MAX_VALUE)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -552,13 +516,15 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel8Layout.createSequentialGroup()
+                    .addGroup(jpNetworkLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jScrollPane2)))
                 .addContainerGap())
         );
 
-        jTabbedPane1.addTab("Network", jPanel8);
+        jtpWindow.addTab("Network", jpNetwork);
+
+        jtpWindow.setSelectedIndex(1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -566,18 +532,18 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1)
+                .addComponent(jtpWindow)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1)
+                .addComponent(jtpWindow)
                 .addContainerGap())
         );
 
-        jTabbedPane1.getAccessibleContext().setAccessibleName("BlockChain");
+        jtpWindow.getAccessibleContext().setAccessibleName("BlockChain");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -803,56 +769,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jtaLedger.setText(blockChain.toString());
     }//GEN-LAST:event_jbPrintBlockChainActionPerformed
 
-    private void MineActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_MineActionPerformed
-    {//GEN-HEADEREND:event_MineActionPerformed
-        try
-        {
-            Block block = new Block(null, new AccountInformation("Telmo", null, "2"));
-
-            myNode.mineBlock(block);
-        }
-        catch ( Exception ex )
-        {
-            giveAlertFeedback(jlFeedbackNetwork, ex.getMessage());
-        }
-    }//GEN-LAST:event_MineActionPerformed
-
-    private void jcbPortActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jcbPortActionPerformed
-    {//GEN-HEADEREND:event_jcbPortActionPerformed
-        jcbPortService.setSelectedIndex(jcbPort.getSelectedIndex());
-    }//GEN-LAST:event_jcbPortActionPerformed
-
-    private void jcbPortServiceActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jcbPortServiceActionPerformed
-    {//GEN-HEADEREND:event_jcbPortServiceActionPerformed
-        jcbPort.setSelectedIndex(jcbPortService.getSelectedIndex());
-    }//GEN-LAST:event_jcbPortServiceActionPerformed
-
-    private void btStartActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btStartActionPerformed
-    {//GEN-HEADEREND:event_btStartActionPerformed
-        try
-        {
-            // Recolhe o porto e o serviço a serem utilizados
-            int port = Integer.valueOf(jcbPort.getSelectedItem().toString());
-            int service = Integer.valueOf(jcbPortService.getSelectedItem().toString());
-
-            // Cria um nodo e inicia o servidor
-            myNode = new Node();
-            myNode.startServer(port, service, this);
-
-            //colocar a interface a escutar o nó
-            myNode.addNodeListener(this);
-
-            blockChain = new BlockChain(myNode);
-        }
-        catch ( Exception ex )
-        {
-            giveAlertFeedback(
-                    jlFeedbackNetwork,
-                    ex.getMessage()
-            );
-        }
-    }//GEN-LAST:event_btStartActionPerformed
-
     private void formWindowClosing(java.awt.event.WindowEvent evt)//GEN-FIRST:event_formWindowClosing
     {//GEN-HEADEREND:event_formWindowClosing
         try
@@ -864,6 +780,36 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             giveAlertFeedback(null, ex.getMessage());
         }
     }//GEN-LAST:event_formWindowClosing
+
+    private void jtbConnectActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jtbConnectActionPerformed
+    {//GEN-HEADEREND:event_jtbConnectActionPerformed
+        try
+        {
+            if ( myNode == null )
+            {
+                // Cria um nodo e inicia o servidor
+                myNode = new Node();
+                myNode.startServer(this);
+
+                //colocar a interface a escutar o nó
+                myNode.addNodeListener(this);
+
+                blockChain = new BlockChain(myNode);
+            }
+            else
+            {
+                myNode.disconnect();
+                myNode = null;
+            }
+        }
+        catch ( Exception ex )
+        {
+            giveAlertFeedback(
+                    jlFeedbackNetwork,
+                    ex.getMessage()
+            );
+        }
+    }//GEN-LAST:event_jtbConnectActionPerformed
 
     /**
      * @param args the command line arguments
@@ -930,25 +876,18 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton Mine;
-    private javax.swing.JButton btStart;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
-    private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JButton jbCheckClientAccounts;
     private javax.swing.JButton jbCheckLoan;
     private javax.swing.JButton jbCheckLoans;
@@ -961,15 +900,17 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private javax.swing.JButton jbPrintBlockChain;
     private javax.swing.JButton jbRequestLoan;
     private javax.swing.JButton jbWithdrawal;
-    private javax.swing.JComboBox<String> jcbPort;
-    private javax.swing.JComboBox<String> jcbPortService;
     private javax.swing.JLabel jlFeedback;
     private javax.swing.JLabel jlFeedbackNetwork;
+    private javax.swing.JPanel jpBlockChain;
+    private javax.swing.JPanel jpNetwork;
     private javax.swing.JTextArea jtaBlockReader;
     private javax.swing.JTextArea jtaDisplayReceivedBlock;
     private javax.swing.JTextArea jtaLedger;
+    private javax.swing.JToggleButton jtbConnect;
+    private javax.swing.JTextPane jtpLog;
+    private javax.swing.JTabbedPane jtpWindow;
     private javax.swing.JPanel pnNode;
-    private javax.swing.JTextPane txtLog;
     // End of variables declaration//GEN-END:variables
 
     public void addMinedBlockToBlockChain(Block block)
@@ -1327,13 +1268,13 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                 AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, color);
                 // aset = sc.addAttribute(aset, StyleConstants.Background, Color.BLACK);
                 aset = sc.addAttribute(aset, StyleConstants.Bold, true);
-                txtLog.setCaretPosition(0);
-                txtLog.setCharacterAttributes(aset, false);
-                txtLog.replaceSelection(" " + msg);
-                txtLog.setCaretPosition(0);
+                jtpLog.setCaretPosition(0);
+                jtpLog.setCharacterAttributes(aset, false);
+                jtpLog.replaceSelection(" " + msg);
+                jtpLog.setCaretPosition(0);
                 aset = sc.addAttribute(aset, StyleConstants.Foreground, Color.BLACK);
-                txtLog.setCharacterAttributes(aset, false);
-                txtLog.replaceSelection("\n" + (new SimpleDateFormat("HH:mm:ss")).format(new Date()));
+                jtpLog.setCharacterAttributes(aset, false);
+                jtpLog.replaceSelection("\n" + (new SimpleDateFormat("HH:mm:ss")).format(new Date()));
             }
         });
 

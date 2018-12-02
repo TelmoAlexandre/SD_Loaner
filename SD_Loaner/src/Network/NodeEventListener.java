@@ -15,7 +15,6 @@
 //////////////////////////////////////////////////////////////////////////////
 package Network;
 
-import java.awt.Color;
 import java.util.EventListener;
 import java.util.List;
 

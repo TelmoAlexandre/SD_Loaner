@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Network.Servers;
+package Network.ServersListeners;
 
 import Network.Message.MessageUDP;
 import Network.NodeAddress;
@@ -41,12 +41,12 @@ public class LocalNetworkListener extends Thread
     {
         this.listeners = listeners;
         this.myAdress = myAddress;
+        this.myAdress.setUDP_Port(MULTICAST_PORT);
         this.links = links;
 
         listener = new MulticastSocket(MULTICAST_PORT);
         listener.joinGroup(InetAddress.getByName(MULTICAST_IP));
-
-        //::::::::::::::::::: T O   P R O G R A M M I N G:::::::::::::::::::::::: 
+        
         // enviar uma mensagem para o grupo a pedir conexão
         MessageUDP msg = new MessageUDP(MessageUDP.CONNECT, myAdress);
         msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
@@ -69,7 +69,7 @@ public class LocalNetworkListener extends Thread
         MessageUDP msg = new MessageUDP("OK", myAdress);
         msg.sendUDP(
                 myAdress.getIP(),
-                myAdress.getUDP_Port()
+                MULTICAST_PORT
         );
     }
 

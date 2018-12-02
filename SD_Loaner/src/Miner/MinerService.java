@@ -9,6 +9,7 @@ import BlockChain.Block;
 import GUI.GUI_Main;
 import Network.SocketManager;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.SwingWorker;
 
 /**
@@ -24,7 +25,7 @@ public class MinerService extends SwingWorker<String, Integer>
 
     // Necessário para minar 
     public Block block;
-    private final int difficulty = 5;
+    private final int difficulty = 4;
     private String nonce;
     private String hashCode;
 
@@ -42,6 +43,7 @@ public class MinerService extends SwingWorker<String, Integer>
     protected String doInBackground() throws Exception
     {
         AtomicBoolean isSolved = new AtomicBoolean(false);
+        AtomicInteger atomicNonce = new AtomicInteger(0);
 
         int processors = Runtime.getRuntime().availableProcessors();
 
@@ -59,6 +61,7 @@ public class MinerService extends SwingWorker<String, Integer>
                     toMine,
                     difficulty,
                     isSolved,
+                    atomicNonce,
                     socketManager
             );
 
