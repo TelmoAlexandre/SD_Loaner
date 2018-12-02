@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Miner;
+package Network.Miner;
 
 import Network.SocketManager;
 import java.security.MessageDigest;
@@ -23,7 +23,7 @@ public class MinerThread extends Thread
     private final String toMine;
     private final int difficulty;
     
-    private AtomicBoolean isSolved;
+    private AtomicBoolean miningDone;
     private AtomicInteger atomicNonce;
     
     private String solution;
@@ -32,11 +32,11 @@ public class MinerThread extends Thread
 
     SocketManager socketManager;
 
-    public MinerThread(String toMine, int difficulty, AtomicBoolean isSolved, AtomicInteger atomicNonce, SocketManager socketManager)
+    public MinerThread(String toMine, int difficulty, AtomicBoolean miningDone, AtomicInteger atomicNonce, SocketManager socketManager)
     {
         this.toMine = toMine;
         this.difficulty = difficulty;
-        this.isSolved = isSolved;
+        this.miningDone = miningDone;
         this.atomicNonce = atomicNonce;
         this.socketManager = socketManager;
     }
@@ -99,7 +99,7 @@ public class MinerThread extends Thread
         Arrays.fill(difficultyChars, '0');
         String test = new String(difficultyChars);
 
-        while (!isSolved.get() && socketManager.isConnected())
+        while (!miningDone.get())
         {
             StringBuilder nonce = new StringBuilder();
 
@@ -117,7 +117,7 @@ public class MinerThread extends Thread
             {
                 this.solution = nonce.toString();
                 this.calculatedHash = hash;
-                isSolved.set(true);
+                miningDone.set(true);
                 solvedByMe = true;
             }
         }

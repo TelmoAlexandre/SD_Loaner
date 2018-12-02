@@ -29,8 +29,6 @@ import java.security.PrivateKey;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -49,6 +47,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 {
 
     public BlockChain blockChain;
+    private GUI_Login guiLogin;
     public Key publicKey;
     public String passwordHash;
     public boolean windowWasCancelled;
@@ -59,8 +58,16 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
      */
     public GUI_Main()
     {
-
         initComponents();
+    }
+
+    public GUI_Main(BlockChain blockChain, GUI_Login guiLogin, Node myNode)
+    {
+        initComponents();
+
+        this.blockChain = blockChain;
+        this.guiLogin = guiLogin;
+        this.myNode = myNode;
 
         // Centra a janela
         this.setLocationRelativeTo(null);
@@ -70,23 +77,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jtaBlockReader.setEditable(false);
         jtaDisplayReceivedBlock.setEditable(false);
         jtbConnect.setSelected(true);
-
-        try
-        {
-            // Connectar à rede
-            // Cria um nodo e inicia o servidor
-            myNode = new Node();
-            myNode.startServer(this);
-
-            //colocar a interface a escutar o nó
-            myNode.addNodeListener(this);
-
-            blockChain = new BlockChain(myNode);
-        }
-        catch ( Exception ex )
-        {
-            Logger.getLogger(GUI_Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     /**
@@ -101,7 +91,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
         jtpWindow = new javax.swing.JTabbedPane();
         jpBlockChain = new javax.swing.JPanel();
-        jbExit = new javax.swing.JButton();
+        jbLogOff = new javax.swing.JButton();
         jlFeedback = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jtaLedger = new javax.swing.JTextArea();
@@ -119,9 +109,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jbRequestLoan = new javax.swing.JButton();
         jbLoanPayment = new javax.swing.JButton();
         jbCheckLoan = new javax.swing.JButton();
-        jPanel7 = new javax.swing.JPanel();
-        jbGenerateRSAKeys = new javax.swing.JButton();
-        jbCreateNewAccount = new javax.swing.JButton();
+        jbExit1 = new javax.swing.JButton();
         jpNetwork = new javax.swing.JPanel();
         pnNode = new javax.swing.JPanel();
         jtbConnect = new javax.swing.JToggleButton();
@@ -144,12 +132,12 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             }
         });
 
-        jbExit.setText("Exit");
-        jbExit.addActionListener(new java.awt.event.ActionListener()
+        jbLogOff.setText("Log Off");
+        jbLogOff.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                jbExitActionPerformed(evt);
+                jbLogOffActionPerformed(evt);
             }
         });
 
@@ -322,7 +310,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jbRequestLoan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jbRequestLoan, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
                     .addComponent(jbLoanPayment, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jbCheckLoan, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
@@ -338,67 +326,33 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("New Account"));
-
-        jbGenerateRSAKeys.setText("Generate RSA Keys");
-        jbGenerateRSAKeys.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jbGenerateRSAKeysActionPerformed(evt);
-            }
-        });
-
-        jbCreateNewAccount.setText("Create a new account");
-        jbCreateNewAccount.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                jbCreateNewAccountActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
-        jPanel7.setLayout(jPanel7Layout);
-        jPanel7Layout.setHorizontalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jbGenerateRSAKeys, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jbCreateNewAccount, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-        );
-        jPanel7Layout.setVerticalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jbGenerateRSAKeys, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jbCreateNewAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        jbExit1.setText("Exit");
+        jbExit1.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbExit1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jpBlockChainLayout = new javax.swing.GroupLayout(jpBlockChain);
         jpBlockChain.setLayout(jpBlockChainLayout);
@@ -408,10 +362,15 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                 .addContainerGap()
                 .addGroup(jpBlockChainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jlFeedback, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jpBlockChainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jbExit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jpBlockChainLayout.createSequentialGroup()
+                        .addGroup(jpBlockChainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpBlockChainLayout.createSequentialGroup()
+                                .addComponent(jbLogOff, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jbExit1, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -428,8 +387,10 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jbExit, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jpBlockChainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jbLogOff, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jbExit1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -546,78 +507,15 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jbExitActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbExitActionPerformed
-    {//GEN-HEADEREND:event_jbExitActionPerformed
-        disconnectNode();
-        System.exit(0);
-    }//GEN-LAST:event_jbExitActionPerformed
-
-    private void jbGenerateRSAKeysActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbGenerateRSAKeysActionPerformed
-    {//GEN-HEADEREND:event_jbGenerateRSAKeysActionPerformed
-        KeyPair keys;
-
-        try
-        {
-            // Gera um par de chaves
-            keys = SecurityUtils.generateKeyPair(1024);
-
-            // Mostra uma janela ao utilizador a informar sobre os seguintes procedimentos.
-            JOptionPane.showMessageDialog(
-                    null,
-                    "Two keys were generated for you.\n\nFirst save the public key.\nThen save the private key."
-            );
-
-            // Configurações JFileChooser
-            JFileChooser file = new JFileChooser();
-            // Pasta onde guardar. Neste caso é a pasta de origem do projeto
-            file.setCurrentDirectory(new File("."));
-            // Nome recomendado do ficheiro
-            file.setSelectedFile(new File("public_key"));
-            // Nome da janela de permite escolher a localização onde o ficheiro será guardado
-            file.setDialogTitle("Save the public key");
-
-            // Pede uma localização para guardar a chave pública. Guarda a opção escolhida pelo utilizador na variável i
-            int i = file.showSaveDialog(null);
-
-            if ( i == JFileChooser.APPROVE_OPTION )
-            {
-
-                // Caso seja clicado no butao save da janela, guardar a chave publica na localização escolhida
-                SecurityUtils.saveKey(keys.getPublic(), file.getSelectedFile().getAbsolutePath());
-
-                // Se a chave publica for guardada, então pede para guardar a privada
-                // Nome recomendado do ficheiro
-                file.setSelectedFile(new File("private_key"));
-                // Nome da janela de permite escolher a localização onde o ficheiro será guardado
-                file.setDialogTitle("Save the private key");
-
-                i = file.showSaveDialog(null);
-
-                if ( i == JFileChooser.APPROVE_OPTION )
-                {
-                    // Caso seja clicado no butao save da janela, guardar a chave privada na localização escolhida
-                    SecurityUtils.saveKey(
-                            keys.getPrivate(),
-                            file.getSelectedFile().getAbsolutePath()
-                    );
-                }
-            }
-
-        }
-        catch ( Exception e )
-        {
-            giveAlertFeedback(
-                    jlFeedback,
-                    e.getMessage()
-            );
-        }
-
-    }//GEN-LAST:event_jbGenerateRSAKeysActionPerformed
-
-    private void jbCreateNewAccountActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCreateNewAccountActionPerformed
-    {//GEN-HEADEREND:event_jbCreateNewAccountActionPerformed
-        createNewClientAccount();
-    }//GEN-LAST:event_jbCreateNewAccountActionPerformed
+    private void jbLogOffActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbLogOffActionPerformed
+    {//GEN-HEADEREND:event_jbLogOffActionPerformed
+        // Limpa as informações do cliente
+        clearClientData();
+        
+        // Mostra o GUI login
+        this.setVisible(false);
+        guiLogin.setVisible(true);
+    }//GEN-LAST:event_jbLogOffActionPerformed
 
     private void jbDepositActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbDepositActionPerformed
     {//GEN-HEADEREND:event_jbDepositActionPerformed
@@ -759,7 +657,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbLoanPaymentActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbLoanPaymentActionPerformed
     {//GEN-HEADEREND:event_jbLoanPaymentActionPerformed
-        callMovmentWindow("Loan Payment");
+        callMovmentWindow(AccountMovment.LOANPAYMENT);
     }//GEN-LAST:event_jbLoanPaymentActionPerformed
 
     private void jbPrintBlockChainActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbPrintBlockChainActionPerformed
@@ -780,7 +678,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             {
                 // Cria um nodo e inicia o servidor
                 myNode = new Node();
-                myNode.startServer(this);
+                myNode.startServer(this, guiLogin);
 
                 //colocar a interface a escutar o nó
                 myNode.addNodeListener(this);
@@ -801,6 +699,12 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             );
         }
     }//GEN-LAST:event_jtbConnectActionPerformed
+
+    private void jbExit1ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbExit1ActionPerformed
+    {//GEN-HEADEREND:event_jbExit1ActionPerformed
+        disconnectNode();
+        System.exit(0);
+    }//GEN-LAST:event_jbExit1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -874,7 +778,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -883,11 +786,10 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private javax.swing.JButton jbCheckLoan;
     private javax.swing.JButton jbCheckLoans;
     private javax.swing.JButton jbCheckMoney;
-    private javax.swing.JButton jbCreateNewAccount;
     private javax.swing.JButton jbDeposit;
-    private javax.swing.JButton jbExit;
-    private javax.swing.JButton jbGenerateRSAKeys;
+    private javax.swing.JButton jbExit1;
     private javax.swing.JButton jbLoanPayment;
+    private javax.swing.JButton jbLogOff;
     private javax.swing.JButton jbPrintBlockChain;
     private javax.swing.JButton jbRequestLoan;
     private javax.swing.JButton jbWithdrawal;
@@ -906,8 +808,8 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     /**
      * Adiciona o bloco minado à blockChain.
-     * 
-     * @param block 
+     *
+     * @param block
      */
     public void addMinedBlockToBlockChain(Block block)
     {
@@ -921,7 +823,11 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     {
         jtaLedger.setText(blockChain.toString());
     }
-    
+
+    /**
+     * Disconecta o nodo da rede.
+     * 
+     */
     public void disconnectNode()
     {
         try
@@ -933,7 +839,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             giveAlertFeedback(null, ex.getMessage());
         }
     }
-    
+
     /**
      * Retorna o hash code do bloco do emprestimo activo
      *
@@ -1157,17 +1063,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     }
 
     /**
-     * Abre uma janela onde é possível preencher os dados de um novo cliente.
-     *
-     */
-    public void createNewClientAccount()
-    {
-        GUI_NewAccount newAccountWindow = new GUI_NewAccount();
-        newAccountWindow.loadMain(this);
-        newAccountWindow.setVisible(true);
-    }
-
-    /**
      * Fornece feedback ao utilizador.
      *
      * @param label
@@ -1228,6 +1123,16 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     }
 
     /**
+     * Define o hash da password do cliente
+     * 
+     * @param pass
+     */
+    public void setClientPasswordHash(String pass)
+    {
+        this.passwordHash = pass;
+    }
+    
+    /**
      * Define a chave pública do cliente.
      *
      * @param publicKey
@@ -1247,7 +1152,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jbWithdrawal.setEnabled(false);
         jbRequestLoan.setEnabled(false);
         jbLoanPayment.setEnabled(false);
-        jbCreateNewAccount.setEnabled(false);
     }
 
     /**
@@ -1260,7 +1164,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jbWithdrawal.setEnabled(true);
         jbRequestLoan.setEnabled(true);
         jbLoanPayment.setEnabled(true);
-        jbCreateNewAccount.setEnabled(true);
     }
 
     public void displayReceivedBlock(String txt)
@@ -1273,6 +1176,16 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jtaBlockReader.setText(txt);
     }
 
+    /**
+     * Limpa os dados de login do utilizador
+     */
+    public void clearClientData()
+    {
+        publicKey = null;
+        passwordHash = "";
+        jtaLedger.setText("");
+    }
+    
     private void printLog(String msg, Color color)
     {
         SwingUtilities.invokeLater(new Runnable()

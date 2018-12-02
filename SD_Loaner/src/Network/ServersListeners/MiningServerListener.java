@@ -7,35 +7,46 @@ package Network.ServersListeners;
 
 // import classroom.blockChain.MinerService;
 import BlockChain.Block;
+import GUI.GUI_Login;
 import GUI.GUI_Main;
-import Miner.MinerService;
+import Network.Miner.MinerService;
 import Network.Message.Message;
 import Network.NodeAddress;
 import Network.SocketManager;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 /**
- * Escuta a rede por uma ligação TCP. Assim que estabelcer a ligação, recebe um bloco.
- * <p>Caso esse bloco necessite mineração, inicia o processo de mineração por Threads.
- * <p>Caso esse bloco já esteja minado, adiciona-o à BlockChain deste nó.
- * 
+ * Escuta a rede por uma ligação TCP. Assim que estabelcer a ligação, recebe um
+ * bloco.
+ * <p>
+ * Caso esse bloco necessite mineração, inicia o processo de mineração por
+ * Threads.
+ * <p>
+ * Caso esse bloco já esteja minado, adiciona-o à BlockChain deste nó.
+ *
  * @author Telmo
  */
 public class MiningServerListener extends Thread
 {
     ServerSocket server;
     SocketManager socketManager;
-    GUI_Main main;
+    GUI_Main guiMain;
+    GUI_Login guiLogin;
 
-    public MiningServerListener(GUI_Main main, NodeAddress myAddress) throws Exception
+    // Para sinalizar as Threads de quando devem parar a mineração
+    AtomicBoolean miningDone = new AtomicBoolean(false);
+
+    public MiningServerListener(GUI_Main guiMain, GUI_Login guiLogin, NodeAddress myAddress) throws Exception
     {
-        this.main = main;
-        
+        this.guiMain = guiMain;
+        this.guiLogin = guiLogin;
+
         // Requesita um porto disponivel
         server = new ServerSocket(0);
-        
+
         // define esse porto no myAddress
         myAddress.setTCP_Port(server.getLocalPort());
     }
@@ -44,21 +55,19 @@ public class MiningServerListener extends Thread
     {
         server.close();
     }
-    
+
     @Override
     public void run()
     {
-        //::::::::::::::::::: T O   P R O G R A M M I N G:::::::::::::::::::::::: 
         // esperar  por clientes
-        //lacar o Server Service
+        // lacar o Server Service
         while ( true )
         {
             try
             {
                 socketManager = new SocketManager(
-                        
                         server.accept() // Aguarda uma ligação (Bloqueante)
-                        
+
                 );
 
                 Message msg = (Message) socketManager.readObject();
@@ -70,15 +79,22 @@ public class MiningServerListener extends Thread
                     // e vai criar Threads que o irao minar
                     // Assim que a mineração for concluida, o bloco será enviado
                     // novamente para o solicitador da mineração
-                    new MinerService(socketManager, block, main).execute();
+                    miningDone.set(false);
+                    new MinerService(socketManager, block, guiMain, guiLogin, miningDone).execute();
                 }
                 else if ( msg.getType().equals(Message.MINEDBLOCK) )
                 {
-                    main.addMinedBlockToBlockChain(block);
-                    main.writeMinedBlock(block.hashCode);
-                    main.giveNormalFeedback(null, "A new block was added to the BlockChain.");
-                    main.printBlockChain();
-                    main.enableButtons();
+                    // Sinaliza as Threads que devem de parar de minar pois já chegou um bloco minado
+                    miningDone.set(true);
+                    
+                    guiMain.addMinedBlockToBlockChain(block);
+                    guiMain.writeMinedBlock(block.hashCode);
+                    guiMain.giveNormalFeedback(null, "A new block was added to the BlockChain.");
+                    guiMain.printBlockChain();
+                    
+                    // Ativa os butoes das GUIs
+                    guiMain.enableButtons();
+                    guiLogin.enableButtons();
                 }
 
             }

@@ -81,12 +81,12 @@ public class SocketManager
     }
 
     /**
-     * Indica o estado da conecção.
+     * Indica se o socket se encontra fechado.
      *
      * @return Se existe conecção.
      */
-    public boolean isConnected()
+    public boolean isClosed()
     {
-        return socket.isConnected();
+        return socket.isClosed();
     }
 }

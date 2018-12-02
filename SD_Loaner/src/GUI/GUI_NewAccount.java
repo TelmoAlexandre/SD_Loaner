@@ -12,7 +12,9 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.security.Key;
+import java.security.KeyPair;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -20,9 +22,9 @@ import javax.swing.JFileChooser;
  */
 public class GUI_NewAccount extends javax.swing.JFrame
 {
-    private GUI_Main main;
     private BlockChain blockChain;
     private Key publicKey;
+    private GUI_Login guiLogin;
 
     /**
      * Creates new form GUI_NewAccount
@@ -30,6 +32,16 @@ public class GUI_NewAccount extends javax.swing.JFrame
     public GUI_NewAccount()
     {
         initComponents();
+
+        this.setLocationRelativeTo(null);
+    }
+
+    public GUI_NewAccount(BlockChain blockChain, GUI_Login guiLogin)
+    {
+        initComponents();
+
+        this.blockChain = blockChain;
+        this.guiLogin = guiLogin;
 
         this.setLocationRelativeTo(null);
     }
@@ -56,6 +68,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
         jSeparator1 = new javax.swing.JSeparator();
         jpfPassword = new javax.swing.JPasswordField();
         jpfPasswordConfirm = new javax.swing.JPasswordField();
+        jbGenerateRSAKeys = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -96,6 +109,15 @@ public class GUI_NewAccount extends javax.swing.JFrame
 
         jLabel5.setText("Confirm Password:");
 
+        jbGenerateRSAKeys.setText("Generate RSA Keys");
+        jbGenerateRSAKeys.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbGenerateRSAKeysActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -103,25 +125,32 @@ public class GUI_NewAccount extends javax.swing.JFrame
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jlFeedback)
-                        .addContainerGap(209, Short.MAX_VALUE))
+                    .addComponent(jSeparator1)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jtfName, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jbCancel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jbSave, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jbLoadPublicKey, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jpfPasswordConfirm, javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jpfPassword, javax.swing.GroupLayout.Alignment.LEADING))
                         .addGap(12, 12, 12))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jbCancel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jbSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jbLoadPublicKey, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, Short.MAX_VALUE)
+                        .addComponent(jbGenerateRSAKeys, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(11, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
                             .addComponent(jLabel4)
                             .addComponent(jLabel5)
-                            .addComponent(jLabel2))
+                            .addComponent(jlFeedback))
                         .addGap(0, 0, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
@@ -144,14 +173,16 @@ public class GUI_NewAccount extends javax.swing.JFrame
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
                 .addGap(7, 7, 7)
-                .addComponent(jbLoadPublicKey)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jbLoadPublicKey)
+                    .addComponent(jbGenerateRSAKeys, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jbSave, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jbCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -159,7 +190,6 @@ public class GUI_NewAccount extends javax.swing.JFrame
 
     private void jbCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCancelActionPerformed
     {//GEN-HEADEREND:event_jbCancelActionPerformed
-        main.windowWasCancelled = true;
         this.setVisible(false);
         dispose();
     }//GEN-LAST:event_jbCancelActionPerformed
@@ -179,7 +209,6 @@ public class GUI_NewAccount extends javax.swing.JFrame
                 // Por fim verifica se foi carregada uma publicKey
                 if ( publicKey != null )
                 {
-
                     try
                     {
                         // Cria as informações da conta
@@ -191,10 +220,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
 
                         // Cria e adiciona o bloco à blockChain
                         blockChain.add(info);
-                        main.giveNormalFeedback(null, "Account created with success.");
-
-                        // Esconde a janela e dá dispose()
-                        main.windowWasCancelled = false;
+                        
                         this.setVisible(false);
                         dispose();
                     }
@@ -239,17 +265,65 @@ public class GUI_NewAccount extends javax.swing.JFrame
         }
     }//GEN-LAST:event_jbLoadPublicKeyActionPerformed
 
-    /**
-     * Carrega os objectos necessário à criação de uma nova conta.
-     *
-     * @param main
-     * @param accounts
-     */
-    public void loadMain(GUI_Main main)
-    {
-        this.main = main;
-        this.blockChain = main.blockChain;
-    }
+    private void jbGenerateRSAKeysActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbGenerateRSAKeysActionPerformed
+    {//GEN-HEADEREND:event_jbGenerateRSAKeysActionPerformed
+        KeyPair keys;
+
+        try
+        {
+            // Gera um par de chaves
+            keys = SecurityUtils.generateKeyPair(1024);
+
+            // Mostra uma janela ao utilizador a informar sobre os seguintes procedimentos.
+            JOptionPane.showMessageDialog(
+                null,
+                "Two keys were generated for you.\n\nFirst save the public key.\nThen save the private key."
+            );
+
+            // Configurações JFileChooser
+            JFileChooser file = new JFileChooser();
+            // Pasta onde guardar. Neste caso é a pasta de origem do projeto
+            file.setCurrentDirectory(new File("."));
+            // Nome recomendado do ficheiro
+            file.setSelectedFile(new File("public_key"));
+            // Nome da janela de permite escolher a localização onde o ficheiro será guardado
+            file.setDialogTitle("Save the public key");
+
+            // Pede uma localização para guardar a chave pública. Guarda a opção escolhida pelo utilizador na variável i
+            int i = file.showSaveDialog(null);
+
+            if ( i == JFileChooser.APPROVE_OPTION )
+            {
+
+                // Caso seja clicado no butao save da janela, guardar a chave publica na localização escolhida
+                SecurityUtils.saveKey(keys.getPublic(), file.getSelectedFile().getAbsolutePath());
+
+                // Se a chave publica for guardada, então pede para guardar a privada
+                // Nome recomendado do ficheiro
+                file.setSelectedFile(new File("private_key"));
+                // Nome da janela de permite escolher a localização onde o ficheiro será guardado
+                file.setDialogTitle("Save the private key");
+
+                i = file.showSaveDialog(null);
+
+                if ( i == JFileChooser.APPROVE_OPTION )
+                {
+                    // Caso seja clicado no butao save da janela, guardar a chave privada na localização escolhida
+                    SecurityUtils.saveKey(
+                        keys.getPrivate(),
+                        file.getSelectedFile().getAbsolutePath()
+                    );
+                }
+            }
+
+        }
+        catch ( Exception e )
+        {
+            giveAlertFeedback(
+                e.getMessage()
+            );
+        }
+    }//GEN-LAST:event_jbGenerateRSAKeysActionPerformed
 
     /**
      * Fornece feedback ao utilizador.
@@ -329,6 +403,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
     private javax.swing.JLabel jLabel5;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton jbCancel;
+    private javax.swing.JButton jbGenerateRSAKeys;
     private javax.swing.JButton jbLoadPublicKey;
     private javax.swing.JButton jbSave;
     private javax.swing.JLabel jlFeedback;

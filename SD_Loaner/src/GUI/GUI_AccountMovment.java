@@ -184,7 +184,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         }
 
         // Verificar se o cliente tem um emprestimo activo ou se o tipo de movimento é diferente de pagamento de emprestimo
-        if ( !movType.equals("Loan Payment") || activeLoan )
+        if ( !movType.equals(AccountMovment.LOANPAYMENT) || activeLoan )
         {
 
             // Verifica se o campo password foi preenchido
@@ -200,7 +200,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                     try
                     {
                         // Se não for pagamento de emprestimo, cria um movimento de conta
-                        if ( !movType.equals("Loan Payment") )
+                        if ( !movType.equals(AccountMovment.LOANPAYMENT) )
                         {
                             performAccountMovment(
                                     movType, // Informa o tipo de movimento ( 'Deposit' ou 'Withdawal' )

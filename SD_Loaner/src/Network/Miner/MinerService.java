@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Miner;
+package Network.Miner;
 
 import BlockChain.Block;
+import GUI.GUI_Login;
 import GUI.GUI_Main;
 import Network.SocketManager;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,31 +19,36 @@ import javax.swing.SwingWorker;
  */
 public class MinerService extends SwingWorker<String, Integer>
 {
-    GUI_Main main;
+    GUI_Main guiMain;
+    GUI_Login guiLogin;
 
     // Ligação ao clioente
     SocketManager socketManager;
+    
+    AtomicBoolean miningDone;
 
     // Necessário para minar 
     public Block block;
     private final int difficulty = 4;
-    private String nonce;
-    private String hashCode;
 
-    public MinerService(SocketManager socketManager, Block block, GUI_Main main) throws Exception
+    public MinerService(SocketManager socketManager, Block block, GUI_Main guiMain, GUI_Login guiLogin, AtomicBoolean miningDone) throws Exception
     {
+        // Recebe os parametros
         this.socketManager = socketManager;
         this.block = block;
-        this.main = main;
+        this.guiMain = guiMain;
+        this.guiLogin = guiLogin;
+        this.miningDone = miningDone;
 
-        this.main.disableButtons();
-        this.main.displayReceivedBlock(block.toString());
+        // Prepara as GUIs para a mineração
+        this.guiLogin.disableButtons();
+        this.guiMain.disableButtons();        
+        this.guiMain.displayReceivedBlock(block.toString());
     }
 
     @Override
     protected String doInBackground() throws Exception
     {
-        AtomicBoolean isSolved = new AtomicBoolean(false);
         AtomicInteger atomicNonce = new AtomicInteger(0);
 
         int processors = Runtime.getRuntime().availableProcessors();
@@ -60,7 +66,7 @@ public class MinerService extends SwingWorker<String, Integer>
             threads[i] = new MinerThread(
                     toMine,
                     difficulty,
-                    isSolved,
+                    miningDone,
                     atomicNonce,
                     socketManager
             );
@@ -74,21 +80,18 @@ public class MinerService extends SwingWorker<String, Integer>
 
             if ( thread.isSolvedByMe() )
             {
-                nonce = thread.getSolution();
-                hashCode = thread.getHash();
-            }
+                // Junta a informação que foi minada
+                block.setHashCode(thread.getHash());
+                block.setNonce(thread.getSolution());
 
+                // Envia o bloco para o nodo que pediu a mineração
+                socketManager.sendObject(block);
+            }
         }
 
-        // Junta a informação que foi minada
-        block.setHashCode(hashCode);
-        block.setNonce(nonce);
+        guiMain.enableButtons();
+        guiLogin.enableButtons();
 
-        // Envia o bloco para o nodo que pediu a mineração
-        socketManager.sendObject(block);
-
-        main.enableButtons();
-        
         return "";
     }
 }

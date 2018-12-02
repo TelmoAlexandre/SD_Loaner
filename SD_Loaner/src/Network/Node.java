@@ -16,6 +16,7 @@
 package Network;
 
 import BlockChain.Block;
+import GUI.GUI_Login;
 import Network.Message.MessageUDP;
 import Network.MiningNetwork.MiningNetwork;
 import Network.ServersListeners.LocalNetworkListener;
@@ -44,10 +45,10 @@ public class Node
     /**
      * Avisa a rede da sua entrada na mesma. Inicia o servidor de escuta de blocos a serem minados.
      * 
-     * @param main
+     * @param guiMain
      * @throws Exception 
      */
-    public void startServer(GUI.GUI_Main main) throws Exception
+    public void startServer(GUI.GUI_Main guiMain, GUI_Login guiLogin) throws Exception
     {
         network = new TreeSet<>();
         
@@ -57,7 +58,7 @@ public class Node
         );
 
         // Cria os listeners da rede e do Mineiro
-        miningServerListener = new MiningServerListener(main, myAddress);
+        miningServerListener = new MiningServerListener(guiMain, guiLogin, myAddress);
         miningServerListener.start();
         
         localNetworkListener = new LocalNetworkListener(network, myAddress, listeners);

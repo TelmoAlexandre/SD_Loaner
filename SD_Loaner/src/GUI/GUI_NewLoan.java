@@ -5,11 +5,11 @@
  */
 package GUI;
 
-import AccountManager.AccountManager;
 import AccountManager.AccountInformation;
+import AccountManager.AccountManager;
+import BankServices.Loan;
 import BlockChain.Block;
 import BlockChain.BlockChain;
-import BankServices.Loan;
 import SecureUtils.SecurityUtils;
 import java.awt.Color;
 import java.io.File;
@@ -25,7 +25,6 @@ import java.util.Base64;
 import javax.swing.JFileChooser;
 
 /**
- * Apresenta uma GUI para a criação de um novo emprestimo.
  *
  * @author Telmo
  */
@@ -39,7 +38,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
     private String clientName;
 
     /**
-     * Creates new form GUI_NewLoan
+     * Creates new form NewJFrame
      */
     public GUI_NewLoan()
     {
@@ -47,7 +46,6 @@ public class GUI_NewLoan extends javax.swing.JFrame
 
         // Centra a janela
         this.setLocationRelativeTo(null);
-
     }
 
     /**
@@ -124,7 +122,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
                             .addComponent(jLabel2)
                             .addComponent(jLabel1)
                             .addComponent(jlFeedback))
-                        .addGap(0, 72, Short.MAX_VALUE))
+                        .addGap(0, 83, Short.MAX_VALUE))
                     .addComponent(jpfPassword)
                     .addComponent(jSeparator1)
                     .addComponent(jbConfirmAndSign, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -204,7 +202,6 @@ public class GUI_NewLoan extends javax.swing.JFrame
             giveAlertFeedback("Passwords field is empty.");
         }
 
-
     }//GEN-LAST:event_jbConfirmAndSignActionPerformed
 
     private void jbCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCancelActionPerformed
@@ -230,6 +227,69 @@ public class GUI_NewLoan extends javax.swing.JFrame
             }
         }
     }//GEN-LAST:event_jbLoadPublicKeyActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[])
+    {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try
+        {
+            for ( javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels() )
+            {
+                if ( "Nimbus".equals(info.getName()) )
+                {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        }
+        catch ( ClassNotFoundException ex )
+        {
+            java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        catch ( InstantiationException ex )
+        {
+            java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        catch ( IllegalAccessException ex )
+        {
+            java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        catch ( javax.swing.UnsupportedLookAndFeelException ex )
+        {
+            java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                new GUI_NewLoan().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JButton jbCancel;
+    private javax.swing.JButton jbConfirmAndSign;
+    private javax.swing.JButton jbLoadPublicKey;
+    private javax.swing.JLabel jlFeedback;
+    private javax.swing.JPasswordField jpfPassword;
+    private javax.swing.JSpinner jsAmount;
+    // End of variables declaration//GEN-END:variables
 
     /**
      * Verifica se o cliente tem conta criada no banco.
@@ -388,7 +448,6 @@ public class GUI_NewLoan extends javax.swing.JFrame
      * Carrega os objetos necessários para completar o emprestimo.
      *
      * @param main
-     * @param blockChain
      */
     public void loadMain(GUI_Main main)
     {
@@ -407,66 +466,4 @@ public class GUI_NewLoan extends javax.swing.JFrame
         jlFeedback.setForeground(Color.red);
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    private static void main(String args[])
-    {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try
-        {
-            for ( javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels() )
-            {
-                if ( "Nimbus".equals(info.getName()) )
-                {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        }
-        catch ( ClassNotFoundException ex )
-        {
-            java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        catch ( InstantiationException ex )
-        {
-            java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        catch ( IllegalAccessException ex )
-        {
-            java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        catch ( javax.swing.UnsupportedLookAndFeelException ex )
-        {
-            java.util.logging.Logger.getLogger(GUI_NewLoan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                new GUI_NewLoan().setVisible(true);
-            }
-        });
-    }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JButton jbCancel;
-    private javax.swing.JButton jbConfirmAndSign;
-    private javax.swing.JButton jbLoadPublicKey;
-    private javax.swing.JLabel jlFeedback;
-    private javax.swing.JPasswordField jpfPassword;
-    private javax.swing.JSpinner jsAmount;
-    // End of variables declaration//GEN-END:variables
 }

@@ -17,6 +17,7 @@ public class AccountMovment extends Service
     // Flags
     public static String DEPOSIT = "DEPOSIT";
     public static String WITHDRAWAL = "WITHDRAWAL";
+    public static String LOANPAYMENT = "LOANPAYMENT";
 
     private final String type;
 

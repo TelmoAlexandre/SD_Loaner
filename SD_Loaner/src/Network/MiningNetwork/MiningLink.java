@@ -52,17 +52,6 @@ public class MiningLink extends Thread
     }
 
     /**
-     * Envia o bloco minado pela ligação TCP.
-     * 
-     * @throws IOException 
-     */
-    public void sendMinedBlock() throws IOException
-    {
-        out.writeObject(block);
-        out.flush();
-    }
-
-    /**
      * Fecha o socket TCP.
      * 
      * @throws IOException 
