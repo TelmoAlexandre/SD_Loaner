@@ -17,6 +17,7 @@ package Network;
 
 import Network.ServersListeners.LocalNetworkListener;
 import java.io.Serializable;
+import java.security.PublicKey;
 
 /**
  * Representa o endereço do nodo.
@@ -28,11 +29,13 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
     private String ip;
     private int udpPort;
     private int tcpPort;
-
-    public NodeAddress(String ip)
+    private String publicKey;
+    
+    public NodeAddress(String ip, String publicKey)
     {
         this.ip = ip;
         this.udpPort = LocalNetworkListener.MULTICAST_PORT;
+        this.publicKey = publicKey;
     }
 
     /**
@@ -119,15 +122,25 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
     }
     
     /**
-     * Define o porto TCp.
+     * Define o porto TCP.
      *
-     * @param port Porto UDP
+     * @param port Porto TCP
      */
     public void setTCP_Port(int port)
     {
         this.tcpPort = port;
     }
 
+    /**
+     * Retorna a chave publicaRSA do nodo.
+     * 
+     * @return 
+     */
+    public String getPublicKey()
+    {
+        return publicKey;
+    }
+    
     /**
      * Retorna [ip:PORT].
      *

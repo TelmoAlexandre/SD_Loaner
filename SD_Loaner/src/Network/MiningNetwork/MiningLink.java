@@ -7,10 +7,10 @@ package Network.MiningNetwork;
 
 import BlockChain.Block;
 import Network.Message.Message;
+import Network.NodeAddress;
+import Network.SocketManager;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -25,40 +25,35 @@ public class MiningLink extends Thread
     Block block;
     List<MiningLink> miningLinks = new ArrayList<>();
     boolean isSolvedByMe;
-    
-    // Network
-    Socket socket;
-    ObjectInputStream in;
-    ObjectOutputStream out;
-    
-    public MiningLink(String ip, int port, Block block, List<MiningLink> miningLinks) throws Exception
+
+    SocketManager socketMng;
+
+    public MiningLink(NodeAddress nodeAddress, Block block, List<MiningLink> miningLinks) throws Exception
     {
-        // Cria o socket
-        socket = new Socket(ip, port);
-
-        // client OUT-IN
-        this.out = new ObjectOutputStream(socket.getOutputStream());
-        this.in = new ObjectInputStream(socket.getInputStream());
-
-        // Recolhe os restantes parâmetros
+        // Recolhe os parâmetros
         this.block = block;
         this.miningLinks = miningLinks;
 
+        // Cria o socket
+        socketMng = new SocketManager(nodeAddress.getIP(), nodeAddress.getTCP_Port(), SocketManager.SENDER);
+
+        // Constroi mensagem que contem o bloco com informação de que este é para ser minado
         Message msg = new Message(Message.TOMINE, block);
-        
-        // Enviar o bloco a ser minado
-        out.writeObject(msg);
-        out.flush();
+
+        PublicKey publicKey = (PublicKey) SecureUtils.SecurityUtils.getPublicKey(nodeAddress.getPublicKey());
+
+        // Cria uma chave de sessão e envia-a encriptada com a chave publica RSA do destino
+        socketMng.sendObject(msg);
     }
 
     /**
      * Fecha o socket TCP.
-     * 
-     * @throws IOException 
+     *
+     * @throws IOException
      */
     public void close() throws IOException
     {
-        socket.close();
+        socketMng.close();
     }
 
     @Override
@@ -67,17 +62,18 @@ public class MiningLink extends Thread
         try
         {
             //Ler o bloco do servidor
-            block = (Block) in.readObject();
+            block = (Block) socketMng.readObject();
 
             isSolvedByMe = true;
-            
+
             // Enviar o bloco minado e fechar a ligação com os restantes nodos
-            for (MiningLink link : miningLinks)
+            for ( MiningLink link : miningLinks )
             {
                 link.close();
             }
-            
-        } catch (IOException | ClassNotFoundException ex)
+
+        }
+        catch ( Exception ex )
         {
             Logger.getLogger("Mining has finished");
         }
@@ -88,7 +84,7 @@ public class MiningLink extends Thread
     {
         return isSolvedByMe;
     }
-    
+
     public Block getBlock()
     {
         return this.block;

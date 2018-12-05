@@ -47,7 +47,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private GUI_Login guiLogin;
     public Key publicKey;
     public String passwordHash;
-    Node myNode;
+    Node node;
 
     /**
      * Creates new form GUI
@@ -63,7 +63,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         
         this.blockChain = blockChain;
         this.guiLogin = guiLogin;
-        this.myNode = myNode;
+        this.node = myNode;
 
         // Centra a janela
         this.setLocationRelativeTo(null);
@@ -625,19 +625,19 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     {//GEN-HEADEREND:event_jtbConnectActionPerformed
         try
         {
-            if ( myNode == null )
+            if ( node == null )
             {
                 // Cria um nodo e inicia o servidor
-                myNode = new Node();
-                myNode.startServer(this, guiLogin);
+                node = new Node();
+                node.startServer(this, guiLogin);
 
                 //colocar a interface a escutar o nó
-                myNode.addNodeListener(this);
+                node.addNodeListener(this);
             }
             else
             {
-                myNode.disconnect();
-                myNode = null;
+                node.disconnect();
+                node = null;
             }
         }
         catch ( Exception ex )
@@ -781,7 +781,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     {
         try
         {
-            myNode.disconnect();
+            node.disconnect();
         }
         catch ( Exception ex )
         {
@@ -1166,5 +1166,15 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     public void onDisconnectLink(Object obj)
     {
         printLog(obj.toString() + " -> DISCONNECTED", Color.red);
+    }
+
+    /**
+     * Retorna o nodo.
+     * 
+     * @return 
+     */
+    public Node getNode()
+    {
+        return node;
     }
 }

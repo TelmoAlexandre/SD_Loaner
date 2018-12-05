@@ -6,6 +6,7 @@
 package Network.ServersListeners;
 
 // import classroom.blockChain.MinerService;
+import AccountManager.AccountInformation;
 import BlockChain.Block;
 import GUI.GUI_Login;
 import GUI.GUI_Main;
@@ -66,13 +67,13 @@ public class MiningServerListener extends Thread
             try
             {
                 socketManager = new SocketManager(
-                        server.accept() // Aguarda uma ligação (Bloqueante)
-
+                        server.accept(), // Aguarda uma ligação (Bloqueante)
+                        SocketManager.RECEIVER
                 );
-
+                
                 Message msg = (Message) socketManager.readObject();
                 Block block = (Block) msg.getContent();
-
+                
                 if ( msg.getType().equals(Message.TOMINE) )
                 {
                     // MinerSerive vai receber o bloco a ser minerado

@@ -22,7 +22,12 @@ import Network.MiningNetwork.MiningNetwork;
 import Network.ServersListeners.LocalNetworkListener;
 import Network.ServersListeners.MiningServerListener;
 import java.net.InetAddress;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -37,6 +42,8 @@ public class Node
     NodeAddress myAddress;
     TreeSet<NodeAddress> network = new TreeSet<>();
     List<NodeEventListener> listeners = new ArrayList<>();
+    PublicKey publicKeyRSA;
+    PrivateKey privateKeyRSA;
     
     // Server Listeners
     LocalNetworkListener localNetworkListener;
@@ -52,9 +59,18 @@ public class Node
     {
         network = new TreeSet<>();
         
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        //tamanho da chave
+        keyGen.initialize(1024);
+        
+        KeyPair keysRSA = keyGen.generateKeyPair();
+        this.privateKeyRSA = keysRSA.getPrivate();
+        this.publicKeyRSA = keysRSA.getPublic();
+        
         // Cria um endereço para o nodo
         this.myAddress = new NodeAddress(
-                InetAddress.getLocalHost().getHostAddress()
+                InetAddress.getLocalHost().getHostAddress(),
+                getPublicKeyBase64()
         );
 
         // Cria os listeners da rede e do Mineiro
@@ -133,4 +149,47 @@ public class Node
         miningNetwork.mine(block);
     }
 
+    /**
+     * Retorna chave RSA publica.
+     * 
+     * @return 
+     */
+    public PublicKey getPublicKey()
+    {
+        return publicKeyRSA;
+    }
+
+    /**
+     * Retorna chave RSA privada.
+     * 
+     * @return 
+     */
+    public PrivateKey getPrivateKey()
+    {
+        return privateKeyRSA;
+    }
+    
+    /**
+     * Retorna a chave publica em Base64.
+     * 
+     * @return 
+     */
+    public String getPublicKeyBase64()
+    {
+        byte[] encodedKey = publicKeyRSA.getEncoded();
+        
+        return Base64.getEncoder().encodeToString(encodedKey);
+    }
+    
+    /**
+     * Retorna a chave publica em Base64.
+     * 
+     * @return 
+     */
+    public String getPrivateKeyBase64()
+    {
+        byte[] encodedKey = privateKeyRSA.getEncoded();
+        
+        return Base64.getEncoder().encodeToString(encodedKey);
+    }
 }

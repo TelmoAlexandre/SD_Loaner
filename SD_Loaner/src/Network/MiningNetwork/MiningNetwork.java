@@ -41,8 +41,7 @@ public class MiningNetwork
         for ( int i = 0; i < threads.length; i++ )
         {
             threads[i] = new MiningLink(
-                    network.get(i).getIP(),
-                    network.get(i).getTCP_Port(),
+                    network.get(i),
                     block,
                     miningLinks
             );
@@ -75,7 +74,8 @@ public class MiningNetwork
             // Cria a conecção
             SocketManager socketManager = new SocketManager(
                     address.getIP(), 
-                    address.getTCP_Port()
+                    address.getTCP_Port(),
+                    SocketManager.SENDER                    
             );
             
             // Envia o bloco minado e fecha a conexão
