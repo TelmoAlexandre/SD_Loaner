@@ -633,8 +633,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
                 //colocar a interface a escutar o nó
                 myNode.addNodeListener(this);
-                
-                blockChain = new BlockChain(myNode);
             }
             else
             {
