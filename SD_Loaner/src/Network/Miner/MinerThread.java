@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -104,8 +105,8 @@ public class MinerThread extends Thread
             StringBuilder nonce = new StringBuilder();
 
             // Adiciona mais lixo ao nonce
-            nonce.append((int) (Math.random() * 1_000_000));
-            nonce.append((int) (Math.random() * 1_000_000));
+            nonce.append((long) ThreadLocalRandom.current().nextLong(0, 1_000_000));
+            nonce.append((long) ThreadLocalRandom.current().nextLong(0, 1_000_000));
             nonce.append(atomicNonce.getAndIncrement());
             
             // Duplica o seu tamanho

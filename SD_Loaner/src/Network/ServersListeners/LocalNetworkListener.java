@@ -12,8 +12,6 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.List;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Fica à escuta de alguem que se junte à rede. Quando recebe uma nova ligação,
@@ -46,7 +44,7 @@ public class LocalNetworkListener extends Thread
 
         listener = new MulticastSocket(MULTICAST_PORT);
         listener.joinGroup(InetAddress.getByName(MULTICAST_IP));
-        
+
         // enviar uma mensagem para o grupo a pedir conexão
         MessageUDP msg = new MessageUDP(MessageUDP.CONNECT, myAdress);
         msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
@@ -80,40 +78,50 @@ public class LocalNetworkListener extends Thread
         {
             try
             {
-                //::::::::::::::::::: T O   P R O G R A M M I N G::::::::::::::::::::::::
-                //receber um pacote
+                // Receber um pacote
                 MessageUDP msg = MessageUDP.receiveUDP(listener);
 
                 // Isolar o NodeAddress                  
                 NodeAddress nodeAdress = (NodeAddress) msg.getContent();
 
-                // Caso seja uma Message para conectar à rede
-                if ( msg.getType().equals(MessageUDP.CONNECT) )
+                switch ( msg.getType() )
                 {
-                    // Adiciona o novo nodo à lista de nodos na rede
-                    if ( !links.contains(nodeAdress) )
-                    {
-                        links.add(nodeAdress);
+                    case MessageUDP.CONNECT:
 
-                        msg.setContent(myAdress);
-                        msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
+                        // Adiciona o novo nodo à lista de nodos na rede
+                        if ( !links.contains(nodeAdress) )
+                        {
+                            links.add(nodeAdress);
 
-                        NodeEventListener.notifyConnect(listeners, nodeAdress);
-                    }
-                }
-                else if ( msg.getType().equals(MessageUDP.DISCONNECT) ) // Caso seja para desconectar um nodo da rede
-                {
-                    // Retira o mesmo da lista da rede.
-                    links.remove(nodeAdress);
+                            msg.setContent(myAdress);
+                            msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
 
-                    NodeEventListener.notifyDisconnect(listeners, nodeAdress);
+                            NodeEventListener.notifyConnect(listeners, nodeAdress);
+                        }
+                        break;
+
+                    case MessageUDP.DISCONNECT:
+                        
+                        // Retira o mesmo da lista da rede.
+                        links.remove(nodeAdress);
+
+                        NodeEventListener.notifyDisconnect(listeners, nodeAdress);
+                        break;
+
+                    case MessageUDP.SYNC_BLOCKCHAIN_INFO:
+
+                        // Vai dar override ao antigo porque este contem informação nova da blockChain
+                        links.add(myAdress);
+                        break;
+
+                    default:
+                        break;
                 }
             }
             catch ( Exception ex )
             {
-                Logger.getLogger(LocalNetworkListener.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println(ex.getMessage());
             }
         }
     }
-
-}//server UDP
+}

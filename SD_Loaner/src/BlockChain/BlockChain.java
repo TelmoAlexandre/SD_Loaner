@@ -7,6 +7,8 @@ package BlockChain;
 
 import AccountManager.AccountManager;
 import BankServices.Service;
+import Network.BlockChainSynchronizer.BlockChainInfo;
+import Network.BlockChainSynchronizer.BlockChainSynchronizer;
 import Network.Node;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -80,7 +82,7 @@ public class BlockChain
      *
      * @param block
      */
-    public void addMinedBlock(Block block)
+    public void addMinedBlock(Block block) throws Exception
     {
         char[] difficultyChars = new char[block.difficulty];
 
@@ -88,9 +90,28 @@ public class BlockChain
 
         String test = new String(difficultyChars);
 
-        if ( block.hashCode.startsWith(test) )
+        if ( block.hashCode.startsWith(test))
         {
+            if (!chain.isEmpty())
+            {
+                // Não adicionar o bloco caso este não encaixe na rede
+                if(!(getLast().hashCode.equals(block.previousHash))){
+                    return;
+                }
+            }
+            
             chain.add(block);
+            
+            // Atualiza a informação da blockChain local que é espalhada pela rede
+            node.getMyAdress().setBlockChainInfo(
+                    new BlockChainInfo(
+                            chain.size(), 
+                            Utilities.NetworkTime.getTime()
+                    )
+            );
+            
+            // Re-envia essa informação à rede
+            BlockChainSynchronizer.sendNodeAddresToNetwork(node.getMyAdress());
         }
         else
         {

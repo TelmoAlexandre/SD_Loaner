@@ -16,6 +16,7 @@ public class Message implements Serializable
     
     public static final String TOMINE = "TOMINE";
     public static final String MINEDBLOCK = "MINEDBLOCK";
+    public static final String SYNC_BLOCKCHAIN_INFO = "SYNC_BLOCKCHAIN_INFO";
     
     String type; // CONNECT/DISCONNECT
     Object content; // Conteudo da MessageUDP

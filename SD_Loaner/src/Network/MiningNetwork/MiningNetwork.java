@@ -74,8 +74,7 @@ public class MiningNetwork
             // Cria a conecção
             SocketManager socketManager = new SocketManager(
                     address.getIP(), 
-                    address.getTCP_Port(),
-                    SocketManager.SENDER                    
+                    address.getTCP_Port()                  
             );
             
             // Envia o bloco minado e fecha a conexão

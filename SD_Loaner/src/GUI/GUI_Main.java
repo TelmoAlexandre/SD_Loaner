@@ -15,7 +15,7 @@ import BankServices.Loan;
 import BankServices.Service;
 import Network.Node;
 import Network.NodeEventListener;
-import SecureUtils.SecurityUtils;
+import Utilities.SecurityUtils;
 import java.awt.Color;
 import java.io.File;
 import java.nio.file.Files;
@@ -117,6 +117,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jLabel2 = new javax.swing.JLabel();
         jScrollPane4 = new javax.swing.JScrollPane();
         jtaDisplayReceivedBlock = new javax.swing.JTextArea();
+        jbSyncBlockChain = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter()
@@ -438,19 +439,33 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jtaDisplayReceivedBlock.setRows(5);
         jScrollPane4.setViewportView(jtaDisplayReceivedBlock);
 
+        jbSyncBlockChain.setText("Synchronize BlockChain");
+        jbSyncBlockChain.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                jbSyncBlockChainActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jpNetworkLayout = new javax.swing.GroupLayout(jpNetwork);
         jpNetwork.setLayout(jpNetworkLayout);
         jpNetworkLayout.setHorizontalGroup(
             jpNetworkLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jpNetworkLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jpNetworkLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(pnNode, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jlFeedbackNetwork)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2)
-                    .addComponent(jScrollPane4))
+                .addGroup(jpNetworkLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jpNetworkLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jpNetworkLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(pnNode, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jlFeedbackNetwork)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2)
+                            .addComponent(jScrollPane4)))
+                    .addGroup(jpNetworkLayout.createSequentialGroup()
+                        .addGap(61, 61, 61)
+                        .addComponent(jbSyncBlockChain)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
                 .addContainerGap())
@@ -464,7 +479,9 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
                         .addComponent(pnNode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jlFeedbackNetwork)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 107, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jbSyncBlockChain)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 57, Short.MAX_VALUE)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -524,12 +541,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbCheckMoneyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckMoneyActionPerformed
     {//GEN-HEADEREND:event_jbCheckMoneyActionPerformed
-        // Caso o cliente tenha conta
-        if ( clientHasAccount() )
-        {
-            // Mostra os seus movimentos
-            showClientMovments();
-        }
+        printClientBlocks();
     }//GEN-LAST:event_jbCheckMoneyActionPerformed
 
     private void jbCheckClientAccountsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckClientAccountsActionPerformed
@@ -629,7 +641,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             {
                 // Cria um nodo e inicia o servidor
                 node = new Node();
-                node.startServer(this, guiLogin);
+                node.startServer(this, guiLogin, blockChain);
 
                 //colocar a interface a escutar o nó
                 node.addNodeListener(this);
@@ -654,6 +666,11 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         disconnectNode();
         System.exit(0);
     }//GEN-LAST:event_jbExit1ActionPerformed
+
+    private void jbSyncBlockChainActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbSyncBlockChainActionPerformed
+    {//GEN-HEADEREND:event_jbSyncBlockChainActionPerformed
+        node.synchronizeBlockChain();
+    }//GEN-LAST:event_jbSyncBlockChainActionPerformed
 
     /**
      * @param args the command line arguments
@@ -741,6 +758,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private javax.swing.JButton jbLogOff;
     private javax.swing.JButton jbPrintBlockChain;
     private javax.swing.JButton jbRequestLoan;
+    private javax.swing.JButton jbSyncBlockChain;
     private javax.swing.JButton jbWithdrawal;
     private javax.swing.JLabel jlFeedback;
     private javax.swing.JLabel jlFeedbackNetwork;
@@ -755,15 +773,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private javax.swing.JPanel pnNode;
     // End of variables declaration//GEN-END:variables
 
-    /**
-     * Adiciona o bloco minado à blockChain.
-     *
-     * @param block
-     */
-    public void addMinedBlockToBlockChain(Block block)
-    {
-        blockChain.addMinedBlock(block);
-    }
 
     /**
      * Imprime a blockChain no ledger.
@@ -927,6 +936,20 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         return false;
     }
 
+    /**
+     * Verifica se o cliente tem conta, caso tenha, imprime todos os seus movimentos
+     * 
+     */
+    public void printClientBlocks()
+    {
+        // Caso o cliente tenha conta
+        if ( clientHasAccount() )
+        {
+            // Mostra os seus movimentos
+            showClientMovments();
+        }
+    }
+    
     /**
      * Mostra os movimentos de conta do cliente.
      *

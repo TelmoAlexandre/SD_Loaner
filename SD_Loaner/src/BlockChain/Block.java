@@ -69,7 +69,7 @@ public class Block implements Serializable
      *
      * @param nonce Valor do nonce
      */
-    public void setNonce(String nonce)
+    public synchronized void setNonce(String nonce)
     {
         this.nonce = nonce;
     }
@@ -79,7 +79,7 @@ public class Block implements Serializable
      *
      * @param hashCode Hash Code minado
      */
-    public void setHashCode(String hashCode)
+    public synchronized void setHashCode(String hashCode)
     {
         this.hashCode = hashCode;
     }

@@ -35,12 +35,10 @@ public class MiningLink extends Thread
         this.miningLinks = miningLinks;
 
         // Cria o socket
-        socketMng = new SocketManager(nodeAddress.getIP(), nodeAddress.getTCP_Port(), SocketManager.SENDER);
+        socketMng = new SocketManager(nodeAddress.getIP(), nodeAddress.getTCP_Port());
 
         // Constroi mensagem que contem o bloco com informação de que este é para ser minado
         Message msg = new Message(Message.TOMINE, block);
-
-        PublicKey publicKey = (PublicKey) SecureUtils.SecurityUtils.getPublicKey(nodeAddress.getPublicKey());
 
         // Cria uma chave de sessão e envia-a encriptada com a chave publica RSA do destino
         socketMng.sendObject(msg);

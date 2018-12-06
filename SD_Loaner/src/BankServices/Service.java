@@ -8,7 +8,7 @@ package BankServices;
 import AccountManager.AccountManager;
 import BlockChain.Block;
 import BlockChain.BlockChain;
-import SecureUtils.SecurityUtils;
+import Utilities.SecurityUtils;
 import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -31,7 +31,6 @@ public abstract class Service extends AccountManager
     }
 
     public abstract boolean validate(BlockChain bc) throws Exception;
-
     public abstract double getTrueAmount();
 
     /**

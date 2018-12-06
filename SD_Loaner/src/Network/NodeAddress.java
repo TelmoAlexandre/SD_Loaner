@@ -15,9 +15,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package Network;
 
+import Network.BlockChainSynchronizer.BlockChainInfo;
 import Network.ServersListeners.LocalNetworkListener;
 import java.io.Serializable;
-import java.security.PublicKey;
 
 /**
  * Representa o endereço do nodo.
@@ -29,13 +29,13 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
     private String ip;
     private int udpPort;
     private int tcpPort;
-    private String publicKey;
+    private BlockChainInfo blockChainInfo;
     
-    public NodeAddress(String ip, String publicKey)
+    public NodeAddress(String ip)
     {
         this.ip = ip;
         this.udpPort = LocalNetworkListener.MULTICAST_PORT;
-        this.publicKey = publicKey;
+        blockChainInfo = new BlockChainInfo(0, 0);
     }
 
     /**
@@ -51,7 +51,7 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
         {
             NodeAddress adress = (NodeAddress) obj;
             
-            return adress.udpPort == this.udpPort && adress.ip.equalsIgnoreCase(this.ip);
+            return adress.ip.equalsIgnoreCase(this.ip);
         }
         return false;
     }
@@ -131,16 +131,16 @@ public class NodeAddress implements Serializable, Comparable<NodeAddress>
         this.tcpPort = port;
     }
 
-    /**
-     * Retorna a chave publicaRSA do nodo.
-     * 
-     * @return 
-     */
-    public String getPublicKey()
+    public BlockChainInfo getBlockChainInfo()
     {
-        return publicKey;
+        return blockChainInfo;
     }
-    
+
+    public void setBlockChainInfo(BlockChainInfo blockChainInfo)
+    {
+        this.blockChainInfo = blockChainInfo;
+    }
+        
     /**
      * Retorna [ip:PORT].
      *

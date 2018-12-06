@@ -10,7 +10,7 @@ import AccountManager.AccountManager;
 import BankServices.Loan;
 import BlockChain.Block;
 import BlockChain.BlockChain;
-import SecureUtils.SecurityUtils;
+import Utilities.SecurityUtils;
 import java.awt.Color;
 import java.io.File;
 import java.nio.file.Files;
