@@ -71,6 +71,7 @@ public class GUI_NewAccount extends javax.swing.JFrame
         jbGenerateRSAKeys = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         jLabel1.setText("Name:");
 

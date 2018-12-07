@@ -137,6 +137,10 @@ public class BlockChain
                 {
                     // Limpar a lista a partir do bloco corrompido
                     chain = chain.subList(0, i);
+                    
+                    // Visto que a blockChain está corrumpida
+                    node.synchronizeBlockChain();
+                    
                     return chain.get(i - 1);
                 }
             }

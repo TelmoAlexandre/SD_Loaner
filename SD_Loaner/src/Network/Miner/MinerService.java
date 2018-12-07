@@ -29,7 +29,7 @@ public class MinerService extends SwingWorker<String, Integer>
 
     // Necessário para minar 
     public Block block;
-    private final int difficulty = 3;
+    private final int difficulty = 4;
 
     public MinerService(SocketManager socketManager, Block block, GUI_Main guiMain, GUI_Login guiLogin, AtomicBoolean miningDone) throws Exception
     {

@@ -82,6 +82,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         jsAmount = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         jLabel1.setText("Amount:");
 

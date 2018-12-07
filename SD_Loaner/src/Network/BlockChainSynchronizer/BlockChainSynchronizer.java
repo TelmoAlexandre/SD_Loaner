@@ -46,7 +46,7 @@ public class BlockChainSynchronizer extends Thread
             while (true)
             {
                 // 5 minutos
-                sleep(30_0000);
+                sleep(30_000);
 
                 // Partilha o nodeAddress com a rede
                 sendNodeAddresToNetwork(nodeAddress);

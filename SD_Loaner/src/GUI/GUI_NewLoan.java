@@ -80,6 +80,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         jlFeedback.setText("Fill up your information:");
 
