@@ -64,18 +64,31 @@ public class BlockChainSynchronizer extends Thread
 
     public void checkRemoteBlockChains()
     {
+        // Incialmente, considera-se a melhor blockChain
+        NodeAddress bestBlockChain = nodeAddress;
+
         // Percorre a informação que este nó tem sobre as blockChains da rede
         for (NodeAddress address : network)
         {
-            // Individualiza o BlockChainInfo do nó da rede em questão
-            BlockChainInfo chainInfo = address.getBlockChainInfo();
-
-            // Caso a blockChain do nó da rede seja melhor que a local
-            if (chainInfo.isBetterThan(nodeAddress.getBlockChainInfo()))
+            // Salta a verificação consigo mesmo
+            if (address.getBlockChainInfo() != nodeAddress.getBlockChainInfo())
             {
-                synchronizeBlockChain(address);
-                return;
+                // Individualiza o BlockChainInfo do nó da rede em questão
+                BlockChainInfo chainInfo = address.getBlockChainInfo();
+
+                // Caso a blockChain do nó da rede seja melhor do que 
+                // é currentemente considerada melhor
+                if (chainInfo.isBetterThan(bestBlockChain.getBlockChainInfo()))
+                {
+                    bestBlockChain = address;
+                }
             }
+        }
+
+        // Sincroniza com a melhor blockChain
+        if (bestBlockChain != null)
+        {
+            synchronizeBlockChain(bestBlockChain);
         }
     }
 

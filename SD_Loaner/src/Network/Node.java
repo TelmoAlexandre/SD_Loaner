@@ -20,7 +20,7 @@ import BlockChain.BlockChain;
 import GUI.GUI_Login;
 import Network.BlockChainSynchronizer.BlockChainSynchronizer;
 import Network.Message.MessageUDP;
-import Network.MiningNetwork.MiningNetwork;
+import Network.Miner.MiningNetwork;
 import Network.ServersListeners.LocalNetworkListener;
 import Network.ServersListeners.TCPServerListener;
 import java.net.InetAddress;
@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created on 15/nov/2018, 19:03:40
@@ -68,7 +67,7 @@ public class Node
         );
         
         // Cria os listeners da rede e do Mineiro
-        tcpServerListener = new TCPServerListener(guiMain, guiLogin, myAddress);
+        tcpServerListener = new TCPServerListener(guiMain, guiLogin, myAddress, network);
         tcpServerListener.start();
 
         localNetworkListener = new LocalNetworkListener(network, myAddress, listeners);

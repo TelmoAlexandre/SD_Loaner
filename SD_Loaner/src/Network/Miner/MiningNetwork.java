@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Network.MiningNetwork;
+package Network.Miner;
 
 import BlockChain.Block;
 import Network.Message.Message;
@@ -21,7 +21,6 @@ public class MiningNetwork
 
     List<NodeAddress> network; // rede de mineração
     Block block; // bloco para minerar
-    List<MiningLink> miningLinks;
 
     public MiningNetwork(List<NodeAddress> network)
     {
@@ -31,44 +30,14 @@ public class MiningNetwork
     public void mine(Block block) throws Exception
     {
         this.block = block;
-
-        // Guarda referencia a todos os MiningLinks
-        miningLinks = new ArrayList<>();
         
-        //criar os links para os servidores da rede
-        MiningLink threads[] = new MiningLink[network.size()];
-
-        for ( int i = 0; i < threads.length; i++ )
-        {
-            threads[i] = new MiningLink(
-                    network.get(i),
-                    block,
-                    miningLinks
-            );
-            
-            miningLinks.add(threads[i]);
-            
-            threads[i].start();
-        }
-
-        // Aguarda o fim de todas as Threads
-        for ( MiningLink thread : threads )
-        {
-            thread.join();
-
-            if ( thread.isSolvedByMe() )
-            {
-                this.block = thread.getBlock();
-            }
-        }
-        
-        // Pepara uma Message com o bloco minado para ser espalhado pela rede.
+        // Pepara uma Message com o bloco a minar para ser espalhado pela rede.
         Message msg = new Message(
-                Message.MINEDBLOCK, 
+                Message.TOMINE, 
                 this.block
         );
         
-        // Espalha o bloco minado pela rede
+        // Espalha o bloco a minar pela rede
         for ( NodeAddress address : network )
         {
             // Cria a conecção
@@ -77,7 +46,7 @@ public class MiningNetwork
                     address.getTCP_Port()                  
             );
             
-            // Envia o bloco minado e fecha a conexão
+            // Envia o bloco a minar e fecha a conexão
             socketManager.sendObject(msg);
             socketManager.close();
         }

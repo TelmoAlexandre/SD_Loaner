@@ -33,13 +33,14 @@ public class MinerThread extends Thread
 
     SocketManager socketManager;
 
-    public MinerThread(String toMine, int difficulty, AtomicBoolean miningDone, AtomicInteger atomicNonce, SocketManager socketManager)
+    public MinerThread(String toMine, int difficulty, 
+            AtomicBoolean miningDone, 
+            AtomicInteger atomicNonce)
     {
         this.toMine = toMine;
         this.difficulty = difficulty;
         this.miningDone = miningDone;
         this.atomicNonce = atomicNonce;
-        this.socketManager = socketManager;
     }
 
     /**

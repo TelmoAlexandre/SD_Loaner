@@ -8,7 +8,10 @@ package Network.Miner;
 import BlockChain.Block;
 import GUI.GUI_Login;
 import GUI.GUI_Main;
+import Network.Message.Message;
+import Network.NodeAddress;
 import Network.SocketManager;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.SwingWorker;
@@ -19,22 +22,21 @@ import javax.swing.SwingWorker;
  */
 public class MinerService extends SwingWorker<String, Integer>
 {
+
     GUI_Main guiMain;
     GUI_Login guiLogin;
+    TreeSet<NodeAddress> network;
 
-    // Ligação ao clioente
-    SocketManager socketManager;
-    
     AtomicBoolean miningDone;
 
     // Necessário para minar 
     public Block block;
     private final int difficulty = 4;
 
-    public MinerService(SocketManager socketManager, Block block, GUI_Main guiMain, GUI_Login guiLogin, AtomicBoolean miningDone) throws Exception
+    public MinerService(TreeSet<NodeAddress> network, Block block, GUI_Main guiMain, GUI_Login guiLogin, AtomicBoolean miningDone) throws Exception
     {
         // Recebe os parametros
-        this.socketManager = socketManager;
+        this.network = network;
         this.block = block;
         this.guiMain = guiMain;
         this.guiLogin = guiLogin;
@@ -42,17 +44,16 @@ public class MinerService extends SwingWorker<String, Integer>
 
         // Prepara as GUIs para a mineração
         this.guiLogin.disableButtons();
-        this.guiMain.disableButtons();        
+        this.guiMain.disableButtons();
         this.guiMain.displayReceivedBlock(block.toString());
     }
 
     @Override
     protected String doInBackground() throws Exception
     {
-        AtomicInteger atomicNonce = new AtomicInteger(0);
-
+        // Preparação para as Threads
         int processors = Runtime.getRuntime().availableProcessors();
-
+        AtomicInteger atomicNonce = new AtomicInteger(0);
         MinerThread[] threads = new MinerThread[processors];
 
         // Define a dificuldade com que o bloco será minado
@@ -61,37 +62,51 @@ public class MinerService extends SwingWorker<String, Integer>
         // Constroi a String a ser minada
         String toMine = block.content.toString() + block.previousHash + block.difficulty;
 
-        for ( int i = 0; i < threads.length; i++ )
+        // Cria as Threads de mineração
+        for (int i = 0; i < threads.length; i++)
         {
             threads[i] = new MinerThread(
                     toMine,
                     difficulty,
                     miningDone,
-                    atomicNonce,
-                    socketManager
+                    atomicNonce
             );
 
             threads[i].start();
         }
 
-        for ( MinerThread thread : threads )
+        // Aguarda o fim das Threads
+        for (MinerThread thread : threads)
         {
             thread.join();
 
-            if ( thread.isSolvedByMe() )
+            if (thread.isSolvedByMe())
             {
                 // Junta a informação que foi minada
                 block.setHashCode(thread.getHash());
                 block.setNonce(thread.getSolution());
 
-                // Envia o bloco para o nodo que pediu a mineração
-                socketManager.sendObject(block);
+                // Cria a mensagem que contem o bloco minada para o espalhar pela rede
+                Message msg = new Message(Message.MINEDBLOCK, block);
+
+                for (NodeAddress address : network)
+                {
+                    // Cria a conecção
+                    SocketManager socketManager = new SocketManager(
+                            address.getIP(),
+                            address.getTCP_Port()
+                    );
+
+                    // Envia o bloco minado e fecha a conexão
+                    socketManager.sendObject(msg);
+                    socketManager.close();
+                }
             }
         }
-
-        guiMain.enableButtons();
+        
         guiLogin.enableButtons();
-
+        guiMain.enableButtons();
+        
         return "";
     }
 }

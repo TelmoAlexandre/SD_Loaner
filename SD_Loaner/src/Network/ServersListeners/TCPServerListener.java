@@ -16,6 +16,7 @@ import Network.NodeAddress;
 import Network.SocketManager;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,16 +38,18 @@ public class TCPServerListener extends Thread
     ServerSocket server;
     GUI_Main guiMain;
     GUI_Login guiLogin;
+    TreeSet<NodeAddress> network;
 
     // Para sinalizar as Threads de quando devem parar a mineração
     AtomicBoolean miningDone = new AtomicBoolean(false);
 
     public TCPServerListener(
             GUI_Main guiMain, GUI_Login guiLogin,
-            NodeAddress myAddress) throws Exception
+            NodeAddress myAddress, TreeSet<NodeAddress> network) throws Exception
     {
         this.guiMain = guiMain;
         this.guiLogin = guiLogin;
+        this.network = network;
 
         // Requesita um porto disponivel
         server = new ServerSocket(0);
@@ -107,7 +110,7 @@ public class TCPServerListener extends Thread
                     // Assim que a mineração for concluida, o bloco será enviado
                     // novamente para o solicitador da mineração
                     miningDone.set(false);
-                    new MinerService(socketManager, block, guiMain, guiLogin, miningDone).execute();
+                    new MinerService(network, block, guiMain, guiLogin, miningDone).execute();
                     break;
 
                 case Message.MINEDBLOCK:
