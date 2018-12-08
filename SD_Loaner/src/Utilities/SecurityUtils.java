@@ -171,7 +171,7 @@ public class SecurityUtils {
     /**
      * Le uma chave de um ficheiro
      *
-     * @param fileName nome do ficheiro
+     * @param data
      * @param algorithm algoritmo da cheve
      * @return
      * @throws IOException
@@ -279,7 +279,6 @@ public class SecurityUtils {
     /**
      * gera uma chave privada atraves de array de bytes
      *
-     * @param pubData dados da chave privada
      * @return chave publica
      * @throws Exception
      */

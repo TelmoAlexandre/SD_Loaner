@@ -14,8 +14,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * BlockChain que irá conter blocos. O primeiro bloco de todos contém as
@@ -29,11 +28,14 @@ public class BlockChain
 {
     public List<Block> chain;
     Node node;
+    
+    AtomicBoolean isSynchronizing;
 
-    public BlockChain(Node node)
+    public BlockChain(Node node, AtomicBoolean isSynchronizing)
     {
         this.node = node;
         chain = new ArrayList<>();
+        this.isSynchronizing = isSynchronizing;
     }
 
     /**
@@ -105,16 +107,9 @@ public class BlockChain
 
             chain.add(block);
 
-            // Atualiza a informação da blockChain local que é espalhada pela rede
-            node.getMyAdress().setBlockChainInfo(
-                    new BlockChainInfo(
-                            chain.size(),
-                            Utilities.NetworkTime.getTime()
-                    )
-            );
-
-            // Re-envia essa informação à rede
-            BlockChainSynchronizer.sendNodeAddresToNetwork(node.getMyAdress());
+            // Atualiza e re-envia a informação da blockChain para a rede
+            node.getMyAdress().getBlockChainInfo().setBlockChainSize(chain.size());
+            BlockChainSynchronizer.notifyNetworkOfBlockChainChanges(node.getMyAdress());
         }
         else
         {
@@ -142,7 +137,7 @@ public class BlockChain
                     chain = chain.subList(0, i);
 
                     // Vai consultar a rede para receber uma BlockChain melhor
-                    node.synchronizeBlockChain();
+                    node.synchronizeBlockChain(isSynchronizing);
 
                     return chain.get(i - 1);
                 }
@@ -160,56 +155,70 @@ public class BlockChain
      */
     public void synchronize()
     {
-        try
+        // Caso não se encontre já a sincronizar
+        if ( !isSynchronizing.get() )
         {
-            // Percorre a chain, bloco a bloco
-            if ( !chain.isEmpty() )
+            try
             {
-                for ( int i = 1; i < chain.size(); i++ )
+                // Percorre a chain, bloco a bloco
+                if ( !chain.isEmpty() )
                 {
-                    // Se o bloco estiver corrompido, corta a chain
-                    if ( !chain.get(i).checkBlock() )
+                    for ( int i = 1; i < chain.size(); i++ )
                     {
-                        // Limpar a lista a partir do bloco corrompido
-                        chain = chain.subList(0, i);
+                        // Se o bloco estiver corrompido, corta a chain
+                        if ( !chain.get(i).checkBlock() )
+                        {
+                            // Limpar a lista a partir do bloco corrompido
+                            chain = chain.subList(0, i);
 
-                        break;
+                            break;
+                        }
                     }
                 }
             }
-        }
-        catch ( NoSuchAlgorithmException ex )
-        {
-            System.out.println("Erro na validação da BlockChain - BlockChain.isValid\n");
-            System.out.println(ex.getMessage() + "\n\n");
-        }
+            catch ( NoSuchAlgorithmException ex )
+            {
+                System.out.println("Erro na validação da BlockChain - BlockChain.isValid\n");
+                System.out.println(ex.getMessage() + "\n\n");
+            }
 
-        // Vai consultar a rede para receber uma BlockChain melhor
-        node.synchronizeBlockChain();
+            // Vai consultar a rede para receber uma BlockChain melhor
+            node.synchronizeBlockChain(isSynchronizing);
+        }
     }
 
     /**
      * Atualiza as informações da blockChain
-     * 
+     *
      */
     public void alertNetworkAboutCorruptedBlockChain()
     {
         try
         {
             BlockChainInfo bcInfo = node.getMyAdress().getBlockChainInfo();
-            
+
             // Define as novas informações
             bcInfo.setBlockChainSize(chain.size());
             bcInfo.setTimestamp(Utilities.NetworkTime.getTime());
-            
+
             // Atualiza a rede com as suas informações
-            BlockChainSynchronizer.sendNodeAddresToNetwork(node.getMyAdress());
+            BlockChainSynchronizer.notifyNetworkOfBlockChainChanges(node.getMyAdress());
         }
         catch ( Exception ex )
         {
             System.out.println("Erro ao atualizar as informações da BlockChain\n");
-            System.out.println(ex.getMessage()+"\n\n");
+            System.out.println(ex.getMessage() + "\n\n");
         }
+    }
+
+    /**
+     * Referencia ao isSynchronizing
+     * 
+     * @return 
+     */
+    public AtomicBoolean getIsSynchronizing()
+    {
+        return isSynchronizing;
     }
     
     /**

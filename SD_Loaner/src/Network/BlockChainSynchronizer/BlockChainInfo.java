@@ -51,7 +51,7 @@ public class BlockChainInfo implements Serializable
         }
         
         // Se for maior, ganha automaticamente
-        if ( blockChainSize >= info.getBlockChainSize() )
+        if ( blockChainSize > info.getBlockChainSize() )
         {
             return true;
         }

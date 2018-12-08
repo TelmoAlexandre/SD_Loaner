@@ -16,7 +16,6 @@
 package Network;
 
 import BlockChain.Block;
-import BlockChain.BlockChain;
 import GUI.GUI_Login;
 import Network.BlockChainSynchronizer.BlockChainSynchronizer;
 import Network.Message.MessageUDP;
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created on 15/nov/2018, 19:03:40
@@ -40,6 +40,7 @@ public class Node
     NodeAddress myAddress;
     TreeSet<NodeAddress> network = new TreeSet<>();
     List<NodeEventListener> listeners = new ArrayList<>();
+    boolean isConnected = false;
 
     // Server Listeners
     LocalNetworkListener localNetworkListener;
@@ -52,12 +53,10 @@ public class Node
      * Avisa a rede da sua entrada na mesma. Inicia o servidor de escuta de
      * blocos a serem minados.
      *
-     * @param guiMain
      * @param guiLogin
-     * @param blockChain
      * @throws Exception
      */
-    public void startServer(GUI.GUI_Main guiMain, GUI_Login guiLogin, BlockChain blockChain) throws Exception
+    public void startServer(GUI_Login guiLogin) throws Exception
     {
         network = new TreeSet<>();
 
@@ -65,24 +64,30 @@ public class Node
         this.myAddress = new NodeAddress(
                 InetAddress.getLocalHost().getHostAddress()
         );
-        
+
         // Cria os listeners da rede e do Mineiro
-        tcpServerListener = new TCPServerListener(guiMain, guiLogin, myAddress, network);
+        tcpServerListener = new TCPServerListener(guiLogin, myAddress, network);
         tcpServerListener.start();
 
         localNetworkListener = new LocalNetworkListener(network, myAddress, listeners);
         localNetworkListener.start();
 
         // Cria a thread de sincronização da blockChain
-        blockChainSynchronizer = new BlockChainSynchronizer(myAddress, network, blockChain);
-        blockChainSynchronizer.start();
+        if ( blockChainSynchronizer == null )
+        {
+            blockChainSynchronizer = new BlockChainSynchronizer(myAddress, network, guiLogin.getBlockChain());
+            blockChainSynchronizer.start();
+        }
+
+        // Afirma estar conectado
+        isConnected = true;
     }
 
-    public void synchronizeBlockChain()
+    public void synchronizeBlockChain(AtomicBoolean isSynchronizing)
     {
-        blockChainSynchronizer.checkRemoteBlockChains();
+        blockChainSynchronizer.checkRemoteBlockChains(isSynchronizing);
     }
-    
+
     /**
      * Adiciona um event listener para a lista de listeners.
      *
@@ -90,7 +95,10 @@ public class Node
      */
     public void addNodeListener(NodeEventListener l)
     {
-        listeners.add(l);
+        if ( !listeners.contains(l) )
+        {
+            listeners.add(l);
+        }
     }
 
     /**
@@ -114,13 +122,13 @@ public class Node
     }
 
     /**
-     * Thread que atualiza a rede sobre a informação da BlockChain local.
-     * 
-     * @return 
+     * Retorna se o nodo se encontra conectado à rede.
+     *
+     * @return
      */
-    public BlockChainSynchronizer getBlockChainSynchronizer()
+    public boolean isConnected()
     {
-        return blockChainSynchronizer;
+        return isConnected;
     }
 
     /**
@@ -137,6 +145,10 @@ public class Node
         // Termina os listeners
         localNetworkListener.disconnect();
         tcpServerListener.disconnect();
+        blockChainSynchronizer.disconnect();
+
+        // Não se encontra conectado
+        isConnected = false;
     }
 
     public void linkTo(String host, int port) throws Exception

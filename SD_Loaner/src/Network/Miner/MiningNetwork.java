@@ -9,7 +9,6 @@ import BlockChain.Block;
 import Network.Message.Message;
 import Network.NodeAddress;
 import Network.SocketManager;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

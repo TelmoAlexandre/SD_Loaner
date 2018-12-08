@@ -11,6 +11,7 @@ import Network.Message.Message;
 import Network.Message.MessageUDP;
 import Network.NodeAddress;
 import Network.ServersListeners.LocalNetworkListener;
+import static Network.ServersListeners.LocalNetworkListener.MULTICAST_PORT;
 import Network.SocketManager;
 import static java.lang.Thread.sleep;
 import java.util.TreeSet;
@@ -27,7 +28,7 @@ public class BlockChainSynchronizer extends Thread
     NodeAddress myNodeAddress;
     TreeSet<NodeAddress> network;
     BlockChain blockChain;
-    AtomicBoolean tcpListening;
+    boolean connectedToNetwork = false;
 
     public BlockChainSynchronizer(
             NodeAddress myNodeAddress, TreeSet<NodeAddress> network,
@@ -36,6 +37,9 @@ public class BlockChainSynchronizer extends Thread
         this.myNodeAddress = myNodeAddress;
         this.network = network;
         this.blockChain = blockChain;
+
+        // Encontra-se conectado à rede
+        connectedToNetwork = true;
     }
 
     @Override
@@ -43,56 +47,63 @@ public class BlockChainSynchronizer extends Thread
     {
         try
         {
-            while (true)
+            while ( true )
             {
                 // 5 minutos
                 sleep(300_000);
 
-                // Partilha o myNodeAddress com a rede
-                sendNodeAddresToNetwork(myNodeAddress);
+                if ( connectedToNetwork )
+                {
+                    // Partilha o myNodeAddress com a rede
+                    notifyNetworkOfBlockChainChanges(myNodeAddress);
 
-                // Verifica se existe algum nó na rede que contenha uma blockChain melhor que a local
-                // Caso exista, inicia um processo de sincronização com esse nó
-                checkRemoteBlockChains();
+                    // Verifica se existe algum nó na rede que contenha uma blockChain melhor que a local
+                    // Caso exista, inicia um processo de sincronização com esse nó
+                    checkRemoteBlockChains(blockChain.getIsSynchronizing());
+                }
             }
         }
-        catch (Exception ex)
+        catch ( Exception ex )
         {
             System.out.println("BlockChainSynchronizer - Erro");
         }
     }
 
-    public void checkRemoteBlockChains()
+    public void checkRemoteBlockChains(AtomicBoolean isSynchronizing)
     {
-        // Incialmente, considera-se a melhor blockChain
-        NodeAddress bestBlockChain = myNodeAddress;
-
-        // Percorre a informação que este nó tem sobre as blockChains da rede
-        for (NodeAddress address : network)
+        // Caso não se encontre já a sincronizar
+        if ( !isSynchronizing.get() )
         {
-            // Salta a verificação consigo mesmo
-            if (address.getBlockChainInfo() != myNodeAddress.getBlockChainInfo())
-            {
-                // Individualiza o BlockChainInfo do nó da rede em questão
-                BlockChainInfo chainInfo = address.getBlockChainInfo();
+            // Incialmente, considera-se a melhor blockChain
+            NodeAddress bestBlockChain = myNodeAddress;
 
-                // Caso a blockChain do nó da rede seja melhor do que 
-                // é currentemente considerada melhor
-                if (chainInfo.isBetterThan(bestBlockChain.getBlockChainInfo()))
+            // Percorre a informação que este nó tem sobre as blockChains da rede
+            for ( NodeAddress address : network )
+            {
+                // Salta a verificação consigo mesmo
+                if ( !address.getIP().equals(myNodeAddress) || !(address.getIP().equals(myNodeAddress.getIP()) && address.getTCP_Port() == myNodeAddress.getTCP_Port()) )
                 {
-                    bestBlockChain = address;
+                    // Individualiza o BlockChainInfo do nó da rede em questão
+                    BlockChainInfo chainInfo = address.getBlockChainInfo();
+
+                    // Caso a blockChain do nó da rede seja melhor do que 
+                    // é currentemente considerada melhor
+                    if ( chainInfo.isBetterThan(bestBlockChain.getBlockChainInfo()) )
+                    {
+                        bestBlockChain = address;
+                    }
                 }
             }
-        }
 
-        // Sincroniza com a melhor blockChain
-        if (bestBlockChain != null)
-        {
-            synchronizeBlockChain(bestBlockChain);
+            // Sincroniza com a melhor blockChain
+            if ( bestBlockChain != myNodeAddress )
+            {
+                synchronizeBlockChain(bestBlockChain, isSynchronizing);
+            }
         }
     }
 
-    private void synchronizeBlockChain(NodeAddress address)
+    private void synchronizeBlockChain(NodeAddress address, AtomicBoolean isSynchronizing)
     {
         new Thread()
         {
@@ -101,6 +112,9 @@ public class BlockChainSynchronizer extends Thread
             {
                 try
                 {
+                    // Avisa que se encontra a sincronizar
+                    isSynchronizing.set(true);
+
                     // Cria o socket
                     SocketManager socket = new SocketManager(address.getIP(), address.getTCP_Port());
 
@@ -110,12 +124,12 @@ public class BlockChainSynchronizer extends Thread
                     Message msg = new Message(Message.SYNC_BLOCKCHAIN_INFO, blockChain.getLast());
                     socket.sendObject(msg);
 
-                    while (true)
+                    while ( true )
                     {
                         Block block = (Block) socket.readObject();
 
                         // Enquanto receber blocos instanciados
-                        if (block != null)
+                        if ( block != null )
                         {
                             blockChain.addMinedBlock(block);
                         }
@@ -127,20 +141,36 @@ public class BlockChainSynchronizer extends Thread
                             break;
                         }
                     }
-                    
+
                     // Alertar a rede da corrupção
                     blockChain.alertNetworkAboutCorruptedBlockChain();
                 }
-                catch (Exception ex)
+                catch ( Exception ex )
                 {
                     System.out.println("Erro na sincronização - Receiver\n");
-                    System.out.println(ex.getMessage()+"\n\n");
+                    System.out.println(ex.getMessage() + "\n\n");
+                }
+                finally
+                {
+                    // Deixou de sincronizar
+                    isSynchronizing.set(false);
                 }
             }
         }.start();
     }
 
-    public static void sendNodeAddresToNetwork(NodeAddress nodeAddress) throws Exception
+    /**
+     * Termina a Thread de sincronização.
+     *
+     * @throws java.lang.Exception
+     */
+    public void disconnect() throws Exception
+    {
+        // Isto vai fazer a condição do loop da Thread ser falso, logo termina a Thread
+        this.connectedToNetwork = false;
+    }
+
+    public static void notifyNetworkOfBlockChainChanges(NodeAddress nodeAddress) throws Exception
     {
         // Partilha o nodeAddres com a rede
         MessageUDP msg = new MessageUDP(MessageUDP.SYNC_BLOCKCHAIN_INFO, nodeAddress);

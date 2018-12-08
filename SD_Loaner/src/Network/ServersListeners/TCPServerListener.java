@@ -36,18 +36,15 @@ public class TCPServerListener extends Thread
 {
 
     ServerSocket server;
-    GUI_Main guiMain;
     GUI_Login guiLogin;
     TreeSet<NodeAddress> network;
 
     // Para sinalizar as Threads de quando devem parar a mineração
     AtomicBoolean miningDone = new AtomicBoolean(false);
 
-    public TCPServerListener(
-            GUI_Main guiMain, GUI_Login guiLogin,
+    public TCPServerListener(GUI_Login guiLogin,
             NodeAddress myAddress, TreeSet<NodeAddress> network) throws Exception
     {
-        this.guiMain = guiMain;
         this.guiLogin = guiLogin;
         this.network = network;
 
@@ -110,7 +107,7 @@ public class TCPServerListener extends Thread
                     // Assim que a mineração for concluida, o bloco será enviado
                     // novamente para o solicitador da mineração
                     miningDone.set(false);
-                    new MinerService(network, block, guiMain, guiLogin, miningDone).execute();
+                    new MinerService(network, block, guiLogin, miningDone).execute();
                     break;
 
                 case Message.MINEDBLOCK:
@@ -118,6 +115,7 @@ public class TCPServerListener extends Thread
                     // Sinaliza as Threads que devem de parar de minar pois já chegou um bloco minado
                     miningDone.set(true);
 
+                    GUI_Main guiMain = guiLogin.getGuiMain();
                     guiMain.blockChain.addMinedBlock(block);
                     guiMain.writeMinedBlock(block.hashCode);
                     guiMain.giveNormalFeedback(null, "A new block was added to the BlockChain.");
@@ -149,7 +147,7 @@ public class TCPServerListener extends Thread
 
         try
         {
-            BlockChain blockChain = guiMain.blockChain;
+            BlockChain blockChain = guiLogin.getBlockChain();
 
             // Caso o bloco que chegue, que supostamente será o ultimo da chain do no remoto,
             // seja null, significa que a chain remota não tem blocos, logo envia a

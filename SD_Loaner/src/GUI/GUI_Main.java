@@ -27,6 +27,7 @@ import java.security.PrivateKey;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -48,6 +49,8 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     public Key publicKey;
     public String passwordHash;
     Node node;
+    
+    AtomicBoolean isSynchronizing;
 
     /**
      * Creates new form GUI
@@ -57,13 +60,15 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         initComponents();
     }
 
-    public GUI_Main(BlockChain blockChain, GUI_Login guiLogin, Node myNode)
+    public GUI_Main(GUI_Login guiLogin)
     {
         initComponents();
 
-        this.blockChain = blockChain;
+        // Recolhe o necessário do GUI_Login
         this.guiLogin = guiLogin;
-        this.node = myNode;
+        this.blockChain = this.guiLogin.getBlockChain();
+        this.node = this.guiLogin.getNode();
+        this.isSynchronizing = this.guiLogin.getIsSynchronizing();
 
         // Centra a janela
         this.setLocationRelativeTo(null);
@@ -605,6 +610,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private void jbCheckLoanActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckLoanActionPerformed
     {//GEN-HEADEREND:event_jbCheckLoanActionPerformed
         blockChain.synchronize();
+        
         try
         {
             // Caso o cliente tenha conta
@@ -646,7 +652,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbPrintBlockChainActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbPrintBlockChainActionPerformed
     {//GEN-HEADEREND:event_jbPrintBlockChainActionPerformed
-        blockChain.synchronize();
         printBlockChain();
     }//GEN-LAST:event_jbPrintBlockChainActionPerformed
 
@@ -659,11 +664,10 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     {//GEN-HEADEREND:event_jtbConnectActionPerformed
         try
         {
-            if ( node == null )
+            if ( !node.isConnected() )
             {
                 // Cria um nodo e inicia o servidor
-                node = new Node();
-                node.startServer(this, guiLogin, blockChain);
+                node.startServer(guiLogin);
 
                 //colocar a interface a escutar o nó
                 node.addNodeListener(this);
@@ -671,7 +675,6 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
             else
             {
                 node.disconnect();
-                node = null;
             }
         }
         catch ( Exception ex )
@@ -696,7 +699,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbBreakBlockChainActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbBreakBlockChainActionPerformed
     {//GEN-HEADEREND:event_jbBreakBlockChainActionPerformed
-        blockChain.chain = blockChain.chain.subList(0, 2);
+        blockChain.chain = blockChain.chain.subList(0, 1);
         blockChain.alertNetworkAboutCorruptedBlockChain();        
     }//GEN-LAST:event_jbBreakBlockChainActionPerformed
 

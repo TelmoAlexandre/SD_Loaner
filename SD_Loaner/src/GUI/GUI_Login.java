@@ -34,11 +34,13 @@ public class GUI_Login extends javax.swing.JFrame
     private BlockChain blockChain;
 
     // Network
-    private Node myNode;
+    private Node node;
 
     // Dados do cliente
     private Key publicKey;
     public String passwordHash;
+
+    AtomicBoolean isSynchronizing = new AtomicBoolean(false);
 
     /**
      * Creates new form GUI_Login
@@ -53,15 +55,15 @@ public class GUI_Login extends javax.swing.JFrame
         try
         {
             // Cria instancias
-            myNode = new Node();
-            blockChain = new BlockChain(myNode);
-            guiMain = new GUI_Main(blockChain, this, myNode);
+            node = new Node();
+            blockChain = new BlockChain(node, isSynchronizing);
+            guiMain = new GUI_Main(this);
 
             // Connectar à rede
-            myNode.startServer(guiMain, this, blockChain);
+            node.startServer(this);
 
             //colocar a interface a escutar o nó
-            myNode.addNodeListener(guiMain);
+            node.addNodeListener(guiMain);
 
             AtomicBoolean active = new AtomicBoolean(true);
             syncAnimation(active);
@@ -76,7 +78,7 @@ public class GUI_Login extends javax.swing.JFrame
                         sleep(1_000);
 
                         // Sincroniza a blockChain
-                        myNode.synchronizeBlockChain();
+                        node.synchronizeBlockChain(isSynchronizing);
 
                         // Feedback ao cliente
                         active.set(false);
@@ -515,7 +517,7 @@ public class GUI_Login extends javax.swing.JFrame
     {
         try
         {
-            myNode.disconnect();
+            node.disconnect();
         }
         catch ( Exception ex )
         {
@@ -544,7 +546,7 @@ public class GUI_Login extends javax.swing.JFrame
         jbCreateAccount.setEnabled(false);
         jpfPassword.setEnabled(false);
     }
-    
+
     /**
      * Desabilita todos os botoes.
      *
@@ -557,7 +559,7 @@ public class GUI_Login extends javax.swing.JFrame
         jbCreateAccount.setEnabled(true);
         jpfPassword.setEnabled(true);
     }
-    
+
     /**
      * Ativa os botões de movimento de conta.
      *
@@ -579,18 +581,18 @@ public class GUI_Login extends javax.swing.JFrame
 
     /**
      * Referencia à BlockChain.
-     * 
-     * @return 
+     *
+     * @return
      */
     public BlockChain getBlockChain()
     {
         return blockChain;
     }
-    
+
     /**
      * Pequena animação de sincronização.
-     * 
-     * @param active 
+     *
+     * @param active
      */
     private void syncAnimation(AtomicBoolean active)
     {
@@ -603,7 +605,7 @@ public class GUI_Login extends javax.swing.JFrame
                 try
                 {
                     disableGUI();
-                    
+
                     while ( active.get() )
                     {
 
@@ -616,7 +618,7 @@ public class GUI_Login extends javax.swing.JFrame
                         giveNormalFeedback("Synchronizing data...");
                         sleep(300);
                     }
-                    
+
                     giveNormalFeedback("Welcome");
                     enableGUI();
                 }
@@ -626,5 +628,20 @@ public class GUI_Login extends javax.swing.JFrame
                 }
             }
         }.start();
+    }
+
+    public AtomicBoolean getIsSynchronizing()
+    {
+        return isSynchronizing;
+    }
+
+    public GUI_Main getGuiMain()
+    {
+        return guiMain;
+    }
+
+    public Node getNode()
+    {
+        return node;
     }
 }

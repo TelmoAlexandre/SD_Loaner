@@ -33,12 +33,12 @@ public class MinerService extends SwingWorker<String, Integer>
     public Block block;
     private final int difficulty = 3;
 
-    public MinerService(TreeSet<NodeAddress> network, Block block, GUI_Main guiMain, GUI_Login guiLogin, AtomicBoolean miningDone) throws Exception
+    public MinerService(TreeSet<NodeAddress> network, Block block, GUI_Login guiLogin, AtomicBoolean miningDone) throws Exception
     {
         // Recebe os parametros
         this.network = network;
         this.block = block;
-        this.guiMain = guiMain;
+        this.guiMain = guiLogin.getGuiMain();
         this.guiLogin = guiLogin;
         this.miningDone = miningDone;
 
