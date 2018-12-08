@@ -31,7 +31,7 @@ public class MinerService extends SwingWorker<String, Integer>
 
     // Necessário para minar 
     public Block block;
-    private final int difficulty = 4;
+    private final int difficulty = 3;
 
     public MinerService(TreeSet<NodeAddress> network, Block block, GUI_Main guiMain, GUI_Login guiLogin, AtomicBoolean miningDone) throws Exception
     {
@@ -52,7 +52,7 @@ public class MinerService extends SwingWorker<String, Integer>
     protected String doInBackground() throws Exception
     {
         // Preparação para as Threads
-        int processors = Runtime.getRuntime().availableProcessors();
+        int processors = Runtime.getRuntime().availableProcessors()-1;
         AtomicInteger atomicNonce = new AtomicInteger(0);
         MinerThread[] threads = new MinerThread[processors];
 

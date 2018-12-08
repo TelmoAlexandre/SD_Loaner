@@ -27,26 +27,26 @@ public class LocalNetworkListener extends Thread
     public static final int MULTICAST_PORT = 4321;
 
     MulticastSocket listener;
-    NodeAddress myAdress;
+    NodeAddress myAddress;
     boolean connectedToNetwork = false;
 
-    TreeSet<NodeAddress> links;
+    TreeSet<NodeAddress> network;
 
     // Lista dos listeners do nó
     List<NodeEventListener> listeners;
 
-    public LocalNetworkListener(TreeSet<NodeAddress> links, NodeAddress myAddress, List<NodeEventListener> listeners) throws Exception
+    public LocalNetworkListener(TreeSet<NodeAddress> network, NodeAddress myAddress, List<NodeEventListener> listeners) throws Exception
     {
         this.listeners = listeners;
-        this.myAdress = myAddress;
-        this.myAdress.setUDP_Port(MULTICAST_PORT);
-        this.links = links;
+        this.myAddress = myAddress;
+        this.myAddress.setUDP_Port(MULTICAST_PORT);
+        this.network = network;
 
         listener = new MulticastSocket(MULTICAST_PORT);
         listener.joinGroup(InetAddress.getByName(MULTICAST_IP));
 
         // enviar uma mensagem para o grupo a pedir conexão
-        MessageUDP msg = new MessageUDP(MessageUDP.CONNECT, myAdress);
+        MessageUDP msg = new MessageUDP(MessageUDP.CONNECT, this.myAddress);
         msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
 
         // Encontra-se conectado à rede
@@ -64,9 +64,8 @@ public class LocalNetworkListener extends Thread
         this.connectedToNetwork = false;
 
         // Envia uma mensagem UDP a si mesmo para forçar a Thread sair da instrução bloqueante de escuta.
-        MessageUDP msg = new MessageUDP("OK", myAdress);
-        msg.sendUDP(
-                myAdress.getIP(),
+        MessageUDP msg = new MessageUDP("OK", myAddress);
+        msg.sendUDP(myAddress.getIP(),
                 MULTICAST_PORT
         );
     }
@@ -82,36 +81,46 @@ public class LocalNetworkListener extends Thread
                 MessageUDP msg = MessageUDP.receiveUDP(listener);
 
                 // Isolar o NodeAddress                  
-                NodeAddress nodeAdress = (NodeAddress) msg.getContent();
+                NodeAddress receivedNodeAdress = (NodeAddress) msg.getContent();
 
                 switch ( msg.getType() )
                 {
                     case MessageUDP.CONNECT:
 
                         // Adiciona o novo nodo à lista de nodos na rede
-                        if ( !links.contains(nodeAdress) )
+                        if ( !network.contains(receivedNodeAdress) )
                         {
-                            links.add(nodeAdress);
+                            network.add(receivedNodeAdress);
 
-                            msg.setContent(myAdress);
+                            msg.setContent(myAddress);
                             msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
 
-                            NodeEventListener.notifyConnect(listeners, nodeAdress);
+                            NodeEventListener.notifyConnect(listeners, receivedNodeAdress);
                         }
                         break;
 
                     case MessageUDP.DISCONNECT:
-                        
-                        // Retira o mesmo da lista da rede.
-                        links.remove(nodeAdress);
 
-                        NodeEventListener.notifyDisconnect(listeners, nodeAdress);
+                        // Retira o mesmo da lista da rede.
+                        network.remove(receivedNodeAdress);
+
+                        NodeEventListener.notifyDisconnect(listeners, receivedNodeAdress);
                         break;
 
                     case MessageUDP.SYNC_BLOCKCHAIN_INFO:
 
-                        // Vai dar override ao antigo porque este contem informação nova da blockChain
-                        links.add(myAdress);
+                        // Vai dar override ao BlockChainInfo antigo do nó remoto, porque este contem informação nova da blockChain
+                        for ( NodeAddress remoteAddress : network )
+                        {
+                            if ( remoteAddress.getIP().equals(receivedNodeAdress.getIP()) && remoteAddress.getTCP_Port() == receivedNodeAdress.getTCP_Port() )
+                            {
+                                remoteAddress.setBlockChainInfo(
+                                        receivedNodeAdress.getBlockChainInfo()
+                                );
+                                break;
+                            }
+                        }
+
                         break;
 
                     default:

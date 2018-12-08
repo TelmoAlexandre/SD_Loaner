@@ -18,7 +18,6 @@ import Network.NodeEventListener;
 import Utilities.SecurityUtils;
 import java.awt.Color;
 import java.io.File;
-import static java.lang.Thread.sleep;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Key;
@@ -28,9 +27,6 @@ import java.security.PrivateKey;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -550,16 +546,19 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbDepositActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbDepositActionPerformed
     {//GEN-HEADEREND:event_jbDepositActionPerformed
+        blockChain.synchronize();
         callMovmentWindow(AccountMovment.DEPOSIT);
     }//GEN-LAST:event_jbDepositActionPerformed
 
     private void jbWithdrawalActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbWithdrawalActionPerformed
     {//GEN-HEADEREND:event_jbWithdrawalActionPerformed
+        blockChain.synchronize();
         callMovmentWindow(AccountMovment.WITHDRAWAL);
     }//GEN-LAST:event_jbWithdrawalActionPerformed
 
     private void jbCheckMoneyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckMoneyActionPerformed
     {//GEN-HEADEREND:event_jbCheckMoneyActionPerformed
+        blockChain.synchronize();
         printClientBlocks();
     }//GEN-LAST:event_jbCheckMoneyActionPerformed
 
@@ -597,6 +596,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbRequestLoanActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbRequestLoanActionPerformed
     {//GEN-HEADEREND:event_jbRequestLoanActionPerformed
+        blockChain.synchronize();
         GUI_NewLoan newLoan = new GUI_NewLoan(this);
         newLoan.setVisible(true);
         newLoan.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -604,6 +604,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbCheckLoanActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckLoanActionPerformed
     {//GEN-HEADEREND:event_jbCheckLoanActionPerformed
+        blockChain.synchronize();
         try
         {
             // Caso o cliente tenha conta
@@ -639,11 +640,13 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbLoanPaymentActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbLoanPaymentActionPerformed
     {//GEN-HEADEREND:event_jbLoanPaymentActionPerformed
+        blockChain.synchronize();
         callMovmentWindow(AccountMovment.LOANPAYMENT);
     }//GEN-LAST:event_jbLoanPaymentActionPerformed
 
     private void jbPrintBlockChainActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbPrintBlockChainActionPerformed
     {//GEN-HEADEREND:event_jbPrintBlockChainActionPerformed
+        blockChain.synchronize();
         printBlockChain();
     }//GEN-LAST:event_jbPrintBlockChainActionPerformed
 
@@ -688,12 +691,13 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
 
     private void jbSyncBlockChainActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbSyncBlockChainActionPerformed
     {//GEN-HEADEREND:event_jbSyncBlockChainActionPerformed
-        node.synchronizeBlockChain();
+        blockChain.synchronize();
     }//GEN-LAST:event_jbSyncBlockChainActionPerformed
 
     private void jbBreakBlockChainActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbBreakBlockChainActionPerformed
     {//GEN-HEADEREND:event_jbBreakBlockChainActionPerformed
         blockChain.chain = blockChain.chain.subList(0, 2);
+        blockChain.alertNetworkAboutCorruptedBlockChain();        
     }//GEN-LAST:event_jbBreakBlockChainActionPerformed
 
     /**

@@ -14,6 +14,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * BlockChain que irá conter blocos. O primeiro bloco de todos contém as
@@ -74,7 +76,7 @@ public class BlockChain
                     throw new RuntimeException(ex.getMessage());
                 }
             }
-        }.start();        
+        }.start();
     }
 
     /**
@@ -90,26 +92,27 @@ public class BlockChain
 
         String test = new String(difficultyChars);
 
-        if ( block.hashCode.startsWith(test))
+        if ( block.hashCode.startsWith(test) )
         {
-            if (!chain.isEmpty())
+            if ( !chain.isEmpty() )
             {
                 // Não adicionar o bloco caso este não encaixe na rede
-                if(!(getLast().hashCode.equals(block.previousHash))){
+                if ( !(getLast().hashCode.equals(block.previousHash)) )
+                {
                     return;
                 }
             }
-            
+
             chain.add(block);
-            
+
             // Atualiza a informação da blockChain local que é espalhada pela rede
             node.getMyAdress().setBlockChainInfo(
                     new BlockChainInfo(
-                            chain.size(), 
+                            chain.size(),
                             Utilities.NetworkTime.getTime()
                     )
             );
-            
+
             // Re-envia essa informação à rede
             BlockChainSynchronizer.sendNodeAddresToNetwork(node.getMyAdress());
         }
@@ -132,15 +135,15 @@ public class BlockChain
         {
             for ( int i = 1; i < chain.size(); i++ )
             {
-                // Se o bloco estiver corrompido, termina a chain
+                // Se o bloco estiver corrompido, corta a chain
                 if ( !chain.get(i).checkBlock() )
                 {
                     // Limpar a lista a partir do bloco corrompido
                     chain = chain.subList(0, i);
-                    
-                    // Visto que a blockChain está corrumpida
+
+                    // Vai consultar a rede para receber uma BlockChain melhor
                     node.synchronizeBlockChain();
-                    
+
                     return chain.get(i - 1);
                 }
             }
@@ -151,6 +154,64 @@ public class BlockChain
         return null;
     }
 
+    /**
+     * Verifica a integridade da blockChain e sincroniza-a.
+     *
+     */
+    public void synchronize()
+    {
+        try
+        {
+            // Percorre a chain, bloco a bloco
+            if ( !chain.isEmpty() )
+            {
+                for ( int i = 1; i < chain.size(); i++ )
+                {
+                    // Se o bloco estiver corrompido, corta a chain
+                    if ( !chain.get(i).checkBlock() )
+                    {
+                        // Limpar a lista a partir do bloco corrompido
+                        chain = chain.subList(0, i);
+
+                        break;
+                    }
+                }
+            }
+        }
+        catch ( NoSuchAlgorithmException ex )
+        {
+            System.out.println("Erro na validação da BlockChain - BlockChain.isValid\n");
+            System.out.println(ex.getMessage() + "\n\n");
+        }
+
+        // Vai consultar a rede para receber uma BlockChain melhor
+        node.synchronizeBlockChain();
+    }
+
+    /**
+     * Atualiza as informações da blockChain
+     * 
+     */
+    public void alertNetworkAboutCorruptedBlockChain()
+    {
+        try
+        {
+            BlockChainInfo bcInfo = node.getMyAdress().getBlockChainInfo();
+            
+            // Define as novas informações
+            bcInfo.setBlockChainSize(chain.size());
+            bcInfo.setTimestamp(Utilities.NetworkTime.getTime());
+            
+            // Atualiza a rede com as suas informações
+            BlockChainSynchronizer.sendNodeAddresToNetwork(node.getMyAdress());
+        }
+        catch ( Exception ex )
+        {
+            System.out.println("Erro ao atualizar as informações da BlockChain\n");
+            System.out.println(ex.getMessage()+"\n\n");
+        }
+    }
+    
     /**
      * Retorna os conteudos de cada bloco da BlockChain.
      *

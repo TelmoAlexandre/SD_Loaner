@@ -114,6 +114,16 @@ public class Node
     }
 
     /**
+     * Thread que atualiza a rede sobre a informação da BlockChain local.
+     * 
+     * @return 
+     */
+    public BlockChainSynchronizer getBlockChainSynchronizer()
+    {
+        return blockChainSynchronizer;
+    }
+
+    /**
      * Disconecta o nodo da rede.
      *
      * @throws java.lang.Exception

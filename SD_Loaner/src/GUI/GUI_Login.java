@@ -568,7 +568,7 @@ public class GUI_Login extends javax.swing.JFrame
     }
 
     /**
-     * Limpa os dados de login do utilizador
+     * Limpa os dados de login do utilizador.
      */
     public void clearClientData()
     {
@@ -577,6 +577,21 @@ public class GUI_Login extends javax.swing.JFrame
         jpfPassword.setText("");
     }
 
+    /**
+     * Referencia à BlockChain.
+     * 
+     * @return 
+     */
+    public BlockChain getBlockChain()
+    {
+        return blockChain;
+    }
+    
+    /**
+     * Pequena animação de sincronização.
+     * 
+     * @param active 
+     */
     private void syncAnimation(AtomicBoolean active)
     {
 

@@ -24,16 +24,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BlockChainSynchronizer extends Thread
 {
 
-    NodeAddress nodeAddress;
+    NodeAddress myNodeAddress;
     TreeSet<NodeAddress> network;
     BlockChain blockChain;
     AtomicBoolean tcpListening;
 
     public BlockChainSynchronizer(
-            NodeAddress nodeAddress, TreeSet<NodeAddress> network,
+            NodeAddress myNodeAddress, TreeSet<NodeAddress> network,
             BlockChain blockChain)
     {
-        this.nodeAddress = nodeAddress;
+        this.myNodeAddress = myNodeAddress;
         this.network = network;
         this.blockChain = blockChain;
     }
@@ -46,10 +46,10 @@ public class BlockChainSynchronizer extends Thread
             while (true)
             {
                 // 5 minutos
-                sleep(30_000);
+                sleep(300_000);
 
-                // Partilha o nodeAddress com a rede
-                sendNodeAddresToNetwork(nodeAddress);
+                // Partilha o myNodeAddress com a rede
+                sendNodeAddresToNetwork(myNodeAddress);
 
                 // Verifica se existe algum nó na rede que contenha uma blockChain melhor que a local
                 // Caso exista, inicia um processo de sincronização com esse nó
@@ -65,13 +65,13 @@ public class BlockChainSynchronizer extends Thread
     public void checkRemoteBlockChains()
     {
         // Incialmente, considera-se a melhor blockChain
-        NodeAddress bestBlockChain = nodeAddress;
+        NodeAddress bestBlockChain = myNodeAddress;
 
         // Percorre a informação que este nó tem sobre as blockChains da rede
         for (NodeAddress address : network)
         {
             // Salta a verificação consigo mesmo
-            if (address.getBlockChainInfo() != nodeAddress.getBlockChainInfo())
+            if (address.getBlockChainInfo() != myNodeAddress.getBlockChainInfo())
             {
                 // Individualiza o BlockChainInfo do nó da rede em questão
                 BlockChainInfo chainInfo = address.getBlockChainInfo();
@@ -127,12 +127,15 @@ public class BlockChainSynchronizer extends Thread
                             break;
                         }
                     }
+                    
+                    // Alertar a rede da corrupção
+                    blockChain.alertNetworkAboutCorruptedBlockChain();
                 }
                 catch (Exception ex)
                 {
-                    System.out.println("Erro na sincronização - Receiver");
+                    System.out.println("Erro na sincronização - Receiver\n");
+                    System.out.println(ex.getMessage()+"\n\n");
                 }
-
             }
         }.start();
     }

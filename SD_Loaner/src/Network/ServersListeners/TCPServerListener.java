@@ -104,7 +104,7 @@ public class TCPServerListener extends Thread
             switch ( msg.getType() )
             {
                 case Message.TOMINE:
-
+                    
                     // MinerSerive vai receber o bloco a ser minerado
                     // e vai criar Threads que o irao minar
                     // Assim que a mineração for concluida, o bloco será enviado
