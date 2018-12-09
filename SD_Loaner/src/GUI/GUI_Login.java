@@ -300,7 +300,7 @@ public class GUI_Login extends javax.swing.JFrame
 
                     // Mostra o main e esconde a janela de login
                     guiMain.setVisible(true);
-                    jlFeedback.setText("Welcome");
+                    giveNormalFeedback("Welcome");
                     this.setVisible(false);
 
                     // Limpa as informações do cliente

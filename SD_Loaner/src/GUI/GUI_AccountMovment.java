@@ -35,6 +35,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
     private String loanBlockHash;
     private GUI_Main guiMain;
     private String passwordHash, movType;
+    private boolean endedWithSucess = false;
 
     /**
      * Creates new form GUI_DepositWithdrawal
@@ -57,7 +58,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         // Recebe os parametros
         this.guiMain = guiMain;
         this.movType = movType;
-        
+
         // Recolhe o necessário para a movimentação
         this.blockChain = guiMain.blockChain;
         this.publicKey = guiMain.publicKey;
@@ -191,8 +192,11 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                 guiMain.giveNormalFeedback(null, movType + " has been successful");
 
                 // Caso consiga criar um movimento, sair da janela
-                this.setVisible(false);
-                dispose();
+                if ( endedWithSucess )
+                {
+                    this.setVisible(false);
+                    dispose();
+                }
             }
             catch ( NoSuchAlgorithmException ex )
             {
@@ -201,6 +205,10 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                         ex.getMessage()
                 );
             }
+        }
+        else if ( movType.equals(AccountMovment.LOANPAYMENT) )
+        {
+            giveAlertFeedback("You don't have an active loan.");
         }
 
     }//GEN-LAST:event_jbConfirmActionPerformed
@@ -254,15 +262,15 @@ public class GUI_AccountMovment extends javax.swing.JFrame
 
                         // Adiciona o movimento de conta à block chain do cliente
                         blockChain.add(mov);
+
+                        // Dá feedback ao cliente
+                        giveNormalFeedback(type + " completed with success.");
+                        endedWithSucess = true;
                     }
                     catch ( Exception ex )
                     {
-                        giveAlertFeedback(ex.getMessage());
+                        giveAlertFeedback("Private Key not valid.");
                     }
-
-                    // Dá feedback ao cliente
-                    giveNormalFeedback(type + " completed with success.");
-
                 }
                 else
                 {
@@ -287,9 +295,9 @@ public class GUI_AccountMovment extends javax.swing.JFrame
     {
         boolean found = false;
 
+        // Percorre a BlockChain
         for ( Block b : blockChain.chain )
         {
-
             // Quando encontrar a conta do cliente
             if ( b.content instanceof AccountInformation && b.content.comparePublicKeys(publicKey) )
             {
@@ -329,14 +337,15 @@ public class GUI_AccountMovment extends javax.swing.JFrame
 
                         // Adiciona o movimento de conta à block chain do cliente
                         blockChain.add(payment);
+
+                        // Dá feedback ao cliente
+                        giveNormalFeedback("Loan Payment completed with success.");
+                        endedWithSucess = true;
                     }
                     catch ( Exception ex )
                     {
                         giveAlertFeedback(ex.getMessage());
                     }
-
-                    // Dá feedback ao cliente
-                    giveNormalFeedback("Loan Payment completed with success.");
 
                 }
                 else

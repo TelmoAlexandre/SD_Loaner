@@ -53,9 +53,9 @@ public class GUI_NewLoan extends javax.swing.JFrame
 
         // Centra a janela
         this.setLocationRelativeTo(null);
-        
+
         this.main = main;
-        
+
         // Recolhe a informação necessária
         this.blockChain = main.blockChain;
         this.publicKey = main.publicKey;
@@ -310,16 +310,23 @@ public class GUI_NewLoan extends javax.swing.JFrame
             // Caso o cliente não tenha um emprestimo activo
             if ( loanInfo.validate(blockChain) )
             {
-                // Assina o movimento
-                loanInfo.sign(askForPrivateKey());
+                try
+                {
+                    // Assina o movimento
+                    loanInfo.sign(askForPrivateKey());
 
-                // Adiciona o emprestimo e o movimento de conta à block chain
-                blockChain.add(loanInfo);
+                    // Adiciona o emprestimo e o movimento de conta à block chain
+                    blockChain.add(loanInfo);
 
-                // Dá feedback ao cliente
-                main.giveNormalFeedback(null, "Loan created with success.");
-                this.setVisible(false);
-                this.dispose();
+                    // Dá feedback ao cliente
+                    main.giveNormalFeedback(null, "Loan created with success.");
+                    this.setVisible(false);
+                    this.dispose();
+                }
+                catch ( Exception ex )
+                {
+                    giveAlertFeedback("Private Key not valid.");
+                }
             }
             else
             {
@@ -328,7 +335,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
         }
         catch ( Exception ex )
         {
-            giveAlertFeedback(ex.getMessage());
+            giveAlertFeedback("We're experiencing technical difficulties");
         }
     }
 
