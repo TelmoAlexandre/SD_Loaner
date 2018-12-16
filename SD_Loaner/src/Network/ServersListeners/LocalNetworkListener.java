@@ -35,19 +35,26 @@ public class LocalNetworkListener extends Thread
     // Lista dos listeners do nó
     List<NodeEventListener> listeners;
 
-    public LocalNetworkListener(TreeSet<NodeAddress> network, NodeAddress myAddress, List<NodeEventListener> listeners) throws Exception
+    public LocalNetworkListener(TreeSet<NodeAddress> network, NodeAddress myAddress, List<NodeEventListener> listeners)
     {
         this.listeners = listeners;
         this.myAddress = myAddress;
         this.myAddress.setUDP_Port(MULTICAST_PORT);
         this.network = network;
 
-        listener = new MulticastSocket(MULTICAST_PORT);
-        listener.joinGroup(InetAddress.getByName(MULTICAST_IP));
+        try
+        {
+            listener = new MulticastSocket(MULTICAST_PORT);
+            listener.joinGroup(InetAddress.getByName(MULTICAST_IP));
 
-        // enviar uma mensagem para o grupo a pedir conexão
-        MessageUDP msg = new MessageUDP(MessageUDP.CONNECT, this.myAddress);
-        msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
+            // enviar uma mensagem para o grupo a pedir conexão
+            MessageUDP msg = new MessageUDP(MessageUDP.CONNECT, this.myAddress);
+            msg.sendUDP(MULTICAST_IP, MULTICAST_PORT);
+        }
+        catch ( Exception ex )
+        {
+            System.out.println("The network capabilities are only available with an Ethernet connection.");
+        }
 
         // Encontra-se conectado à rede
         connectedToNetwork = true;
