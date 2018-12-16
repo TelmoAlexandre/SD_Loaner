@@ -55,6 +55,11 @@ public class TCPServerListener extends Thread
         myAddress.setTCP_Port(server.getLocalPort());
     }
 
+    /**
+     * Termina a Thread.
+     * 
+     * @throws IOException 
+     */
     public void disconnect() throws IOException
     {
         server.close();
@@ -90,6 +95,10 @@ public class TCPServerListener extends Thread
         }
     }
 
+    /**
+     * Interpreta os conteúdos que chegam pela ligação TCP. 
+     * @param socketManager 
+     */
     private void startConnection(SocketManager socketManager)
     {
         try
@@ -142,6 +151,12 @@ public class TCPServerListener extends Thread
 
     }
 
+    /**
+     * Sincroniza a blockChain com a rede.
+     * 
+     * @param block
+     * @param socketManager 
+     */
     private void synchronizeBlockChain(Block block, SocketManager socketManager)
     {
 

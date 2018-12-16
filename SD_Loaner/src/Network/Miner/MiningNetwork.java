@@ -12,8 +12,7 @@ import Network.SocketManager;
 import java.util.List;
 
 /**
- *
- * @author zulu
+ * Envia um bloco a ser minado para toda a rede.
  */
 public class MiningNetwork
 {
@@ -26,6 +25,12 @@ public class MiningNetwork
         this.network = network;
     }
 
+    /**
+     * Pede à rede para minar o bloco.
+     * 
+     * @param block
+     * @throws Exception 
+     */
     public void mine(Block block) throws Exception
     {
         this.block = block;

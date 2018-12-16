@@ -10,8 +10,8 @@ import BlockChain.BlockChain;
 import java.security.Key;
 
 /**
- * Informação do emprestimo. Deverá ser o conteúdo do primeiro bloco.
- * <p>Tem informações sobre o cliente, o montante do emprestimo e que ainda falta pagar relativamente ao emprestimo.
+ * Informação do emprestimo.
+ * <p>Tem informações sobre o cliente, o montante do emprestimo.
  * 
  * @author Telmo
  */

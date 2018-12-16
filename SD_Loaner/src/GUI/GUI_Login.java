@@ -630,16 +630,30 @@ public class GUI_Login extends javax.swing.JFrame
         }.start();
     }
 
+    /**
+     * Referência ao booleano atómico da Thread de sincronização.
+     * 
+     */
     public AtomicBoolean getIsSynchronizing()
     {
         return isSynchronizing;
     }
 
+    /**
+     * Referencia ao main.
+     * 
+     * @return 
+     */
     public GUI_Main getGuiMain()
     {
         return guiMain;
     }
 
+    /**
+     * Referencia ao nó local da rede.
+     * 
+     * @return 
+     */
     public Node getNode()
     {
         return node;

@@ -11,7 +11,6 @@ import Network.Message.Message;
 import Network.Message.MessageUDP;
 import Network.NodeAddress;
 import Network.ServersListeners.LocalNetworkListener;
-import static Network.ServersListeners.LocalNetworkListener.MULTICAST_PORT;
 import Network.SocketManager;
 import static java.lang.Thread.sleep;
 import java.util.TreeSet;
@@ -69,6 +68,11 @@ public class BlockChainSynchronizer extends Thread
         }
     }
 
+    /**
+     * Compara a BlockChain local com as informações que existem sobre as BlockChain remotas.
+     * 
+     * @param isSynchronizing 
+     */
     public void checkRemoteBlockChains(AtomicBoolean isSynchronizing)
     {
         // Caso não se encontre já a sincronizar
@@ -103,6 +107,12 @@ public class BlockChainSynchronizer extends Thread
         }
     }
 
+    /**
+     * Sincroniza a blockChain local com uma blockChain remota.
+     * 
+     * @param address
+     * @param isSynchronizing 
+     */
     private void synchronizeBlockChain(NodeAddress address, AtomicBoolean isSynchronizing)
     {
         new Thread()
@@ -170,6 +180,12 @@ public class BlockChainSynchronizer extends Thread
         this.connectedToNetwork = false;
     }
 
+    /**
+     * Informa a rede sobre alterações na BlockChain local.
+     * 
+     * @param nodeAddress
+     * @throws Exception 
+     */
     public static void notifyNetworkOfBlockChainChanges(NodeAddress nodeAddress) throws Exception
     {
         // Partilha o nodeAddres com a rede

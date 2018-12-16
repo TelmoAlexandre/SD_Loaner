@@ -8,7 +8,8 @@ package Network.Message;
 import java.io.Serializable;
 
 /**
- *
+ *  Utilizada para enviar Blocos pela rede.
+ * 
  * @author Telmo
  */
 public class Message implements Serializable

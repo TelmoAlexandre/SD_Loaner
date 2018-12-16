@@ -75,7 +75,7 @@ public class Block implements Serializable
     }
 
     /**
-     * Define o hashCode
+     * Define o hashCode.
      *
      * @param hashCode Hash Code minado
      */

@@ -830,7 +830,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     }
 
     /**
-     * Retorna o hash code do bloco do emprestimo activo
+     * Retorna o bloco do emprestimo activo.
      *
      */
     private Block getActiveLoanHash()
@@ -1125,7 +1125,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     }
 
     /**
-     * Define o hash da password do cliente
+     * Define o hash da password do cliente.
      *
      * @param pass
      */
@@ -1168,18 +1168,29 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jbLoanPayment.setEnabled(true);
     }
 
+    /**
+     * Mostra o bloco que foi recebido na rede que seja para minar.
+     * 
+     * @param txt 
+     */
     public void displayReceivedBlock(String txt)
     {
         jtaDisplayReceivedBlock.setText(txt);
     }
 
+    /**
+     * Mostra o bloco recebido na rede que se encontra minado e 
+     * seja para adicionar na blockChain local.
+     * 
+     * @param txt 
+     */
     public void writeMinedBlock(String txt)
     {
         jtaBlockReader.setText(txt);
     }
 
     /**
-     * Limpa os dados de login do utilizador
+     * Limpa os dados de login do utilizador.
      */
     public void clearClientData()
     {
@@ -1188,6 +1199,12 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         jtaLedger.setText("");
     }
 
+    /**
+     * Imprime os logs da rede.
+     * 
+     * @param msg
+     * @param color 
+     */
     private void printLog(String msg, Color color)
     {
         SwingUtilities.invokeLater(new Runnable()

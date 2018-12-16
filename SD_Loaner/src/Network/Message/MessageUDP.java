@@ -24,7 +24,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 /**
- * Classe que representa uma mensagem a ser trocada na rede.
+ * Classe que representa uma mensagem UDP a ser trocada na rede.
  *
  */
 public class MessageUDP extends Message

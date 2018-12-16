@@ -150,7 +150,7 @@ public class BlockChain
     }
 
     /**
-     * Verifica a integridade da blockChain e sincroniza-a.
+     * Verifica a integridade da blockChain e sincroniza-a com a rede.
      *
      */
     public void synchronize()

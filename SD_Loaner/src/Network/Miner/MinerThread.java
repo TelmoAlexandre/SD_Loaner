@@ -5,7 +5,6 @@
  */
 package Network.Miner;
 
-import Network.SocketManager;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -30,8 +29,6 @@ public class MinerThread extends Thread
     private String solution;
     private boolean solvedByMe;
     private String calculatedHash;
-
-    SocketManager socketManager;
 
     public MinerThread(String toMine, int difficulty, 
             AtomicBoolean miningDone, 

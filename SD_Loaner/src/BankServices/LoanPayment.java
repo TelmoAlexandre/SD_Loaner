@@ -92,7 +92,7 @@ public class LoanPayment extends Service
     }
 
     /**
-     * Retorna os atributos do Loan Payment.
+     * Retorna os atributos do Loan Payment em forma de String.
      *
      * @return type + amount.
      */

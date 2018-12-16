@@ -17,10 +17,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Key;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.util.Base64;
 import javax.swing.JFileChooser;
 
 /**
@@ -360,32 +358,6 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         if ( !found )
         {
             giveAlertFeedback("Account not found.");
-        }
-    }
-
-    /**
-     * Recebe a password, cria o hash e guarda o mesmo.
-     *
-     * @param password
-     */
-    private void setPasswordHash(String password)
-    {
-        // Transforma a password num hash
-        try
-        {
-            MessageDigest hash;
-            hash = MessageDigest
-                    .getInstance("SHA-512");
-            hash.update(
-                    password.getBytes()
-            );
-
-            // Guarda o hash da password
-            passwordHash = Base64.getEncoder().encodeToString(hash.digest());
-        }
-        catch ( NoSuchAlgorithmException ex )
-        {
-            giveAlertFeedback(ex.getMessage());
         }
     }
 

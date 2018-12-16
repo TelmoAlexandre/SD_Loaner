@@ -66,21 +66,21 @@ public class SocketManager
      */
     private void inic() throws IOException, Exception
     {
-        createObjectStreams();
+        createDataStreams();
     }
 
     /**
      * Inicializa o in e o out.
      *
      */
-    private void createObjectStreams() throws IOException
+    private void createDataStreams() throws IOException
     {
         this.dataOut = new DataOutputStream(socket.getOutputStream());
         this.dataIn = new DataInputStream(socket.getInputStream());
     }
 
     /**
-     * Faz a leitura de um objecto que chegue pelo socket. Bloqueante.
+     * Faz a leitura de bytes, desencripta-os, e transforma-os num objecto que chegue pelo socket. Bloqueante.
      *
      * @return Objecto recebido
      * @throws IOException
@@ -102,7 +102,7 @@ public class SocketManager
     }
 
     /**
-     * Envia o objecto recebido por parametro.
+     * Envia o objecto recebido por parametro encriptado.
      *
      * @param obj Objecto a ser enviado
      * @throws IOException

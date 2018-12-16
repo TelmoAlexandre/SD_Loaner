@@ -17,8 +17,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.SwingWorker;
 
 /**
- *
- * @author zulu
+ * Cria as Threads Mineiras.
+ * 
  */
 public class MinerService extends SwingWorker<String, Integer>
 {

@@ -23,6 +23,7 @@ import Network.Miner.MiningNetwork;
 import Network.ServersListeners.LocalNetworkListener;
 import Network.ServersListeners.TCPServerListener;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +50,22 @@ public class Node
     // Synchronizer
     BlockChainSynchronizer blockChainSynchronizer;
 
+    public Node()
+    {
+        try
+        {
+            // Cria um endereço para o nodo
+            this.myAddress = new NodeAddress(
+                    InetAddress.getLocalHost().getHostAddress()
+            );
+        }
+        catch ( UnknownHostException ex )
+        {
+            System.out.println("Error creating NodeAddress\n");
+            System.out.println(ex.getMessage() + "\n\n");
+        }
+    }    
+    
     /**
      * Avisa a rede da sua entrada na mesma. Inicia o servidor de escuta de
      * blocos a serem minados.
@@ -59,11 +76,6 @@ public class Node
     public void startServer(GUI_Login guiLogin) throws Exception
     {
         network = new TreeSet<>();
-
-        // Cria um endereço para o nodo
-        this.myAddress = new NodeAddress(
-                InetAddress.getLocalHost().getHostAddress()
-        );
 
         // Cria os listeners da rede e do Mineiro
         tcpServerListener = new TCPServerListener(guiLogin, myAddress, network);
@@ -83,6 +95,11 @@ public class Node
         isConnected = true;
     }
 
+    /**
+     * Faz a sincronização da blockChain com a rede.
+     * 
+     * @param isSynchronizing 
+     */
     public void synchronizeBlockChain(AtomicBoolean isSynchronizing)
     {
         blockChainSynchronizer.checkRemoteBlockChains(isSynchronizing);
@@ -102,7 +119,7 @@ public class Node
     }
 
     /**
-     * Retorna o objeto de endereço do nodo.
+     * Referência ao objeto de endereço do nodo.
      *
      * @return NodeAddress
      */
@@ -149,12 +166,6 @@ public class Node
 
         // Não se encontra conectado
         isConnected = false;
-    }
-
-    public void linkTo(String host, int port) throws Exception
-    {
-        //::::::::::::::::::: T O   P R O G R A M M I N G:::::::::::::::::::::::: 
-        // enviar um pedido de coneção para o endereço   
     }
 
     /**

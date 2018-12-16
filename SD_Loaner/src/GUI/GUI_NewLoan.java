@@ -367,32 +367,6 @@ public class GUI_NewLoan extends javax.swing.JFrame
     }
 
     /**
-     * Recebe a password, cria o hash e guarda o mesmo.
-     *
-     * @param password
-     */
-    private void setPasswordHash(String password)
-    {
-        // Transforma a password num hash
-        try
-        {
-            MessageDigest hash;
-            hash = MessageDigest
-                    .getInstance("SHA-512");
-            hash.update(
-                    password.getBytes()
-            );
-
-            // Guarda o hash da password
-            passwordHash = Base64.getEncoder().encodeToString(hash.digest());
-        }
-        catch ( NoSuchAlgorithmException ex )
-        {
-            giveAlertFeedback(ex.getMessage());
-        }
-    }
-
-    /**
      * Fornece feedback de alertas ao utilizador.
      *
      * @param feedback
