@@ -20,6 +20,7 @@ import GUI.GUI_Login;
 import Network.BlockChainSynchronizer.BlockChainSynchronizer;
 import Network.Message.MessageUDP;
 import Network.Miner.MiningNetwork;
+import Network.ServersListeners.AndroidServerListener;
 import Network.ServersListeners.LocalNetworkListener;
 import Network.ServersListeners.TCPServerListener;
 import java.net.InetAddress;
@@ -46,6 +47,7 @@ public class Node
     // Server Listeners
     LocalNetworkListener localNetworkListener;
     TCPServerListener tcpServerListener;
+    AndroidServerListener androidServerListener;
 
     // Synchronizer
     BlockChainSynchronizer blockChainSynchronizer;
@@ -80,6 +82,9 @@ public class Node
         // Cria os listeners da rede e do Mineiro
         tcpServerListener = new TCPServerListener(guiLogin, myAddress, network);
         tcpServerListener.start();
+        
+        androidServerListener = new AndroidServerListener(guiLogin);
+        androidServerListener.start();
 
         localNetworkListener = new LocalNetworkListener(network, myAddress, listeners);
         localNetworkListener.start();
@@ -162,6 +167,7 @@ public class Node
         // Termina os listeners
         localNetworkListener.disconnect();
         tcpServerListener.disconnect();
+        androidServerListener.disconnect();
         blockChainSynchronizer.disconnect();
 
         // Não se encontra conectado

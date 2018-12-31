@@ -12,7 +12,7 @@ import java.security.Key;
  *
  * @author Telmo
  */
-public class AccountMovment extends Service
+public class AccountMovement extends Service
 {
     // Flags
     public static String DEPOSIT = "DEPOSIT";
@@ -21,7 +21,7 @@ public class AccountMovment extends Service
 
     private final String type;
 
-    public AccountMovment(Key publicKey, double amount, String type)
+    public AccountMovement(Key publicKey, double amount, String type)
     {
         super(publicKey, amount);
         this.type = type;
@@ -37,7 +37,7 @@ public class AccountMovment extends Service
     @Override
     public boolean validate(BlockChain bc) throws Exception
     {
-        if ( type.equals(AccountMovment.WITHDRAWAL) )
+        if ( type.equals(AccountMovement.WITHDRAWAL) )
         {
             return (amount <= getMyMoney(bc, publicKey) && verifySignature());
         }
@@ -56,7 +56,7 @@ public class AccountMovment extends Service
     @Override
     public double getTrueAmount()
     {
-        return (type.equals(AccountMovment.WITHDRAWAL)) ? amount * (-1.0) : amount;
+        return (type.equals(AccountMovement.WITHDRAWAL)) ? amount * (-1.0) : amount;
     }
 
     /**

@@ -7,7 +7,7 @@ package GUI;
 
 import AccountManager.AccountManager;
 import AccountManager.AccountInformation;
-import BankServices.AccountMovment;
+import BankServices.AccountMovement;
 import BankServices.LoanPayment;
 import BlockChain.BlockChain;
 import BlockChain.Block;
@@ -552,13 +552,13 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private void jbDepositActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbDepositActionPerformed
     {//GEN-HEADEREND:event_jbDepositActionPerformed
         blockChain.synchronize();
-        callMovmentWindow(AccountMovment.DEPOSIT);
+        callMovmentWindow(AccountMovement.DEPOSIT);
     }//GEN-LAST:event_jbDepositActionPerformed
 
     private void jbWithdrawalActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbWithdrawalActionPerformed
     {//GEN-HEADEREND:event_jbWithdrawalActionPerformed
         blockChain.synchronize();
-        callMovmentWindow(AccountMovment.WITHDRAWAL);
+        callMovmentWindow(AccountMovement.WITHDRAWAL);
     }//GEN-LAST:event_jbWithdrawalActionPerformed
 
     private void jbCheckMoneyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbCheckMoneyActionPerformed
@@ -647,7 +647,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
     private void jbLoanPaymentActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbLoanPaymentActionPerformed
     {//GEN-HEADEREND:event_jbLoanPaymentActionPerformed
         blockChain.synchronize();
-        callMovmentWindow(AccountMovment.LOANPAYMENT);
+        callMovmentWindow(AccountMovement.LOANPAYMENT);
     }//GEN-LAST:event_jbLoanPaymentActionPerformed
 
     private void jbPrintBlockChainActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbPrintBlockChainActionPerformed
@@ -1006,7 +1006,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
         }
 
         // Imprime o dinheiro total do cliente
-        jtaLedger.append("\n\n{\n Total money: " + AccountMovment.getMyMoney(blockChain, publicKey) + "€\n}");
+        jtaLedger.append("\n\n{\n Total money: " + AccountMovement.getMyMoney(blockChain, publicKey) + "€\n}");
     }
 
     /**
@@ -1018,7 +1018,7 @@ public class GUI_Main extends javax.swing.JFrame implements NodeEventListener
      */
     public void callMovmentWindow(String movType)
     {
-        GUI_AccountMovment movWindow = new GUI_AccountMovment(this, movType);
+        GUI_AccountMovement movWindow = new GUI_AccountMovement(this, movType);
 
         movWindow.setVisible(true);
         movWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

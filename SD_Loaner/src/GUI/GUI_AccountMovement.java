@@ -7,7 +7,7 @@ package GUI;
 
 import AccountManager.AccountInformation;
 import BankServices.Loan;
-import BankServices.AccountMovment;
+import BankServices.AccountMovement;
 import BankServices.LoanPayment;
 import BlockChain.Block;
 import BlockChain.BlockChain;
@@ -25,7 +25,7 @@ import javax.swing.JFileChooser;
  *
  * @author Telmo
  */
-public class GUI_AccountMovment extends javax.swing.JFrame
+public class GUI_AccountMovement extends javax.swing.JFrame
 {
     private Key publicKey;
     private BlockChain blockChain;
@@ -38,7 +38,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
     /**
      * Creates new form GUI_DepositWithdrawal
      */
-    public GUI_AccountMovment()
+    public GUI_AccountMovement()
     {
         initComponents();
 
@@ -46,7 +46,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         this.setLocationRelativeTo(null);
     }
 
-    public GUI_AccountMovment(GUI_Main guiMain, String movType)
+    public GUI_AccountMovement(GUI_Main guiMain, String movType)
     {
         initComponents();
 
@@ -156,6 +156,11 @@ public class GUI_AccountMovment extends javax.swing.JFrame
 
     private void jbConfirmActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_jbConfirmActionPerformed
     {//GEN-HEADEREND:event_jbConfirmActionPerformed
+        createMovement(askForPrivateKey(), 0.0);
+    }//GEN-LAST:event_jbConfirmActionPerformed
+
+    public void createMovement(PrivateKey pvK, double amount)
+    {
         boolean activeLoan = false;
         try
         {
@@ -167,22 +172,32 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         }
 
         // Verificar se o cliente tem um emprestimo activo ou se o tipo de movimento é diferente de pagamento de emprestimo
-        if ( !movType.equals(AccountMovment.LOANPAYMENT) || activeLoan )
+        if ( !movType.equals(AccountMovement.LOANPAYMENT) || activeLoan )
         {
             try
             {
+                // Caso não tenha sido especificado o montante por paramentro, recolhe o montante do GUI
+                if ( amount == 0.0 )
+                {
+                    // Transformar o conteudo do spinner num double
+                    String value = jsAmount.getValue() + "";
+                    amount = Double.parseDouble(value);
+                }
+
                 // Se não for pagamento de emprestimo, cria um movimento de conta
-                if ( !movType.equals(AccountMovment.LOANPAYMENT) )
+                if ( !movType.equals(AccountMovement.LOANPAYMENT) )
                 {
                     performAccountMovment(
                             movType, // Informa o tipo de movimento ( 'Deposit' ou 'Withdawal' )
-                            askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada
+                            pvK, // Abre uma janela para ser escolhido o ficheiro com a chave privada
+                            amount
                     );
                 }
                 else // Senão, cria um pagamento de emprestimo
                 {
                     performLoanPayment(
-                            askForPrivateKey() // Abre uma janela para ser escolhido o ficheiro com a chave privada 
+                            pvK, // Abre uma janela para ser escolhido o ficheiro com a chave privada 
+                            amount
                     );
                 }
 
@@ -204,12 +219,11 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                 );
             }
         }
-        else if ( movType.equals(AccountMovment.LOANPAYMENT) )
+        else if ( movType.equals(AccountMovement.LOANPAYMENT) )
         {
             giveAlertFeedback("You don't have an active loan.");
         }
-
-    }//GEN-LAST:event_jbConfirmActionPerformed
+    }
 
     /**
      * Cria a movimentação pretendida pelo cliente
@@ -220,7 +234,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
      * @param pvK
      * @throws NoSuchAlgorithmException
      */
-    private void performAccountMovment(String type, PrivateKey pvK) throws NoSuchAlgorithmException
+    private void performAccountMovment(String type, PrivateKey pvK, double amount) throws NoSuchAlgorithmException
     {
 
         boolean found = false;
@@ -242,12 +256,8 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                 {
                     // Chegando aqui, existe certeza que se trata do cliente em questão
 
-                    // Transformar o conteudo do spinner num double
-                    String value = jsAmount.getValue() + "";
-                    double amount = Double.parseDouble(value);
-
                     // É criado o movimento de conta
-                    AccountMovment mov = new AccountMovment(
+                    AccountMovement mov = new AccountMovement(
                             publicKey,
                             amount,
                             type
@@ -289,7 +299,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
      * Cria um pagamento sobre o emprestimo.
      *
      */
-    private void performLoanPayment(PrivateKey pvK) throws NoSuchAlgorithmException
+    private void performLoanPayment(PrivateKey pvK, double amount) throws NoSuchAlgorithmException
     {
         boolean found = false;
 
@@ -309,10 +319,6 @@ public class GUI_AccountMovment extends javax.swing.JFrame
                 if ( info.authenticateLogin(passwordHash) )
                 {
                     // Chegando aqui, existe certeza que se trata do cliente em questão
-
-                    // Transformar o conteudo do spinner num double
-                    String value = jsAmount.getValue() + "";
-                    double amount = Double.parseDouble(value);
 
                     // Recolhe o montante restante a pagar no emprestimo
                     double whatsLeftToPay = LoanPayment.whatsLeftToPayInThisLoan(loanBlockHash, blockChain, loanWithInterest);
@@ -484,27 +490,29 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         }
         catch ( ClassNotFoundException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_AccountMovment.class
+            java.util.logging.Logger.getLogger(GUI_AccountMovement.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         }
         catch ( InstantiationException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_AccountMovment.class
+            java.util.logging.Logger.getLogger(GUI_AccountMovement.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         }
         catch ( IllegalAccessException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_AccountMovment.class
+            java.util.logging.Logger.getLogger(GUI_AccountMovement.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
 
         }
         catch ( javax.swing.UnsupportedLookAndFeelException ex )
         {
-            java.util.logging.Logger.getLogger(GUI_AccountMovment.class
+            java.util.logging.Logger.getLogger(GUI_AccountMovement.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
@@ -513,7 +521,7 @@ public class GUI_AccountMovment extends javax.swing.JFrame
         {
             public void run()
             {
-                new GUI_AccountMovment().setVisible(true);
+                new GUI_AccountMovement().setVisible(true);
             }
         });
     }

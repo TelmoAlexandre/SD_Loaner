@@ -16,11 +16,11 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Key;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.text.ParseException;
-import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 
 /**
@@ -149,21 +149,19 @@ public class GUI_NewLoan extends javax.swing.JFrame
     {//GEN-HEADEREND:event_jbConfirmAndSignActionPerformed
         try
         {
-            // Verifica se o cliente tem conta, e caso tenha chama um metodo para criar o emprestimo
-            // Caso tenha sido criado o emprestimo, fecha a janela
-            if ( clientHasAccount() )
-            {
-                // Cria o emprestimo
-                createLoan();
-            }
-            else
-            {
-                giveAlertFeedback("Account not found.");
-            }
+            // Verificar se os conteudos intruduzidos manualmente respeitam os limites do spinner
+            jsAmount.commitEdit();
+            // Transformar o conteudo do spinner num double
+            String value = jsAmount.getValue() + "";
+            double amount = Double.parseDouble(value);
+            
+            startLoanProcess(askForPrivateKey(), amount);
         }
-        catch ( InterruptedException | NoSuchAlgorithmException | ParseException ex )
+        catch ( ParseException ex )
         {
-            giveAlertFeedback(ex.getMessage());
+            System.out.println("Error commiting edit in jSpinner - GUI_NewLoan - Confirm and sign button");
+            System.out.println(ex.getMessage());
+            //Logger.getLogger(GUI_NewLoan.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jbConfirmAndSignActionPerformed
 
@@ -232,6 +230,28 @@ public class GUI_NewLoan extends javax.swing.JFrame
     private javax.swing.JSpinner jsAmount;
     // End of variables declaration//GEN-END:variables
 
+    public void startLoanProcess(PrivateKey pvK, double amount)
+    {
+        try
+        {
+            // Verifica se o cliente tem conta, e caso tenha chama um metodo para criar o emprestimo
+            // Caso tenha sido criado o emprestimo, fecha a janela
+            if ( clientHasAccount() )
+            {
+                // Cria o emprestimo
+                createLoan(pvK, amount);
+            }
+            else
+            {
+                giveAlertFeedback("Account not found.");
+            }
+        }
+        catch ( InterruptedException | NoSuchAlgorithmException | ParseException ex )
+        {
+            giveAlertFeedback(ex.getMessage());
+        }
+    }
+    
     /**
      * Verifica se o cliente tem conta criada no banco.
      *
@@ -290,15 +310,8 @@ public class GUI_NewLoan extends javax.swing.JFrame
      * @throws java.lang.InterruptedException
      * @throws java.text.ParseException
      */
-    private void createLoan() throws NoSuchAlgorithmException, InterruptedException, ParseException
+    private void createLoan(PrivateKey pvK, double amount) throws NoSuchAlgorithmException, InterruptedException, ParseException
     {
-
-        // Verificar se os conteudos intruduzidos manualmente respeitam os limites do spinner
-        jsAmount.commitEdit();
-        // Transformar o conteudo do spinner num double
-        String value = jsAmount.getValue() + "";
-        double amount = Double.parseDouble(value);
-
         // Criado o emprestimo
         Loan loanInfo = new Loan(
                 publicKey,
@@ -313,7 +326,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
                 try
                 {
                     // Assina o movimento
-                    loanInfo.sign(askForPrivateKey());
+                    loanInfo.sign(pvK);
 
                     // Adiciona o emprestimo e o movimento de conta à block chain
                     blockChain.add(loanInfo);
