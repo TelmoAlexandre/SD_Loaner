@@ -291,7 +291,7 @@ public class GUI_Login extends javax.swing.JFrame
                 setPasswordHash(new String(jpfPassword.getPassword()));
 
                 // Caso o cliente tenha conta e a autenticação tenha sido feita com sucesso
-                if ( clientHasAccount() )
+                if ( clientHasAccount(publicKey, passwordHash) )
                 {
                     // Carrega as informações do cliente para o GUI_Main
                     guiMain.setClientPasswordHash(passwordHash);
@@ -454,7 +454,7 @@ public class GUI_Login extends javax.swing.JFrame
      * Verifica se o cliente tem conta criada no banco.
      *
      */
-    private boolean clientHasAccount()
+    public boolean clientHasAccount(Key puB, String psw)
     {
         // Booleano para verificar se foi encontrada a conta do cliente.
         boolean found = false;
@@ -465,7 +465,7 @@ public class GUI_Login extends javax.swing.JFrame
             AccountManager blockContent = b.content;
 
             // Caso o conteudo do bloco seja uma informação de conta e esta pertença ao cliente
-            if ( blockContent instanceof AccountInformation && blockContent.comparePublicKeys(publicKey) )
+            if ( blockContent instanceof AccountInformation && blockContent.comparePublicKeys(puB) )
             {
                 // Se entrar aqui, então encontrou a conta do cliente
                 found = true;
@@ -476,7 +476,7 @@ public class GUI_Login extends javax.swing.JFrame
                 try
                 {
                     // Trata da autenticação
-                    if ( info.authenticateLogin(passwordHash) )
+                    if ( info.authenticateLogin(psw) )
                     {
                         return true;
                     }

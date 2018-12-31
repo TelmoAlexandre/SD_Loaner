@@ -5,7 +5,6 @@
  */
 package Network.ServersListeners;
 
-import BankServices.AccountMovement;
 import GUI.GUI_AccountMovement;
 import GUI.GUI_Login;
 import GUI.GUI_NewLoan;
@@ -13,12 +12,17 @@ import Utilities.SecurityUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -30,19 +34,17 @@ public class AndroidServerListener extends Thread
     ServerSocket server;
 
     // Chaves do cliente
-    PublicKey pbK;
-    PrivateKey pvK;
+    PublicKey telmoPuK;
+    PrivateKey telmoPvK;
 
     public AndroidServerListener(GUI_Login guiLogin)
     {
         this.guiLogin = guiLogin;
-        String pbS = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDtcERsbYsU4ThzKETVaGLcHmXoKesdMhzZoe9bOVJ8wSioWaV92NjGDQUezMvbZM2ZAferjSWF47vqm/r63iDB2nxH0dpZL0qB+pI8BvGhdIin5+8RXtkEHi68mCtzGwS+22eUjwg5veVQDW+vGpg5b8KJW9HsUiDcnjwCVhehwIDAQAB";
-        String pvS = "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAIO1wRGxtixThOHMoRNVoYtweZegp6x0yHNmh71s5UnzBKKhZpX3Y2MYNBR7My9tkzZkB96uNJYXju+qb+vreIMHafEfR2lkvSoH6kjwG8aF0iKfn7xFe2QQeLryYK3MbBL7bZ5SPCDm95VANb68amDlvwolb0exSINyePAJWF6HAgMBAAECgYBoeXaxY2be2E0Sky+913Hx2oEIzm3SdTw/lbfcgRGLzBIEMsTd9kNG6n79NBCQ8XkRbt1zPHoICJ3f7DElUT3geZNMWYP9ruzSLEbKnHVHPBnHxrIAvlBb0r6DEaxtv+9uTnEce7anojYf0UHf8sD2KUN3fmKxMnSyZJMUeL+raQJBAPbEfQ3zw9DZvBP5n+xBxRdVdCi0CRDakSbmMCIuWeKnCw5qDqz4biVyP3s8+NGBtlULg/skEYtSbNewDwNNrcUCQQCIo0HnGjijbDY8lN4+IjC9R2dqnY+UiEUIPZSvm9aGGNCu9pNZgp3qh0AiXIhWrpKIV1+HQKuTvl5MjoS/zEvbAkEArA5eX18KtlFKeOcBIZrOEDHt9v9ons62jFfNUdfdplHwPJGoP+RL8GITbxsZJgL6HZwU3wPME8dZyp2gKh58PQJAUDXGUiwKY6T6kcWyUTcw9WwdQXENAFyeaZ/80LnizQV0O8Fz7m/G1A5hj8pSHtCMJI1l/rfwAOMX6EkhlJYRUQJBAIO35niFNnqFJn4rZ9BpMqOhWXFCXrLVuiPJr1Vtj9q3yIyFykQlaYa3D5lhVqmz0vGZbCKBvRLUObrHt0Vq0TE=";
 
         try
         {
-            pbK = (PublicKey) SecurityUtils.getPublicKey(pbS);
-            pvK = (PrivateKey) SecurityUtils.getPrivateKey(pvS);
+            telmoPuK = (PublicKey) SecurityUtils.getPublicKey("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCDtcERsbYsU4ThzKETVaGLcHmXoKesdMhzZoe9bOVJ8wSioWaV92NjGDQUezMvbZM2ZAferjSWF47vqm/r63iDB2nxH0dpZL0qB+pI8BvGhdIin5+8RXtkEHi68mCtzGwS+22eUjwg5veVQDW+vGpg5b8KJW9HsUiDcnjwCVhehwIDAQAB");
+            telmoPvK = (PrivateKey) SecurityUtils.getPrivateKey("MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAIO1wRGxtixThOHMoRNVoYtweZegp6x0yHNmh71s5UnzBKKhZpX3Y2MYNBR7My9tkzZkB96uNJYXju+qb+vreIMHafEfR2lkvSoH6kjwG8aF0iKfn7xFe2QQeLryYK3MbBL7bZ5SPCDm95VANb68amDlvwolb0exSINyePAJWF6HAgMBAAECgYBoeXaxY2be2E0Sky+913Hx2oEIzm3SdTw/lbfcgRGLzBIEMsTd9kNG6n79NBCQ8XkRbt1zPHoICJ3f7DElUT3geZNMWYP9ruzSLEbKnHVHPBnHxrIAvlBb0r6DEaxtv+9uTnEce7anojYf0UHf8sD2KUN3fmKxMnSyZJMUeL+raQJBAPbEfQ3zw9DZvBP5n+xBxRdVdCi0CRDakSbmMCIuWeKnCw5qDqz4biVyP3s8+NGBtlULg/skEYtSbNewDwNNrcUCQQCIo0HnGjijbDY8lN4+IjC9R2dqnY+UiEUIPZSvm9aGGNCu9pNZgp3qh0AiXIhWrpKIV1+HQKuTvl5MjoS/zEvbAkEArA5eX18KtlFKeOcBIZrOEDHt9v9ons62jFfNUdfdplHwPJGoP+RL8GITbxsZJgL6HZwU3wPME8dZyp2gKh58PQJAUDXGUiwKY6T6kcWyUTcw9WwdQXENAFyeaZ/80LnizQV0O8Fz7m/G1A5hj8pSHtCMJI1l/rfwAOMX6EkhlJYRUQJBAIO35niFNnqFJn4rZ9BpMqOhWXFCXrLVuiPJr1Vtj9q3yIyFykQlaYa3D5lhVqmz0vGZbCKBvRLUObrHt0Vq0TE=");
         }
         catch ( Exception ex )
         {
@@ -81,19 +83,56 @@ public class AndroidServerListener extends Thread
                 JsonObject json = new JsonParser().parse(content).getAsJsonObject();
 
                 String type = json.get("type").getAsString();
-                double amount = json.get("amount").getAsDouble();
+                double amount;
 
-                if ( type.equals("LOAN") )
+                switch ( type )
                 {
-                    GUI_NewLoan newLoan = new GUI_NewLoan(guiLogin.getGuiMain());
-                    newLoan.startLoanProcess(pvK, amount);
-                }
-                else
-                {
-                    GUI_AccountMovement accountMov = new GUI_AccountMovement(guiLogin.getGuiMain(), json.get("type").getAsString());
-                    accountMov.createMovement(pvK, amount);
-                }
+                    case "AUTHENTICATE":
 
+                        String psw = json.get("password").getAsString();
+
+                        if ( guiLogin.clientHasAccount(telmoPuK, psw) )
+                        {
+                            respond(sckt, true);
+                        }
+                        else
+                        {
+                            respond(sckt, false);
+                        }
+                        break;
+
+                    case "LOAN":
+
+                        amount = json.get("amount").getAsDouble();
+                        GUI_NewLoan newLoan = new GUI_NewLoan(guiLogin.getGuiMain());
+
+                        // Cria um novo emprestimo e retorna o sucesso ao android
+                        if ( newLoan.startLoanProcess(telmoPvK, amount) )
+                        {
+                            respond(sckt, true);
+                        }
+                        else
+                        {
+                            respond(sckt, false);
+                        }
+                        break;
+
+                    default:
+
+                        amount = json.get("amount").getAsDouble();
+                        GUI_AccountMovement accountMov = new GUI_AccountMovement(guiLogin.getGuiMain(), json.get("type").getAsString());
+                        
+                        // Cria um movimento de conta e retorna o sucesso ao android
+                        if ( accountMov.createMovement(telmoPvK, amount) )
+                        {
+                            respond(sckt, true);
+                        }
+                        else
+                        {
+                            respond(sckt, false);
+                        }
+                        break;
+                }
             }
             catch ( Exception ex )
             {
@@ -112,5 +151,35 @@ public class AndroidServerListener extends Thread
     public void disconnect() throws IOException
     {
         server.close();
+    }
+
+    private void respond(Socket sckt, boolean ok)
+    {
+        BufferedWriter bPrinter = null;
+        try
+        {
+            JsonObject jsonResponse = new JsonObject();
+            jsonResponse.addProperty("response", (ok) ? "success" : "failed");
+            bPrinter = new BufferedWriter(new OutputStreamWriter(new DataOutputStream(sckt.getOutputStream())));
+            bPrinter.write(jsonResponse.toString());
+            bPrinter.newLine();
+            bPrinter.flush();
+        }
+        catch ( IOException ex )
+        {
+            Logger.getLogger(AndroidServerListener.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally
+        {
+            try
+            {
+                bPrinter.close();
+            }
+            catch ( IOException ex )
+            {
+                Logger.getLogger(AndroidServerListener.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }
 }

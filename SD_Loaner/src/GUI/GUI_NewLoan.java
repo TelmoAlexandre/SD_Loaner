@@ -230,7 +230,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
     private javax.swing.JSpinner jsAmount;
     // End of variables declaration//GEN-END:variables
 
-    public void startLoanProcess(PrivateKey pvK, double amount)
+    public boolean startLoanProcess(PrivateKey pvK, double amount)
     {
         try
         {
@@ -239,7 +239,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
             if ( clientHasAccount() )
             {
                 // Cria o emprestimo
-                createLoan(pvK, amount);
+                return createLoan(pvK, amount);
             }
             else
             {
@@ -250,6 +250,8 @@ public class GUI_NewLoan extends javax.swing.JFrame
         {
             giveAlertFeedback(ex.getMessage());
         }
+        
+        return false;
     }
     
     /**
@@ -310,7 +312,7 @@ public class GUI_NewLoan extends javax.swing.JFrame
      * @throws java.lang.InterruptedException
      * @throws java.text.ParseException
      */
-    private void createLoan(PrivateKey pvK, double amount) throws NoSuchAlgorithmException, InterruptedException, ParseException
+    private boolean createLoan(PrivateKey pvK, double amount) throws NoSuchAlgorithmException, InterruptedException, ParseException
     {
         // Criado o emprestimo
         Loan loanInfo = new Loan(
@@ -339,17 +341,21 @@ public class GUI_NewLoan extends javax.swing.JFrame
                 catch ( Exception ex )
                 {
                     giveAlertFeedback("Private Key not valid.");
+                    return false;
                 }
             }
             else
             {
                 giveAlertFeedback("You already have an active loan.");
+                return false;
             }
         }
         catch ( Exception ex )
         {
             giveAlertFeedback("We're experiencing technical difficulties");
+            return false;
         }
+        return true;
     }
 
     /**

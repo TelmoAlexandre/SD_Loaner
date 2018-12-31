@@ -159,7 +159,14 @@ public class GUI_AccountMovement extends javax.swing.JFrame
         createMovement(askForPrivateKey(), 0.0);
     }//GEN-LAST:event_jbConfirmActionPerformed
 
-    public void createMovement(PrivateKey pvK, double amount)
+    /**
+     * Cria um movimento de conta.
+     * 
+     * @param pvK
+     * @param amount
+     * @return Sucesso
+     */
+    public boolean createMovement(PrivateKey pvK, double amount)
     {
         boolean activeLoan = false;
         try
@@ -169,6 +176,7 @@ public class GUI_AccountMovement extends javax.swing.JFrame
         catch ( Exception ex )
         {
             giveAlertFeedback(ex.getMessage());
+            return false;
         }
 
         // Verificar se o cliente tem um emprestimo activo ou se o tipo de movimento é diferente de pagamento de emprestimo
@@ -217,12 +225,16 @@ public class GUI_AccountMovement extends javax.swing.JFrame
                 giveAlertFeedback(
                         ex.getMessage()
                 );
+                return false;
             }
         }
         else if ( movType.equals(AccountMovement.LOANPAYMENT) )
         {
             giveAlertFeedback("You don't have an active loan.");
+            return false;
         }
+        
+        return true;
     }
 
     /**
