@@ -49,7 +49,7 @@ public class AndroidServerListener extends Thread
         catch ( Exception ex )
         {
             System.out.println("\nError creating Keys - AndroidServerListener");
-            System.out.println("\n" + ex.getMessage());
+            System.out.println(ex.getMessage());
             //Logger.getLogger(AndroidServerListener.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -61,7 +61,7 @@ public class AndroidServerListener extends Thread
         catch ( IOException ex )
         {
             System.out.println("\nError creating ServerSocket - AndroidServerListener");
-            System.out.println("\n" + ex.getMessage());
+            System.out.println(ex.getMessage());
             //Logger.getLogger(AndroidServerListener.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -91,6 +91,7 @@ public class AndroidServerListener extends Thread
 
                         String psw = json.get("password").getAsString();
 
+                        // Autenticação
                         if ( guiLogin.clientHasAccount(telmoPuK, psw) )
                         {
                             respond(sckt, true);
@@ -137,7 +138,7 @@ public class AndroidServerListener extends Thread
             catch ( Exception ex )
             {
                 System.out.println("\nError receiving TCP connection - AndroidServerListener");
-                System.out.println("\n" + ex.getMessage());
+                System.out.println(ex.getMessage());
                 //Logger.getLogger(AndroidServerListener.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -153,13 +154,22 @@ public class AndroidServerListener extends Thread
         server.close();
     }
 
+    /**
+     * Responde ao dispositivo android com o feedback da operação que foi pedida.
+     * 
+     * @param sckt
+     * @param ok 
+     */
     private void respond(Socket sckt, boolean ok)
     {
         BufferedWriter bPrinter = null;
         try
         {
+            // Cria JSON
             JsonObject jsonResponse = new JsonObject();
             jsonResponse.addProperty("response", (ok) ? "success" : "failed");
+            
+            // Envia JSON
             bPrinter = new BufferedWriter(new OutputStreamWriter(new DataOutputStream(sckt.getOutputStream())));
             bPrinter.write(jsonResponse.toString());
             bPrinter.newLine();
