@@ -5,6 +5,7 @@
  */
 package Network.ServersListeners;
 
+import BankServices.AccountMovement;
 import GUI.GUI_AccountMovement;
 import GUI.GUI_Login;
 import GUI.GUI_NewLoan;
@@ -94,12 +95,27 @@ public class AndroidServerListener extends Thread
                         // Autenticação
                         if ( guiLogin.clientHasAccount(telmoPuK, psw) )
                         {
-                            respond(sckt, true);
+                            // Confirma a autenticação e devolve a quantidade de dinheiro na conta
+                            String totalMoney = AccountMovement.getMyMoney(guiLogin.getBlockChain(), telmoPuK) + "";
+                            JsonObject jsonResponse = new JsonObject();
+                            jsonResponse.addProperty("response", "success");
+                            jsonResponse.addProperty("totalMoney", totalMoney);
+                            respond(sckt, true, jsonResponse);
                         }
                         else
                         {
-                            respond(sckt, false);
+                            respond(sckt, false, null);
                         }
+                        break;
+
+                    case "GET_TOTAL_MONEY":
+
+                        // Devolve a quantidade de dinheiro na conta
+                        String totalMoney = AccountMovement.getMyMoney(guiLogin.getBlockChain(), telmoPuK) + "";
+                        JsonObject jsonTotalMoney = new JsonObject();
+                        jsonTotalMoney.addProperty("response", "syncMoney");
+                        jsonTotalMoney.addProperty("totalMoney", totalMoney);
+                        respond(sckt, true, jsonTotalMoney);
                         break;
 
                     case "LOAN":
@@ -110,11 +126,11 @@ public class AndroidServerListener extends Thread
                         // Cria um novo emprestimo e retorna o sucesso ao android
                         if ( newLoan.startLoanProcess(telmoPvK, amount) )
                         {
-                            respond(sckt, true);
+                            respond(sckt, true, null);
                         }
                         else
                         {
-                            respond(sckt, false);
+                            respond(sckt, false, null);
                         }
                         break;
 
@@ -122,15 +138,15 @@ public class AndroidServerListener extends Thread
 
                         amount = json.get("amount").getAsDouble();
                         GUI_AccountMovement accountMov = new GUI_AccountMovement(guiLogin.getGuiMain(), json.get("type").getAsString());
-                        
+
                         // Cria um movimento de conta e retorna o sucesso ao android
                         if ( accountMov.createMovement(telmoPvK, amount) )
                         {
-                            respond(sckt, true);
+                            respond(sckt, true, null);
                         }
                         else
                         {
-                            respond(sckt, false);
+                            respond(sckt, false, null);
                         }
                         break;
                 }
@@ -155,20 +171,25 @@ public class AndroidServerListener extends Thread
     }
 
     /**
-     * Responde ao dispositivo android com o feedback da operação que foi pedida.
-     * 
+     * Responde ao dispositivo android com o feedback da operação que foi
+     * pedida.
+     *
      * @param sckt
-     * @param ok 
+     * @param ok
      */
-    private void respond(Socket sckt, boolean ok)
+    private void respond(Socket sckt, boolean ok, JsonObject jsonResponse)
     {
         BufferedWriter bPrinter = null;
         try
         {
-            // Cria JSON
-            JsonObject jsonResponse = new JsonObject();
-            jsonResponse.addProperty("response", (ok) ? "success" : "failed");
-            
+            // Caso não tenha sido especificado o objeto Json a enviar,
+            // cria um novo simplesmente com um booleano
+            if ( jsonResponse == null )
+            {
+                jsonResponse = new JsonObject();
+                jsonResponse.addProperty("response", (ok) ? "success" : "failed");
+            }
+
             // Envia JSON
             bPrinter = new BufferedWriter(new OutputStreamWriter(new DataOutputStream(sckt.getOutputStream())));
             bPrinter.write(jsonResponse.toString());
